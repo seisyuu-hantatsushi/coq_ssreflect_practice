@@ -61,3 +61,93 @@ Section equal_sign.
     apply rfl_eqS.
   Qed.
 End equal_sign.
+
+Definition myComplement {M :Type} (A : mySet M) : mySet M :=
+  fun (x : M) => ~(A x).
+Notation "A ^c" := (myComplement A) (at level 11).
+
+Definition myCup {M : Type} (A B : mySet M) : mySet M :=
+  fun (x : M) => (x ∈ A) \/ (x ∈ B).
+
+Notation "A ∪ B" := (myCup A B) (at level 11).
+
+Definition myCap {M : Type} (A B : mySet M) : mySet M :=
+  fun (x : M) => (x ∈ A) /\ (x ∈ B).
+
+Notation "A ∩ B" := (myCap A B) (at level 11).
+
+Section Set_Operation.
+  Variable M : Type.
+
+  Lemma cEmpty_Mother: (@myEmptySet M)^c = myMotherSet.
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet.
+    apply conj.
+    rewrite /mySub /myComplement //.
+    rewrite /mySub.
+    move => x Hfull.
+    rewrite /belong.
+    rewrite /myMotherSet /belong in Hfull.
+    rewrite /myComplement /myEmptySet.
+      by [].
+  Qed.
+
+  Lemma cc_cancel (A : mySet M) : (A^c)^c = A.
+  Proof.
+    apply: axiom_ExteqmySet; rewrite /eqmySet.
+    apply: conj.
+    rewrite /mySub /myComplement => x H //.
+    move : (axiom_mySet A x); by case.
+    rewrite /mySub /myComplement => x H //.
+  Qed.
+
+  Lemma cMother_Empty: (@myMotherSet M)^c = myEmptySet.
+  Proof.
+    rewrite -cEmpty_Mother.
+    rewrite cc_cancel.
+    by [].
+  Qed.
+
+  Lemma myCupUnionRule (A B C : mySet M) : (A ∪ B) ∪ C = A ∪ (B ∪ C).
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet.
+    apply conj => x [H1 | H2].
+    -case H1 => t.
+     apply: or_introl; apply t.
+     apply: or_intror; apply: or_introl; apply t.
+     apply: or_intror; apply: or_intror; apply H2.
+     apply: or_introl; apply: or_introl; apply H1.
+    -case H2 => t.
+     apply: or_introl; apply: or_intror; apply t.
+     apply: or_intror; apply t.
+  Qed.
+
+  Lemma myUnionCompMother (A : mySet M) : A ∪ (A^c) = myMotherSet.
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet /mySub; apply: conj => [x | x H1].
+    -by case.
+    -case: (axiom_mySet A x).
+     move => HAx.
+     apply: or_introl; apply HAx.
+     move => HAx.
+     by apply: or_intror.
+  Qed.
+
+  Lemma myCapUnionRule (A B C: mySet M) : A ∩ (B ∩ C) = (A ∩ B) ∩ C.
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet.
+    apply: conj => x [H1 H2].
+    apply conj. apply conj.
+    apply: H1.
+    move: H2; by case.
+    move: H2; by case.
+    apply: conj.
+    move: H1; by case.
+    apply: conj.
+    move: H1; by case.
+    by [].
+  Qed.
