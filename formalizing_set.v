@@ -76,6 +76,11 @@ Definition myCap {M : Type} (A B : mySet M) : mySet M :=
 
 Notation "A ∩ B" := (myCap A B) (at level 11).
 
+Definition mySetDiff {M : Type} (A B : mySet M) : mySet M :=
+  fun (x : M) => (x ∈ A) /\ ~(x ∈ B).
+
+Notation "A \ B" := (mySetDiff A B) (at level 11).
+
 Section Set_Operation.
   Variable M : Type.
 
@@ -199,6 +204,28 @@ Section Set_Operation.
     left. by [].
     split. by [].
     right. by[].
+  Qed.
+
+  Lemma mySetDemorgan_1 (A B: mySet M): (A ∪ B)^c = (A^c) ∩ (B^c).
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet.
+    split.
+    move => x HABc.
+    split.
+    rewrite /myComplement /not.
+    move => H1.
+    apply: HABc.
+    left.
+    apply H1.
+    rewrite /myComplement /not.
+    move => H1.
+    apply: HABc.
+    by right.
+    move => x.
+    case => H1 H2 H3.
+    apply: H1.
+    by case: H3.
   Qed.
 
 End Set_Operation.
