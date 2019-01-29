@@ -109,6 +109,29 @@ Section Set_Operation.
     by [].
   Qed.
 
+  Lemma myUnionCompMother (A : mySet M) : A ∪ (A^c) = myMotherSet.
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet /mySub; apply: conj => [x | x H1].
+    -by case.
+    -case: (axiom_mySet A x).
+     move => HAx.
+     apply: or_introl; apply HAx.
+     move => HAx.
+     by apply: or_intror.
+  Qed.
+
+  Lemma myIntersectionCompEmpty (A : mySet M) : A ∩ (A^c) = myEmptySet.
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet /mySub.
+    split => x.
+    case => HA HnA.
+    rewrite /myEmptySet.
+    apply: HnA HA.
+    by [].
+  Qed.
+
   Lemma myCupUnionRule (A B C : mySet M) : (A ∪ B) ∪ C = A ∪ (B ∪ C).
   Proof.
     apply: axiom_ExteqmySet.
@@ -122,18 +145,6 @@ Section Set_Operation.
     -case H2 => t.
      apply: or_introl; apply: or_intror; apply t.
      apply: or_intror; apply t.
-  Qed.
-
-  Lemma myUnionCompMother (A : mySet M) : A ∪ (A^c) = myMotherSet.
-  Proof.
-    apply: axiom_ExteqmySet.
-    rewrite /eqmySet /mySub; apply: conj => [x | x H1].
-    -by case.
-    -case: (axiom_mySet A x).
-     move => HAx.
-     apply: or_introl; apply HAx.
-     move => HAx.
-     by apply: or_intror.
   Qed.
 
   Lemma myCapUnionRule (A B C: mySet M) : A ∩ (B ∩ C) = (A ∩ B) ∩ C.
@@ -151,3 +162,43 @@ Section Set_Operation.
     move: H1; by case.
     by [].
   Qed.
+
+  Lemma mySetCommutativeCup (A B: mySet M): A ∪ B = B ∪ A.
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet.
+    split => t.
+    case => H1.
+      by right. by left.
+    case => H1.
+      by right. by left.
+  Qed.
+
+  Lemma mySetCommutativeCap (A B: mySet M): A ∩ B = B ∩ A.
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet.
+    split => t.
+    case => H1 H2.
+    split; by[].
+    case => H1 H2.
+    split; by [].
+  Qed.
+
+  Lemma myCapDistributeRule (A B C: mySet M): A ∩ (B ∪ C) = (A ∩ B) ∪ (A ∩ C).
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet.
+    split; move => t.
+    case => H1.
+    case => H2.
+    left; split; by [].
+    right; split; by [].
+    case; case => H1 H2.
+    split. by [].
+    left. by [].
+    split. by [].
+    right. by[].
+  Qed.
+
+End Set_Operation.
