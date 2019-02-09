@@ -228,4 +228,21 @@ Section Set_Operation.
     by case: H3.
   Qed.
 
+Lemma mySetDemorgan_2 (A B: mySet M): (A ∩ B)^c = (A^c) ∪ (B^c).
+  move: (cc_cancel ((A^c) ∪ (B^c))) (cc_cancel (A ∩ B)).
+  move => Hcc_cancel_or Hcc_cancel_and.
+  apply: axiom_ExteqmySet.
+  rewrite /eqmySet.
+    split.
+    rewrite -Hcc_cancel_and -Hcc_cancel_or.
+    rewrite mySetDemorgan_1.
+    rewrite Hcc_cancel_and.
+    rewrite cc_cancel cc_cancel.
+      by [].
+    rewrite -Hcc_cancel_or.
+    rewrite mySetDemorgan_1.
+    rewrite cc_cancel cc_cancel.
+      by [].
+Qed.
+
 End Set_Operation.
