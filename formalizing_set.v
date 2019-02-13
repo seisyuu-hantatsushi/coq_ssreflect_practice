@@ -246,3 +246,128 @@ Lemma mySetDemorgan_2 (A B: mySet M): (A ∩ B)^c = (A^c) ∪ (B^c).
 Qed.
 
 End Set_Operation.
+
+Definition myMap {M1 M2 : Type} (A : mySet M1) (B: mySet M2) (f: M1 -> M2)
+           := (forall (x : M1), (x ∈ A) -> ((f x) ∈ B)). 
+Notation "f |: A |→ B" := (myMap A B f) (at level 11).
+
+Definition MapCompsite {M1 M2 M3: Type} (f: M2 -> M3) (g: M1 -> M2): M1 -> M3 := fun (x: M1) => f (g x).
+
+Notation "f ・ g" := (MapCompsite f g) (at level 11).
+
+(* 像の形式化 *)
+Definition ImgOf
+           {M1 M2 : Type} (f: M1 -> M2)
+           {A : mySet M1} {B : mySet M2} (_ : f |: A |→ B) : mySet M2 :=
+  fun (y : M2) => (exists (x : M1), y = f x /\ x ∈ A).
+
+(* 単射の形式化 *)
+Definition mySetInj {M1 M2 : Type} (f: M1 -> M2) (A : mySet M1) (B : mySet M2)
+           (_ : f |: A |→ B) :=   forall (x y : M1), (x ∈ A) -> (y ∈ A) -> (f x = f y) -> (x = y).
+(* 全射の形式化 *)
+Definition mySetSur {M1 M2 : Type} (f: M1 -> M2) (A : mySet M1) (B : mySet M2) (_ : f |: A |→ B) :=
+           forall (y : M2), (y ∈ B) -> (exists (x : M1), (x ∈ A) -> (f x = y)).
+(* 全単射の形式化 *)
+Definition mySetBi {M1 M2 : Type} (f: M1 -> M2) (A : mySet M1) (B : mySet M2) (fAB : f |: A |→ B) :=
+  (mySetInj fAB) /\ (mySetSur fAB).
+
+Section Mapping.
+  Variables M1 M2 M3 : Type.
+  Variable f : M2 -> M3.
+  Variable g : M1 -> M2.
+  Variable A : mySet M1.
+  Variable B : mySet M2.
+  Variable C : mySet M3.
+  Hypothesis gAB : g |: A |→ B.
+  Hypothesis fBC : f |: B |→ C.
+
+  Lemma transitive_Inj (fgAC : (f ・ g) |: A |→ C) :
+    mySetInj fBC -> mySetInj gAB -> mySetInj fgAC.
+  Proof.
+    rewrite /mySetInj => Hinjf Hinjg x y HxA HyA H.
+    apply: (Hinjg x y HxA HyA).
+    apply: (Hinjf (g x) (g y)).
+    apply: gAB HxA.
+    apply: gAB HyA.
+    apply: H.
+  Qed.
+
+  Lemma CompoTrans : (f ・ g) |: A |→ C.
+  Proof.
+    move: gAB fBC.
+    rewrite /MapCompsite /myMap => Hab Hbc t Ha.
+    move: (Hbc (g t) (Hab t Ha)).
+      by [].
+  Qed.
+
+  Lemma ImSub : (ImgOf gAB) ⊂ B.
+  Proof.
+    rewrite /mySub => x; case => x0; case => H1 H2.
+    rewrite H1; apply: gAB; apply: H2.
+  Qed.
+
+End Mapping.
+
+Variable M :finType.
+
+Definition p2S (pA: pred M) : mySet M :=
+  fun (x : M) => if (x \in pA) then True else False.
+
+Notation "\{ x 'in' pA \}" := (p2S pA).
+
+Section finiteSet_UsingFintype.
+  Lemma Mother_predT : myMotherSet = \{ x in M \}.
+  Proof.
+      by [].
+  Qed.
+
+  Lemma myFinBelongP (x : M) (pA : pred M): reflect (x ∈ \{ x in pA \}) (x \in pA).
+  Proof.
+    rewrite /belong /p2S; apply/ (iffP idP) => H1.
+    -by rewrite (_ : (x \in pA) = true).
+     -+have testH : (x \in pA) || ~~(x \in pA).
+     set t := x \in pA.
+       by case: t.
+     move: testH.
+     case/orP => [| Harg]; first by [].
+     rewrite (_ : (x \in pA) = false) in H1; first by [].
+     by apply : negbTE.
+  Qed.
+
+  Lemma myFinSubsetP (pA pB : pred M) :
+    reflect (\{ x in pA \} ⊂ \{ x in pB \}) (pA \subset pB).
+  Proof.
+    rewrite /mySub; apply/ (iffP idP) => H.
+    -move => x /myFinBelongP => H2.
+     apply /myFinBelongP.
+     move: H => /subsetP.
+       by rewrite /sub_mem; apply.
+    -apply/ subsetP.
+     rewrite /sub_mem=> x /myFinBelongP => HpA.
+       by apply/ myFinBelongP; apply H.
+  Qed.
+
+  Lemma Mother_Sub (pA : pred M) :
+    myMotherSet ⊂ \{ x in pA \} -> forall x, x ∈ \{ x in pA \}.
+  Proof.
+    rewrite Mother_predT => /myFinSubsetP => H x; apply /myFinBelongP.
+      by apply: predT_subset.
+  Qed.
+
+  Lemma transitive_Sub' (pA pB pC : pred M):
+    \{ x in pA \} ⊂ \{ x in pB \} ->
+    \{ x in pB \} ⊂ \{ x in pC \} ->
+    \{ x in pA \} ⊂ \{ x in pC \}.
+  Proof.
+    move /myFinSubsetP => HAB /myFinSubsetP => HBC.
+    apply /myFinSubsetP /(subset_trans HAB HBC).
+  Qed.
+
+  Lemma transitive_Sub'' (pA pB pC : pred M):
+    \{ x in pA \} ⊂ \{ x in pB \} ->
+    \{ x in pB \} ⊂ \{ x in pC \} ->
+    \{ x in pA \} ⊂ \{ x in pC \}.
+  Proof.
+    apply: transitive_Sub.
+  Qed.
+End finiteSet_UsingFintype.
