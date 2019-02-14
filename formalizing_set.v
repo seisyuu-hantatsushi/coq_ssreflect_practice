@@ -77,7 +77,7 @@ Definition myCap {M : Type} (A B : mySet M) : mySet M :=
 Notation "A ∩ B" := (myCap A B) (at level 11).
 
 Definition mySetDiff {M : Type} (A B : mySet M) : mySet M :=
-  fun (x : M) => (x ∈ A) /\ ~(x ∈ B).
+  fun (x : M) => (x ∈ A) /\ (x ∈ (myComplement B)).
 
 Notation "A \ B" := (mySetDiff A B) (at level 11).
 
@@ -228,11 +228,11 @@ Section Set_Operation.
     by case: H3.
   Qed.
 
-Lemma mySetDemorgan_2 (A B: mySet M): (A ∩ B)^c = (A^c) ∪ (B^c).
-  move: (cc_cancel ((A^c) ∪ (B^c))) (cc_cancel (A ∩ B)).
-  move => Hcc_cancel_or Hcc_cancel_and.
-  apply: axiom_ExteqmySet.
-  rewrite /eqmySet.
+  Lemma mySetDemorgan_2 (A B: mySet M): (A ∩ B)^c = (A^c) ∪ (B^c).
+    move: (cc_cancel ((A^c) ∪ (B^c))) (cc_cancel (A ∩ B)).
+    move => Hcc_cancel_or Hcc_cancel_and.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet.
     split.
     rewrite -Hcc_cancel_and -Hcc_cancel_or.
     rewrite mySetDemorgan_1.
@@ -243,12 +243,41 @@ Lemma mySetDemorgan_2 (A B: mySet M): (A ∩ B)^c = (A^c) ∪ (B^c).
     rewrite mySetDemorgan_1.
     rewrite cc_cancel cc_cancel.
       by [].
-Qed.
+  Qed.
+
+  Lemma mySetDiffSelfEmpty (A: mySet M): A \ A = myEmptySet.
+  Proof.
+    rewrite -(myIntersectionCompEmpty A).
+    by rewrite /mySetDiff.
+  Qed.
+
+  Lemma mySetDiffEq (A B: mySet M): B \ A = A^c ∩ B.
+  Proof.
+    rewrite -mySetCommutativeCap.
+    by rewrite /mySetDiff /myCap.
+  Qed.
+
+  Lemma mySetDiffComplement (A B: mySet M): (B \ A)^c = A ∪ (B^c).
+  Proof.
+    move: (cc_cancel (A ∪ (B^c))).
+    move => H1.
+    rewrite -H1.
+    rewrite mySetDemorgan_1 cc_cancel mySetDiffEq.
+      by [].
+  Qed.
+
+  Lemma mySetDiffDistCap (A B C: mySet M): C \ (A ∩ B) = (C \ A) ∪ (C \ B).
+  Proof.
+    rewrite mySetDiffEq mySetDemorgan_2.
+    rewrite mySetCommutativeCap.
+    rewrite myCapDistributeRule.
+      by rewrite mySetDiffEq mySetCommutativeCap.
+  Qed.
 
 End Set_Operation.
 
 Definition myMap {M1 M2 : Type} (A : mySet M1) (B: mySet M2) (f: M1 -> M2)
-           := (forall (x : M1), (x ∈ A) -> ((f x) ∈ B)). 
+           := (forall (x : M1), (x ∈ A) -> ((f x) ∈ B)).
 Notation "f |: A |→ B" := (myMap A B f) (at level 11).
 
 Definition MapCompsite {M1 M2 M3: Type} (f: M2 -> M3) (g: M1 -> M2): M1 -> M3 := fun (x: M1) => f (g x).
