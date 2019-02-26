@@ -276,9 +276,14 @@ Section Set_Operation.
 
 End Set_Operation.
 
-Definition myMap {M1 M2 : Type} (A : mySet M1) (B: mySet M2) (f: M1 -> M2)
+Definition myMap {M1 M2 : Type} (A: mySet M1) (B: mySet M2) (f: M1 -> M2)
            := (forall (x : M1), (x ∈ A) -> ((f x) ∈ B)).
 Notation "f |: A |→ B" := (myMap A B f) (at level 11).
+
+(* 逆写像の形式化 *)
+Definition myInverseMap {M1 M2 : Type} (A: mySet M1) (B: mySet M2) (f: M1 -> M2)
+  := (forall (x: M1), ((f x) ∈ B) -> (x ∈ A)).
+
 
 Definition MapCompsite {M1 M2 M3: Type} (f: M2 -> M3) (g: M1 -> M2): M1 -> M3 := fun (x: M1) => f (g x).
 
@@ -292,7 +297,7 @@ Definition ImgOf
 
 (* 単射の形式化 *)
 Definition mySetInj {M1 M2 : Type} (f: M1 -> M2) (A : mySet M1) (B : mySet M2)
-           (_ : f |: A |→ B) :=   forall (x y : M1), (x ∈ A) -> (y ∈ A) -> (f x = f y) -> (x = y).
+           (_ : f |: A |→ B) := forall (x y : M1), (x ∈ A) -> (y ∈ A) -> (f x = f y) -> (x = y).
 (* 全射の形式化 *)
 Definition mySetSur {M1 M2 : Type} (f: M1 -> M2) (A : mySet M1) (B : mySet M2) (_ : f |: A |→ B) :=
            forall (y : M2), (y ∈ B) -> (exists (x : M1), (x ∈ A) -> (f x = y)).
@@ -336,6 +341,63 @@ Section Mapping.
   Qed.
 
 End Mapping.
+
+Section MappingProblem.
+  Variables M1 M2 : Type.
+  Variable f : M1 -> M2.
+  Variables A A1 A2 : mySet M1.
+  Variables B B1 B2 : mySet M2.
+  Hypothesis fAB   : f |: A  |→ B.
+  Hypothesis fA1B1 : f |: A1 |→ B1.
+  Hypothesis fA2B2 : f |: A2 |→ B2.
+  Hypothesis fA1cupA2_B1cupB2 : f |: (A1 ∪ A2) |→ (B1 ∪ B2).
+
+  (* A1 ⊂ A2 ならば f(A1) ⊂ f(A2) *)
+  Lemma ImgSub: A1 ⊂ A2 -> (ImgOf fA1B1) ⊂ (ImgOf fA2B2).
+  Proof.
+    rewrite /mySub => HS.
+    move => x.
+    rewrite /ImgOf.
+    case => x0.
+    case => H1 H2.
+    exists x0.
+    split.
+    apply: H1.
+    apply: HS.
+    apply: H2.
+  Qed.
+
+  (* f(A1 ∪ A2) = f(A1) ∪ f(A2) *)
+  Lemma ImgCap: (ImgOf fA1cupA2_B1cupB2) = (ImgOf fA1B1) ∪ (ImgOf fA2B2).
+  Proof.
+    apply: axiom_ExteqmySet.
+    rewrite /eqmySet.
+    split.
+    rewrite /mySub /ImgOf.
+    move => x.
+    case => x0.
+    case => H1.
+    case => H2.
+    +left.
+     exists x0; split.
+     apply: H1.
+     apply: H2.
+    +right.
+     exists x0.
+     split.
+     apply: H1.
+     apply: H2.
+    rewrite /mySub /ImgOf.
+    move => x.
+    case; case => x0; case => fx H1; exists x0.
+    split.
+    apply: fx.
+    left; by [].
+    split.
+    apply: fx.
+    right; by[].
+  Qed.
+End MappingProblem.
 
 Variable M :finType.
 
