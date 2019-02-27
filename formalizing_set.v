@@ -280,8 +280,8 @@ Definition myMap {M1 M2 : Type} (A: mySet M1) (B: mySet M2) (f: M1 -> M2)
            := (forall (x : M1), (x ∈ A) -> ((f x) ∈ B)).
 Notation "f |: A |→ B" := (myMap A B f) (at level 11).
 
-(* 逆写像の形式化 *)
-Definition myInverseMap {M1 M2 : Type} (A: mySet M1) (B: mySet M2) (f: M1 -> M2)
+(* 逆像の形式化 *)
+Definition myInverseImg {M1 M2 : Type} (A: mySet M1) (B: mySet M2) (f: M1 -> M2)
   := (forall (x: M1), ((f x) ∈ B) -> (x ∈ A)).
 
 
@@ -351,15 +351,15 @@ Section MappingProblem.
   Hypothesis fA1B1 : f |: A1 |→ B1.
   Hypothesis fA2B2 : f |: A2 |→ B2.
   Hypothesis fA1cupA2_B1cupB2 : f |: (A1 ∪ A2) |→ (B1 ∪ B2).
+  Hypothesis fA1capA2_B1capB2 : f |: (A1 ∩ A2) |→ (B1 ∩ B2).
 
   (* A1 ⊂ A2 ならば f(A1) ⊂ f(A2) *)
   Lemma ImgSub: A1 ⊂ A2 -> (ImgOf fA1B1) ⊂ (ImgOf fA2B2).
   Proof.
     rewrite /mySub => HS.
     move => x.
+    case => x0; case => H1 H2.
     rewrite /ImgOf.
-    case => x0.
-    case => H1 H2.
     exists x0.
     split.
     apply: H1.
@@ -368,7 +368,7 @@ Section MappingProblem.
   Qed.
 
   (* f(A1 ∪ A2) = f(A1) ∪ f(A2) *)
-  Lemma ImgCap: (ImgOf fA1cupA2_B1cupB2) = (ImgOf fA1B1) ∪ (ImgOf fA2B2).
+  Lemma ImgCup: (ImgOf fA1cupA2_B1cupB2) = (ImgOf fA1B1) ∪ (ImgOf fA2B2).
   Proof.
     apply: axiom_ExteqmySet.
     rewrite /eqmySet.
@@ -383,8 +383,7 @@ Section MappingProblem.
      apply: H1.
      apply: H2.
     +right.
-     exists x0.
-     split.
+     exists x0; split.
      apply: H1.
      apply: H2.
     rewrite /mySub /ImgOf.
@@ -397,6 +396,25 @@ Section MappingProblem.
     apply: fx.
     right; by[].
   Qed.
+
+  (* f(A1 ∩ A2) ⊂ f(A1) ∩ f(A2) *)
+  Lemma ImgCap: (ImgOf fA1capA2_B1capB2) ⊂ ((ImgOf fA1B1) ∩ (ImgOf fA2B2)).
+  Proof.
+    rewrite /mySub.
+    move => x.
+    case => x0.
+    case => fx.
+    case => H1 H2.
+    rewrite /ImgOf.
+    split; exists x0.
+    split.
+    apply: fx.
+    apply: H1.
+    split.
+    apply: fx.
+    apply: H2.
+  Qed.
+  
 End MappingProblem.
 
 Variable M :finType.
