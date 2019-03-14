@@ -346,12 +346,12 @@ Section MappingProblem.
   Variables M1 M2 : Type.
   Variable f : M1 -> M2.
   Variables A A1 A2 : mySet M1.
-  Variables B B1 B2 : mySet M2.
-  Hypothesis fAB   : f |: A  |→ B.
+  Variables B B1 B2 B3 B4 B5 : mySet M2.
   Hypothesis fA1B1 : f |: A1 |→ B1.
   Hypothesis fA2B2 : f |: A2 |→ B2.
-  Hypothesis fA1cupA2_B1cupB2 : f |: (A1 ∪ A2) |→ (B1 ∪ B2).
-  Hypothesis fA1capA2_B1capB2 : f |: (A1 ∩ A2) |→ (B1 ∩ B2).
+  (* Hypothesis fA1cupA2_B1cupB2 : f |: (A1 ∪ A2) |→ B5. *)
+  Hypothesis fA1cupA2_B3 : f |: (A1 ∪ A2) |→ B3.
+  Hypothesis fA1capA2_B4 : f |: (A1 ∩ A2) |→ B4.
 
   (* A1 ⊂ A2 ならば f(A1) ⊂ f(A2) *)
   Lemma ImgSub: A1 ⊂ A2 -> (ImgOf fA1B1) ⊂ (ImgOf fA2B2).
@@ -368,7 +368,7 @@ Section MappingProblem.
   Qed.
 
   (* f(A1 ∪ A2) = f(A1) ∪ f(A2) *)
-  Lemma ImgCup: (ImgOf fA1cupA2_B1cupB2) = (ImgOf fA1B1) ∪ (ImgOf fA2B2).
+  Lemma ImgCup: (ImgOf fA1cupA2_B3) = (ImgOf fA1B1) ∪ (ImgOf fA2B2).
   Proof.
     apply: axiom_ExteqmySet.
     rewrite /eqmySet.
@@ -398,7 +398,7 @@ Section MappingProblem.
   Qed.
 
   (* f(A1 ∩ A2) ⊂ f(A1) ∩ f(A2) *)
-  Lemma ImgCap: (ImgOf fA1capA2_B1capB2) ⊂ ((ImgOf fA1B1) ∩ (ImgOf fA2B2)).
+  Lemma ImgCap: (ImgOf fA1capA2_B4) ⊂ ((ImgOf fA1B1) ∩ (ImgOf fA2B2)).
   Proof.
     rewrite /mySub.
     move => x.
@@ -414,6 +414,16 @@ Section MappingProblem.
     apply: fx.
     apply: H2.
   Qed.
+
+  (* A1 ⊂ A2 -> A2^c ⊂ A1^c *)
+  Lemma Contraposition: A1 ⊂ A2 -> (A2^c) ⊂ (A1^c).
+  Proof.
+    rewrite /mySub /myComplement /not /belong.
+    move => H1 x H2 H3.
+    apply /H2 /(H1 x) /H3.
+  Qed.
+
+  (* A1 ⊂ A -> f(A)\f(A1) ⊂ f(A\A1) *)
   
 End MappingProblem.
 
