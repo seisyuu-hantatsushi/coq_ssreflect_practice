@@ -1,3 +1,4 @@
+
 From mathcomp
      Require Import all_ssreflect.
 
@@ -347,11 +348,12 @@ Section MappingProblem.
   Variable f : M1 -> M2.
   Variables A A1 A2 : mySet M1.
   Variables B B1 B2 B3 B4 B5 : mySet M2.
+  Hypothesis fAB : f |: A |→ B.
   Hypothesis fA1B1 : f |: A1 |→ B1.
   Hypothesis fA2B2 : f |: A2 |→ B2.
-  (* Hypothesis fA1cupA2_B1cupB2 : f |: (A1 ∪ A2) |→ B5. *)
   Hypothesis fA1cupA2_B3 : f |: (A1 ∪ A2) |→ B3.
   Hypothesis fA1capA2_B4 : f |: (A1 ∩ A2) |→ B4.
+  Hypotheses fAdiffA1_B5: f |: (A \ A1) |→ B5.
 
   (* A1 ⊂ A2 ならば f(A1) ⊂ f(A2) *)
   Lemma ImgSub: A1 ⊂ A2 -> (ImgOf fA1B1) ⊂ (ImgOf fA2B2).
@@ -424,6 +426,27 @@ Section MappingProblem.
   Qed.
 
   (* A1 ⊂ A -> f(A)\f(A1) ⊂ f(A\A1) *)
+  Lemma diffImgOf: A1 ⊂ A -> (ImgOf fAB) \ (ImgOf fA1B1) ⊂ (ImgOf fAdiffA1_B5).
+  Proof.
+    rewrite /mySub /mySetDiff /belong /ImgOf /myComplement /not.
+    move => H1 x2.
+    case.
+    case.
+    move => x1.
+    case.
+    move => H2 H3 H4.
+    exists x1.
+    split.
+    apply /H2.
+    split.
+    apply /H3.
+    move => H5.
+    apply /H4.
+    exists x1.
+    split.
+    apply /H2.
+    apply /H5.
+  Qed.
   
 End MappingProblem.
 
