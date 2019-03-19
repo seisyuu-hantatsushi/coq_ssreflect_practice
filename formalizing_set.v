@@ -277,14 +277,9 @@ Section Set_Operation.
 
 End Set_Operation.
 
-Definition myMap {M1 M2 : Type} (A: mySet M1) (B: mySet M2) (f: M1 -> M2)
-           := (forall (x : M1), (x ∈ A) -> ((f x) ∈ B)).
+Definition myMap {M1 M2 : Type} (A: mySet M1) (B: mySet M2) (f: M1 -> M2) :=
+  (forall (x : M1), (x ∈ A) -> ((f x) ∈ B)).
 Notation "f |: A |→ B" := (myMap A B f) (at level 11).
-
-(* 逆像の形式化 *)
-Definition myInverseImg {M1 M2 : Type} (A: mySet M1) (B: mySet M2) (f: M1 -> M2)
-  := (forall (x: M1), ((f x) ∈ B) -> (x ∈ A)).
-
 
 Definition MapCompsite {M1 M2 M3: Type} (f: M2 -> M3) (g: M1 -> M2): M1 -> M3 := fun (x: M1) => f (g x).
 
@@ -297,14 +292,20 @@ Definition ImgOf
   fun (y : M2) => (exists (x : M1), y = f x /\ x ∈ A).
 
 (* 単射の形式化 *)
-Definition mySetInj {M1 M2 : Type} (f: M1 -> M2) (A : mySet M1) (B : mySet M2)
-           (_ : f |: A |→ B) := forall (x y : M1), (x ∈ A) -> (y ∈ A) -> (f x = f y) -> (x = y).
+Definition mySetInj {M1 M2 : Type} (f: M1 -> M2) (A : mySet M1) (B : mySet M2) (_ : f |: A |→ B) :=
+  forall (x y : M1), (x ∈ A) -> (y ∈ A) -> (f x = f y) -> (x = y).
 (* 全射の形式化 *)
 Definition mySetSur {M1 M2 : Type} (f: M1 -> M2) (A : mySet M1) (B : mySet M2) (_ : f |: A |→ B) :=
-           forall (y : M2), (y ∈ B) -> (exists (x : M1), (x ∈ A) -> (f x = y)).
+  forall (y : M2), (y ∈ B) -> (exists (x : M1), (x ∈ A) -> (f x = y)).
 (* 全単射の形式化 *)
 Definition mySetBi {M1 M2 : Type} (f: M1 -> M2) (A : mySet M1) (B : mySet M2) (fAB : f |: A |→ B) :=
   (mySetInj fAB) /\ (mySetSur fAB).
+
+Definition myMapId {M : Type} (A: mySet M) (f: M -> M) :=
+  forall (x : M), (x ∈ A) -> (x = f x).
+
+(* formalize of inverse mapping. g is inverse mapping of f. *)
+
 
 Section Mapping.
   Variables M1 M2 M3 : Type.
@@ -346,14 +347,20 @@ End Mapping.
 Section MappingProblem.
   Variables M1 M2 : Type.
   Variable f : M1 -> M2.
+  Variable g : M2 -> M1.
+  Variable idM1 : M1 -> M1.
+  Variable idM2 : M2 -> M2.
   Variables A A1 A2 : mySet M1.
   Variables B B1 B2 B3 B4 B5 : mySet M2.
   Hypothesis fAB : f |: A |→ B.
+  Hypothesis gBA : g |: B |→ A.
   Hypothesis fA1B1 : f |: A1 |→ B1.
   Hypothesis fA2B2 : f |: A2 |→ B2.
   Hypothesis fA1cupA2_B3 : f |: (A1 ∪ A2) |→ B3.
   Hypothesis fA1capA2_B4 : f |: (A1 ∩ A2) |→ B4.
   Hypotheses fAdiffA1_B5: f |: (A \ A1) |→ B5.
+  Hypotheses idA : myMapId A idM1.
+  Hypotheses idB : myMapId B idM2.
 
   (* A1 ⊂ A2 ならば f(A1) ⊂ f(A2) *)
   Lemma ImgSub: A1 ⊂ A2 -> (ImgOf fA1B1) ⊂ (ImgOf fA2B2).
@@ -444,10 +451,49 @@ Section MappingProblem.
     apply /H4.
     exists x1.
     split.
-    apply /H2.
-    apply /H5.
+    -apply /H2.
+    -apply /H5.
   Qed.
-  
+
+  Lemma diffImgOf': (ImgOf fAB) \ (ImgOf fA1B1) ⊂ (ImgOf fAdiffA1_B5).
+  Proof.
+    rewrite /mySub /mySetDiff /belong /ImgOf /myComplement /not.
+    move => x2.
+    case.
+    case.
+    move => x1.
+    case.
+    move => H1 H2.
+    exists x1.
+    split.
+    -apply: H1.
+     split.
+     apply: H2.
+     move => H3.
+    -apply: b.
+     exists x1.
+     split.
+     +apply: H1.
+      apply: H3.
+  Qed.
+
+  Lemma Identity_Compsite_R: (myMapId A idM1) -> (f ・ idM1) |: A |→ B.
+  Proof.
+    rewrite /myMapId /MapCompsite.
+    move => H1 x1 H2.
+    rewrite -H1.
+    apply : fAB.
+    apply /H2.
+    apply /H2.
+  Qed.
+
+  Lemma Identity_Compsite_L: (myMapId B idM2) -> (idM2 ・ f) |: A |→ B.
+  Proof.
+    rewrite /myMapId /MapCompsite.
+    move => H1 x1 H2.
+    rewrite -H1; apply: fAB; apply: H2.
+  Qed.
+
 End MappingProblem.
 
 Variable M :finType.
