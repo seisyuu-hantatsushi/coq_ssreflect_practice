@@ -36,7 +36,7 @@ Section Classical_Sets_Examples.
   Qed.
 
   Theorem DeMorganLaw_Intersection:
-    forall (A B: Ensemble U), Complement U (A ∩ B) = (Complement U A) ∪ (Complement U B).
+    forall (A B: Ensemble U), (A ∩ B)^c = A^c ∪ B^c.
   Proof.
     move => A B.
     apply: Extensionality_Ensembles.
