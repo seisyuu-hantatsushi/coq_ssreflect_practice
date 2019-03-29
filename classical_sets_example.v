@@ -35,6 +35,61 @@ Section Classical_Sets_Examples.
     apply /H1.
   Qed.
 
+  Theorem UnionDist:
+    forall A B C:Ensemble U,
+      A ∪ ( B ∩ C ) = (A ∪ B) ∩ (A ∪ C).
+  Proof.
+    move => A B C.
+    apply: Extensionality_Ensembles.
+    split => x.
+    case => y H1.
+    apply /Intersection_intro; left; done.
+    case: H1 => z H2 H3.
+    apply /Intersection_intro; right; done.
+    move => H.
+    inversion H as [y H0 H1].
+    inversion H0 as [z | ].
+    left.
+    apply H3.
+    inversion H1.
+    left.
+    apply H5.
+    right.
+    split.
+    apply H3.
+    apply H5.
+  Qed.
+
+  Theorem IntersctionDist:
+    forall A B C:Ensemble U,
+      A ∩ ( B ∪ C ) = (A ∩ B) ∪ (A ∩ C).
+  Proof.
+    move => A B C.
+    apply: Extensionality_Ensembles.
+    split => x H.
+    inversion H.
+    inversion H1.
+    left.
+    split.
+    apply /H0.
+    apply /H3.
+    right.
+    split.
+    apply /H0.
+    apply /H3.
+    inversion H.
+    inversion H0.
+    split.
+    apply H2.
+    left.
+    apply H3.
+    inversion H0.
+    split.
+    apply H2.
+    right.
+    apply H3.
+  Qed.
+
   Theorem DeMorganLaw_Intersection:
     forall (A B: Ensemble U), (A ∩ B)^c = A^c ∪ B^c.
   Proof.
@@ -69,4 +124,17 @@ Section Classical_Sets_Examples.
      move: H4.
      apply H.
   Qed.
+
+  Theorem DeMorganLaw_Union:
+    forall (A B: Ensemble U), (A ∪ B)^c = A^c ∩ B^c.
+  Proof.
+    move => A B.
+    move: (Complement_Complement U A) (Complement_Complement U B).
+    move: (Complement_Complement U (A^c ∩ B^c)).
+    move => H1 HBcc HAcc.
+    rewrite -H1.
+    rewrite DeMorganLaw_Intersection HBcc HAcc.
+    done.
+  Qed.
+
 End Classical_Sets_Examples.
