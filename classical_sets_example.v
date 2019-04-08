@@ -7,9 +7,11 @@ Import Prenex Implicits.
 
 Section Classical_Sets_Examples.
   Variable U : Type.
+  Notation "A ⊂ B" := (Included U A B) (at level 48).
   Notation "A ^c"   := (Complement U A) (at level 49).
   Notation "A ∪ B" := (Union U A B) (at level 50).
   Notation "A ∩ B" := (Intersection U A B) (at level 50).
+  Notation "A \ B" := (Setminus U A B) (at level 50).
 
   Theorem UnionComm:
     forall (A B: Ensemble U), A ∪ B = B ∪ A.
@@ -35,9 +37,84 @@ Section Classical_Sets_Examples.
     apply /H1.
   Qed.
 
+  Theorem IncludedUnion:
+    forall (A B: Ensemble U), A ⊂ (A ∪ B).
+  Proof.
+    move => A B x HA.
+    left.
+    apply HA.
+  Qed.
+
+  Theorem UnionAssoc:
+    forall A B C:Ensemble U,
+      A ∪ (B ∪ C) = (A ∪ B) ∪ C.
+  Proof.
+    move => A B C.
+    apply: Extensionality_Ensembles.
+    split => x H.
+    inversion H.
+    left.
+    by left.
+    inversion H0.
+    left; right.
+    apply H2.
+    right.
+    apply H2.
+    inversion H.
+    inversion H0.
+    left.
+    apply H2.
+    right.
+    left.
+    apply H2.
+    right.
+    right.
+    apply H0.
+  Qed.
+
+  Theorem IntersectionAssoc:
+    forall A B C:Ensemble U,
+      A ∩ (B ∩ C) = (A ∩ B) ∩ C.
+  Proof.
+    move => A B C.
+    apply: Extensionality_Ensembles.
+    split => x H.
+    inversion H.
+    inversion H1.
+    split.
+    split.
+    apply H0.
+    apply H3.
+    apply H4.
+    inversion H.
+    inversion H0.
+    split.
+    apply H3.
+    split.
+    apply H4.
+    apply H1.
+  Qed.
+
+  Theorem idSet:
+    forall A : Ensemble U,
+      A ∪ (Empty_set U) = A.
+  Proof.
+    move => A.
+    apply: Extensionality_Ensembles.
+    split => x.
+    case.
+    move => y.
+    apply.
+    move => y.
+    case.
+    move => H.
+    left.
+    apply H.
+  Qed.
+
   Theorem UnionDist:
     forall A B C:Ensemble U,
-      A ∪ ( B ∩ C ) = (A ∪ B) ∩ (A ∪ C).
+      A ∪ (B ∩ C) = (A ∪ B) ∩ (A ∪ C).
   Proof.
     move => A B C.
     apply: Extensionality_Ensembles.
@@ -137,4 +214,14 @@ Section Classical_Sets_Examples.
     done.
   Qed.
 
+  Theorem SetMinusSubSet:
+    forall (A B: Ensemble U), (A \ B) ⊂ A.
+  Proof.
+    move => A B x.
+    rewrite /Setminus.
+    case.
+    move => H1 H2.
+    exact H1.
+  Qed.
+  
 End Classical_Sets_Examples.
