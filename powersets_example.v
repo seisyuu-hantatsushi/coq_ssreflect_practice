@@ -20,22 +20,33 @@ Section PowerSets_Example.
     apply Definition_of_Power_set.
     done.
   Qed.
-  
+
+  (* X ⊂ Y <-> P(X) ⊂ P(Y) *)
   Theorem A_1_3_3_1:
-    forall (X Y:Ensemble U), X ⊂ Y -> Included (Ensemble U) (Power_set U X) (Power_set U Y).
+    forall (X Y:Ensemble U), X ⊂ Y <-> Included (Ensemble U) (Power_set U X) (Power_set U Y).
   Proof.
     move => X Y.
-    rewrite /Included.
-    move => H1 Px.
-    rewrite /In.
-    case => Py.
-    rewrite /Included => H2.
-    apply Definition_of_Power_set.
-    rewrite /Included.
-    move => u H3.
-    apply : (H1 u).
-    apply : (H2 u).
-    apply H3.
+    rewrite /Included /iff.
+    split.
+    +move => H1 Px.
+     rewrite /In.
+     case => Py.
+     rewrite /Included => H2.
+     apply: Definition_of_Power_set.
+     move => u H3.
+     apply : (H1 u).
+     apply : (H2 u).
+     exact H3.
+    -rewrite /In.
+     move => H1 x.
+     move : (H1 X).
+     case.
+     apply: Definition_of_Power_set.
+     done.
+     move => x0.
+     rewrite /Included.
+     move => H2.
+     exact (H2 x).
   Qed.
-  
+
 End PowerSets_Example.
