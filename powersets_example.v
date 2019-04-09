@@ -8,11 +8,14 @@ Import Prenex Implicits.
 
 Section PowerSets_Example.
   Variable U V: Type.
-  Notation "A ⊂ B" := (Included U A B) (at level 48).
-  Notation "A ^c"   := (Complement U A) (at level 49).
-  Notation "A ∪ B" := (Union U A B) (at level 50).
-  Notation "A ∩ B" := (Intersection U A B) (at level 50).
-  Notation "A \ B" := (Setminus U A B) (at level 50).
+  Notation "A ⊂ B" := (Included _ A B) (at level 48).
+  Notation "A ^c"   := (Complement _ A) (at level 49).
+  Notation "A ∪ B" := (Union _ A B) (at level 50).
+  Notation "A ∩ B" := (Intersection _ A B) (at level 50).
+  Notation "A \ B" := (Setminus _ A B) (at level 50).
+
+  Definition P (X:Ensemble U) : (Ensemble (Ensemble U)) :=
+    Power_set U X.
 
   Goal forall (X :Ensemble U), In (Ensemble U) (Power_set U X) X.
     move => X.
@@ -23,7 +26,7 @@ Section PowerSets_Example.
 
   (* X ⊂ Y <-> P(X) ⊂ P(Y) *)
   Theorem A_1_3_3_1:
-    forall (X Y:Ensemble U), X ⊂ Y <-> Included (Ensemble U) (Power_set U X) (Power_set U Y).
+    forall (X Y:Ensemble U), X ⊂ Y <-> (P(X)) ⊂ (P(Y)).
   Proof.
     move => X Y.
     rewrite /Included /iff.
@@ -44,9 +47,8 @@ Section PowerSets_Example.
      apply: Definition_of_Power_set.
      done.
      move => x0.
-     rewrite /Included.
-     move => H2.
-     exact (H2 x).
+     rewrite /Included => H2.
+     exact (H2 x). 
   Qed.
 
 End PowerSets_Example.
