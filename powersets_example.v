@@ -1,4 +1,4 @@
-From mathcomp Require Import ssreflect.
+From mathcomp Require Import ssreflect.From mathcomp Require Import ssreflect.
 
 Require Import Powerset_Classical_facts.
 
@@ -20,7 +20,7 @@ Section PowerSets_Example.
   Definition P (X:Ensemble U) : (Ensemble (Ensemble U)) :=
     Power_set U X.
 
-  Goal forall (X :Ensemble U), In (Ensemble U) (Power_set U X) X.
+  Goal forall (X :Ensemble U), X ∈ P(X).
     move => X.
     rewrite /In.
     apply Definition_of_Power_set.
@@ -49,15 +49,17 @@ Section PowerSets_Example.
       forall C:Ensemble U, P C ->
                            (Included U C X -> In (Ensemble U) (sigPE X P) C).
 
+  Notation "{ X |^ P }" := (sigPE X P).
+
   (* R1 Problem A 1.3.2 *)
   Section Problem_A_1_3_2.
     Variable X:Ensemble U.
 
     (* I(A) := {C ∈ Power(X) | A ⊂ C} *)
     Definition I (A:Ensemble U) : Ensemble (Ensemble U) :=
-      sigPE X (fun c => A ⊂ c).
+      { X |^ (fun C => A ⊂ C) }.
 
-    (* Comfirm Defition *)
+    (* to comfirmi definition if I(A) *)
     Goal forall (A:Ensemble U), A ⊂ X -> I(A) ⊂ P(X).
     Proof.
       move => A H1.
@@ -67,6 +69,15 @@ Section PowerSets_Example.
       done.
     Qed.
 
+    Lemma LAinIA: forall (A:Ensemble U), A ⊂ X -> A ∈ I(A).
+    Proof.
+      -move => A H1.
+       rewrite /In.
+       apply Definition_of_Intensive_Power_set.
+       done.
+       exact H1.
+    Qed.
+ 
     (* (1) *)
     Goal forall (A B :Ensemble U), A ⊂ X /\ B ⊂ X -> (A = B <-> I(A)=I(B)).
     Proof.
@@ -78,17 +89,10 @@ Section PowerSets_Example.
       rewrite -Heq.
       done.
 
-      have LSinIS: forall (A:Ensemble U), A ⊂ X -> A ∈ I(A).
-      -move => S H1.
-       rewrite /In.
-       apply Definition_of_Intensive_Power_set.
-       done.
-       exact H1.
-
       have LST: forall (S T: Ensemble U), S ⊂ X /\ T ⊂ X -> I(S)=I(T) -> S ⊂ T.
       -move => S T.
        case => HS HT HIeq.
-       move: (@LSinIS T).
+       move: (@LAinIA T).
        rewrite -HIeq.
        case.
        apply HT.
@@ -98,7 +102,7 @@ Section PowerSets_Example.
      have LTS: forall (S T: Ensemble U), S ⊂ X /\ T ⊂ X -> I(S)=I(T) -> T ⊂ S.
       -move => S T.
        case => HS HT HIeq.
-       move: (@LSinIS S).
+       move: (@LAinIA S).
        rewrite HIeq.
        case.
        apply HS.
@@ -122,12 +126,54 @@ Section PowerSets_Example.
     Qed.
 
     (* (2) *)
+    Goal forall (A B :Ensemble U), A ⊂ X /\ B ⊂ X -> (I(A ∪ B) = I(A) ∩ I(B)).
+    Proof.
+      move => A B.
+      case => HA HB.
+      apply: Extensionality_Ensembles.
+      split.
+      -move => x.
+       case => C.
+       rewrite /Included.
+       move => H1 H2.
+       split;
+         apply Definition_of_Intensive_Power_set;
+         move => x0;
+         move: (H1 x0);
+         move => H3 H4.
+       apply H3.
+       left.
+       apply H4.
+       apply (H2 x0).
+       apply H4.
+       apply H3.
+       right.
+       apply H4.
+       apply (H2 x0).
+       apply H4.
+      -move => D H1.
+       apply Definition_of_Intensive_Power_set.
+       inversion H1.
+       move => x1.
+       case => x2 H3.
+       move: H.
+       case => C HAC HCX.
+       move: H3.
+       apply HAC.
+       move: H0.
+       case => C HBC HCX.
+       move: H3.
+       apply HBC.
+       move: H1.
+       case => E H1.
+       case => C HBC HCX.
+       apply HCX.
+    Qed.
 
   End Problem_A_1_3_2.
 
   (* R1 Problem A 1.3.3 (1). X ⊂ Y <-> P(X) ⊂ P(Y) *)
-  Theorem A_1_3_3_1:
-    forall (X Y:Ensemble U), X ⊂ Y <-> (P(X)) ⊂ (P(Y)).
+  Goal forall (X Y:Ensemble U), X ⊂ Y <-> (P(X)) ⊂ (P(Y)).
   Proof.
     move => X Y.
     rewrite /Included /iff.
