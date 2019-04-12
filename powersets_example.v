@@ -32,12 +32,10 @@ Section PowerSets_Example.
   Inductive IP (A: Ensemble U) : Ensemble (Ensemble U) :=
     intro_IP: forall (C:Ensemble U), (A ⊂ X -> A ⊂ C -> In (Ensemble U) (Power_set U X) C) -> In (Ensemble U) (IP A) C.
   Check IP.
-
   Check Definition_of_Power_set.
   Definition_of_Power_set
      : forall (U : Type) (A X : Ensemble U), X ⊂ A -> X ∈ Power_set U A
   = { X ∈ Power(A) | X ⊂ A }
-
   I(A) = { C ∈ Power(X) | A ⊂ C }
   I(A) = { C ∈ { A ∈ Power(X) | A ⊂ X } | A ⊂ C }
    -> forall A C, A ⊂ C -> C ∈ { A ∈ Power(X) | A ⊂ X }
@@ -51,57 +49,81 @@ Section PowerSets_Example.
       forall C:Ensemble U, P C ->
                            (Included U C X -> In (Ensemble U) (sigPE X P) C).
 
-  Variable X:Ensemble U.
-  (* I(A) := {C ∈ Power(X) | A ⊂ C} *)
-  Definition I (A:Ensemble U) : Ensemble (Ensemble U) :=
-    sigPE X (fun c => A ⊂ c).
+  (* R1 Problem A 1.3.2 *)
+  Section Problem_A_1_3_2.
+    Variable X:Ensemble U.
 
-  Goal forall (A:Ensemble U), A ⊂ X -> I(A) ⊂ P(X).
-  Proof.
-    move => A H1.
-    rewrite /Included /In => x.
-    case => C HAC HCX.
-    apply Definition_of_Power_set.
-    done.
-  Qed.
+    (* I(A) := {C ∈ Power(X) | A ⊂ C} *)
+    Definition I (A:Ensemble U) : Ensemble (Ensemble U) :=
+      sigPE X (fun c => A ⊂ c).
 
-  Lemma L1: forall (A:Ensemble U), A ⊂ X -> A ∈ I(A).
-  Proof.
-    move => A H1.
-    rewrite /In.
-    apply Definition_of_Intensive_Power_set.
-    done.
-    exact H1.
-  Qed.
+    (* Comfirm Defition *)
+    Goal forall (A:Ensemble U), A ⊂ X -> I(A) ⊂ P(X).
+    Proof.
+      move => A H1.
+      rewrite /Included /In => x.
+      case => C HAC HCX.
+      apply Definition_of_Power_set.
+      done.
+    Qed.
 
-  Lemma L2: forall (A B C:Ensemble U), A ⊂ B -> B ⊂ C -> A ⊂ C.
-  Proof.
-    move => A B C.
-    move => HAB HBC.
-    move => x HA.
-    apply: (HBC x).
-    apply: (HAB x).
-    exact HA.
-  Qed.
+    (* (1) *)
+    Goal forall (A B :Ensemble U), A ⊂ X /\ B ⊂ X -> (A = B <-> I(A)=I(B)).
+    Proof.
+      move => A B.
+      case => HA HB.
+      rewrite /iff.
+      split.
+      move => Heq.
+      rewrite -Heq.
+      done.
 
-  Goal forall (A B :Ensemble U), A ⊂ X /\ B ⊂ X -> (A = B <-> I(A)=I(B)).
-  Proof.
-    move => A B.
-    case => HA HB.
-    rewrite /iff.
-    split.
-    move => Heq.
-    rewrite -Heq.
-    done.
-    move => HIeq.
-    move: (@L1 A) (@L1 B).
-    case.
-    apply HA.
-    move => C HAC HCX.
-    case.
-    apply HB.
-    move => C0.
-  Abort.
+      have LSinIS: forall (A:Ensemble U), A ⊂ X -> A ∈ I(A).
+      -move => S H1.
+       rewrite /In.
+       apply Definition_of_Intensive_Power_set.
+       done.
+       exact H1.
+
+      have LST: forall (S T: Ensemble U), S ⊂ X /\ T ⊂ X -> I(S)=I(T) -> S ⊂ T.
+      -move => S T.
+       case => HS HT HIeq.
+       move: (@LSinIS T).
+       rewrite -HIeq.
+       case.
+       apply HT.
+       move => C HSC HCX.
+       exact HSC.
+
+     have LTS: forall (S T: Ensemble U), S ⊂ X /\ T ⊂ X -> I(S)=I(T) -> T ⊂ S.
+      -move => S T.
+       case => HS HT HIeq.
+       move: (@LSinIS S).
+       rewrite HIeq.
+       case.
+       apply HS.
+       move => C HTC HCX.
+       exact HTC.
+
+     (* main Prop *)
+     move => HIeq.
+     apply: Extensionality_Ensembles.
+     split.
+     apply LST.
+     split.
+     exact HA.
+     exact HB.
+     exact HIeq.
+     apply LTS.
+     split.
+     exact HA.
+     exact HB.
+     exact HIeq.
+    Qed.
+
+    (* (2) *)
+
+  End Problem_A_1_3_2.
 
   (* R1 Problem A 1.3.3 (1). X ⊂ Y <-> P(X) ⊂ P(Y) *)
   Theorem A_1_3_3_1:
