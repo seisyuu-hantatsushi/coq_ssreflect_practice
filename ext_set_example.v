@@ -21,16 +21,18 @@ Section ProductSet_Example.
   
   Variable x y: U.
   Variable a b c: U.
-  Definition S := Coq.Sets.Ensembles.Add U (Empty_set U) a.
+  Definition S0 := Coq.Sets.Ensembles.Add U (Empty_set U) a.
   Definition S1 := Add U (Add U (Empty_set U) a) b.
   Definition S2 := Add U (Add U (Add U (Empty_set U) a) b) c.
   Definition S_cond (x:U): Prop
     := (x = a) \/ (x = b) \/ (x = c).
 
-  Goal In U S a.
+  Check S2.
+  
+  Goal In U S0 a.
   Proof.
     rewrite /In.
-    rewrite /S.
+    rewrite /S0.
     rewrite /Add.
     right.
     rewrite /In.
@@ -146,6 +148,52 @@ Section ProductSet_Example.
     rewrite /Same_set.
     split; move => w; rewrite /In; move => H1; rewrite -H1; done.
   Qed.
+
+  Check {|a, b|}.
+  Check (a <> b).
+
+  Goal a <> b -> a ∈ (Subtract U S0 b).
+  Proof.
+    move => H1.
+    move: (Subtract_intro U S0 b a).
+    apply.
+    rewrite /In.
+    rewrite /S0.
+    rewrite /Add.
+    right.
+    done.
+    apply not_eq_sym.
+    apply H1.
+  Qed.
+
+  Goal a <> b -> ~(b ∈ (Subtract U S0 b)).
+  Proof.
+    rewrite /not.
+    move => H1.
+    case.
+    move => H2.
+    case.
+    done.
+  Qed.
+
+  Goal a <> b -> b ∈ (Subtract U S0 b).
+    rewrite /not.
+    move => H1.
+    split.
+    rewrite /S0.
+    rewrite /Add.
+  Abort.
+  
+  Goal a <> b /\ b <> c /\ c <> a -> ~( c ∈ S1 ).
+  Proof.
+    case => [H1 [H2 H3]].
+    rewrite /S1.
+    rewrite /Add.
+    move => H4.
+    inversion H4.
+    inversion H.
+    done.
+  Abort.
 
 End ProductSet_Example.
 
