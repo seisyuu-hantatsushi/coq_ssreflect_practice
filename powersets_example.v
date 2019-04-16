@@ -2,15 +2,18 @@ From mathcomp Require Import ssreflect.
 
 Require Import Powerset_Classical_facts.
 
+Require Import ext_set_example.
+Import SetsNotations.
+
 Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
 (* Reference 1 [R1]:集合と位相 斎藤毅 ISBN 978-4-13-062958-4 *)
 
-
 Section PowerSets_Example.
-  Variable U V: Type.
+  Variable U : Type.
+  Variable a b c: U.
   Notation "x ∈ X" := (In _ X x) (at level 48).
   Notation "A ⊂ B" := (Included _ A B) (at level 48).
   Notation "A ^c"   := (Complement _ A) (at level 49).
@@ -20,6 +23,38 @@ Section PowerSets_Example.
 
   Definition P (X:Ensemble U) : (Ensemble (Ensemble U)) :=
     Power_set U X.
+
+  Check P({| a, b |}).
+
+  Goal {|{| a |}|} ⊂ P({| a, b |}).
+  Proof.
+    move => X.
+    rewrite /In.
+    move => H1.
+    apply Definition_of_Power_set.
+    rewrite H1.
+    move => W H2.
+    left.
+    apply H2.
+  Qed.
+
+  Goal {|{| a |},{| b |},{| a, b |},{||}|} = P({| a, b |}).
+  Proof.
+    apply: Extensionality_Ensembles.
+    split.
+    +move => X.
+     rewrite /In.
+     case.
+     --case; move => H1; apply Definition_of_Power_set; rewrite H1; move => x H2.
+        left.
+        done.
+        right.
+        done.
+        move => HX.
+        apply Definition_of_Power_set.
+        rewrite HX.
+        done.
+  Abort.
 
   Goal forall (X :Ensemble U), X ∈ P(X).
     move => X.
@@ -51,39 +86,6 @@ Section PowerSets_Example.
                            (Included U C X -> In (Ensemble U) (sigPE X P) C).
 
   Notation "{ X |^ P }" := (sigPE X P).
-
-  (* R1 Problem A 1.2.1.1 *)
-  Lemma LSubset_1:
-    forall (A B C X:Ensemble U), A ⊂ X /\ B ⊂ X /\ C ⊂ X -> ((A ∪ B) ⊂ C <-> A ⊂ C /\ B ⊂ C).
-  Proof.
-    move => A B C X H0.
-    rewrite /iff.
-    split.
-    -move => H1.
-     split; move :H1 => H1 x H2; apply H1.
-     left.
-     apply H2.
-     right.
-     apply H2.
-    -case => HAC HBC x.
-     case => x1.
-     apply HAC.
-     apply HBC.
-  Qed.
-
-  (* R1 Problem A 1.2.1.2 *)
-  Lemma LSubset_2:
-    forall (A B C:Ensemble U), (C ⊂ A \/ C ⊂ B ->  C ⊂ (A ∪ B)).
-  Proof.
-    move => A B C.
-    case => H1.
-    left.
-    move: H.
-    apply: H1.
-    right.
-    move: H.
-    apply: H1.
-  Qed.
 
   (* R1 Problem A 1.3.2 *)
   Section Problem_A_1_3_2.
@@ -200,100 +202,10 @@ Section PowerSets_Example.
        apply HBC.
        move: H1.
        case => E H1.
-       case => C.
-       done.
+       case => C HBC HCX.
+       apply HCX.
     Qed.
 
-    Lemma L1: forall (A C:Ensemble U), C ∈ P(X) -> C ∈ I(A) <-> A ⊂ C.
-    Proof.
-      move => A C HPC.
-      rewrite /iff.
-      split.
-      -case => C0.
-       done.
-       move => HAC.
-       apply Definition_of_Intensive_Power_set.
-       done.
-       move: HPC.
-       case.
-       done.
-    Qed.
-
-    Lemma L1Union: forall (A B C:Ensemble U), C ∈ P(X) -> C ∈ I(A ∪ B) <-> (A ∪ B) ⊂ C.
-    Proof.
-      move => A B C.
-      move:  (@L1 (A ∪ B) C).
-      done.
-    Qed.
-
-    Lemma L2: forall (A B C:Ensemble U), C ∈ P(X) -> C ∈ (I(A) ∩ I(B)) <-> A ⊂ C /\ B ⊂ C.
-    Proof.
-      move => A B C PX.
-      rewrite /iff.
-      -split.
-       +split; move: H; case; move => x HIA HIB.
-        move: HIA.
-        case.
-        done.
-        move: HIB.
-        case.
-        done.
-      -case => HAC HBC.
-       split; apply Definition_of_Intensive_Power_set.
-       +apply HAC.
-        move: PX.
-        case.
-        done.
-       +apply HBC.
-        move: PX.
-        case.
-        done.
-    Qed.
-
-    (* (2) *)
-    Goal forall (A B:Ensemble U), A ⊂ X /\ B ⊂ X -> (I(A ∪ B) = I(A) ∩ I(B)).
-    Proof.
-      move => A B.
-      case => HA HB.
-      apply: Extensionality_Ensembles.
-      split.
-      -move => C H1.
-       inversion H1.
-       rewrite L2.
-       move: H1.
-       rewrite L1Union.
-       apply (@LSubset_1 A B C X).
-       split.
-       apply HA.
-       split.
-       apply HB.
-       apply H0.
-       apply: Definition_of_Power_set.
-       done.
-      -apply: Definition_of_Power_set.
-       apply: H0.
-       move => C H1.
-       inversion H1.
-       rewrite L1Union.
-       move: H1.
-       rewrite L2.
-       apply (@LSubset_1 A B C X).
-       split.
-       apply HA.
-       split.
-       apply HB.
-       move : H.
-       case => C0.
-       done.
-       apply: Definition_of_Power_set.
-       move : H.
-       case.
-       done.
-       apply: Definition_of_Power_set.
-       move : H.
-       case.
-       done.
-    Qed.
   End Problem_A_1_3_2.
 
   (* R1 Problem A 1.3.3 (1). X ⊂ Y <-> P(X) ⊂ P(Y) *)
