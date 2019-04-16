@@ -6,7 +6,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Section ProductSet_Example.
+Module SetsNotations.
   Variable U V: Type.
   Notation "x ∈ X" := (In _ X x) (at level 48).
   Notation "A ⊂ B" := (Included _ A B) (at level 48).
@@ -17,17 +17,18 @@ Section ProductSet_Example.
 
   (*
      {a, b, c} = ∃x{x|x=a \/ x=b \/ x=c}
+       -> (∀x(x=a \/ x=b \/ x=c) -> x)
    *)
-  
+
   Variable x y: U.
   Variable a b c: U.
-  Definition S0 := Coq.Sets.Ensembles.Add U (Empty_set U) a.
+  Definition S0 := Add U (Empty_set U) a.
   Definition S1 := Add U (Add U (Empty_set U) a) b.
   Definition S2 := Add U (Add U (Add U (Empty_set U) a) b) c.
-  Definition S_cond (x:U): Prop
+  Definition P_S2 (x:U): Prop
     := (x = a) \/ (x = b) \/ (x = c).
-
-  Check S2.
+  Notation "{| x | P |}" := P.
+  Notation "{||}" := (Empty_set _).
   
   Goal In U S0 a.
   Proof.
@@ -50,15 +51,48 @@ Section ProductSet_Example.
     apply In_singleton.
   Qed.
 
-  Goal In U S_cond a.
+  Goal In U P_S2 a.
   Proof.
     rewrite /In.
-    rewrite /S_cond.
+    rewrite /P_S2.
     left.
     apply eq_refl.
   Qed.
 
-  Goal S_cond = S2.
+  Goal forall (A:Ensemble U), A = A ∪ {||}.
+  Proof.
+    move => A.
+    apply: Extensionality_Ensembles.
+    rewrite /Same_set.
+    split.
+    move => x H1.
+    left.
+    apply H1.
+    move => x.
+    case.
+    done.
+    done.
+  Qed.
+
+  Goal forall (A:Ensemble U),  {||} = A ∩ {||}.
+  Proof.
+    move => A.
+    apply: Extensionality_Ensembles.
+    rewrite /Same_set.
+    split.
+    +move => x H1.
+     split.
+     move: H1.
+     case.
+     apply H1.
+    +move => x.
+     case.
+     move => x0.
+     move => H1.
+     apply.
+  Qed.
+
+  Goal P_S2 = S2.
   Proof.
     apply: Extensionality_Ensembles.
     rewrite /Same_set.
@@ -88,7 +122,7 @@ Section ProductSet_Example.
     right.
     apply In_singleton.
     move => H1.
-    rewrite /S_cond.
+    rewrite /P_S2.
     inversion H1.
     inversion H.
     inversion H2.
@@ -113,26 +147,45 @@ Section ProductSet_Example.
 
   Notation "{| x |}" := (fun w => w = x).
   Notation "{| x , y , .. , z |}" := (fun w => (or .. (or (w=x) (w=y)) .. (w=z))).
- 
-  Goal {| a, b, c |} = S_cond.
+
+  Lemma neq_imply_not_in_singletion:
+    forall  (U:Type) (a b:U), a <> b -> ~(b ∈ Singleton U a).
+  Proof.
+    move => U0 a0 b0 Hneq.
+    rewrite /not.
+    move => H1.
+    inversion H1.
+    move: Hneq.
+    rewrite /not.
+    apply.
+    apply H.
+  Qed.
+
+  Goal {| a, b, c |} = P_S2.
   Proof.
     apply: Extensionality_Ensembles.
     rewrite /Same_set.
     split.
-    -rewrite /S_cond.
+    -rewrite /P_S2.
      rewrite /Included.
      move => w.
      rewrite /In.
      move => H1.
      rewrite -or_assoc.
      apply H1.
-    -rewrite /S_cond.
+    -rewrite /P_S2.
      rewrite /Included.
      move => w.
      rewrite /In.
      move => H1.
      rewrite or_assoc.
      apply H1.
+  Qed.
+
+  Goal Empty_set U ⊂ {| a, b, c |}.
+  Proof.
+    move => w.
+    done.
   Qed.
 
   Goal {| a, b |} = {| b, a |}.
@@ -149,24 +202,36 @@ Section ProductSet_Example.
     split; move => w; rewrite /In; move => H1; rewrite -H1; done.
   Qed.
 
+  Goal {| a, a |} = Singleton U a.
+  Proof.
+    apply: Extensionality_Ensembles.
+    rewrite /Same_set.
+    split; move => w; rewrite /In.
+    case; move => H1; rewrite H1; done.
+    case.
+    left.
+    done.
+  Qed.
+(*
   Check {|a, b|}.
   Check (a <> b).
-
-  Goal a <> b -> a ∈ (Subtract U S0 b).
+*)
+  Goal a <> b -> a ∈ (Subtract U S1 b).
   Proof.
     move => H1.
-    move: (Subtract_intro U S0 b a).
+    move: (Subtract_intro U S1 b a).
     apply.
     rewrite /In.
-    rewrite /S0.
+    rewrite /S1.
     rewrite /Add.
+    left.
     right.
     done.
     apply not_eq_sym.
     apply H1.
   Qed.
 
-  Goal a <> b -> ~(b ∈ (Subtract U S0 b)).
+  Goal a <> b -> ~(b ∈ (Subtract U S1 b)).
   Proof.
     rewrite /not.
     move => H1.
@@ -176,29 +241,33 @@ Section ProductSet_Example.
     done.
   Qed.
 
-  Goal a <> b -> b ∈ (Subtract U S0 b).
-    rewrite /not.
-    move => H1.
-    split.
-    rewrite /S0.
-    rewrite /Add.
-  Abort.
-  
-  Goal a <> b /\ b <> c /\ c <> a -> ~( c ∈ S1 ).
+  Goal b <> c /\ c <> a -> ~( c ∈ S1 ).
   Proof.
-    case => [H1 [H2 H3]].
+    case => [H1 H2].
     rewrite /S1.
     rewrite /Add.
-    move => H4.
-    inversion H4.
+    move => H3.
+    inversion H3.
     inversion H.
     done.
-  Abort.
+    move: H4.
+    apply neq_imply_not_in_singletion.
+    move: H2.
+    apply not_eq_sym.
+    move: H.
+    apply neq_imply_not_in_singletion.
+    apply H1.
+  Qed.
 
-End ProductSet_Example.
+  Goal b <> c /\ c <> a -> ~( c ∈ {|a, b|} ).
+  Proof.
+    case => [H1 H2].
+    rewrite /not.
+    rewrite /In.
+    case.
+    apply H2.
+    move: H1.
+    apply not_eq_sym.
+  Qed.
 
-Require Import Coq.Lists.List.
-Import List.ListNotations.
-
-Section S1.
-End S1.
+End SetsNotations.
