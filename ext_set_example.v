@@ -6,8 +6,12 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
+(*
+  {a, b, c} = ∃x{x|x=a \/ x=b \/ x=c}
+  -> (∀x(x=a \/ x=b \/ x=c) -> x)
+ *)
+
 Module SetsNotations.
-  Variable U V: Type.
   Notation "x ∈ X" := (In _ X x) (at level 48).
   Notation "A ⊂ B" := (Included _ A B) (at level 48).
   Notation "A ^c"   := (Complement _ A) (at level 49).
@@ -15,21 +19,39 @@ Module SetsNotations.
   Notation "A ∩ B" := (Intersection _ A B) (at level 50).
   Notation "A \ B" := (Setminus _ A B) (at level 50).
 
-  (*
-     {a, b, c} = ∃x{x|x=a \/ x=b \/ x=c}
-       -> (∀x(x=a \/ x=b \/ x=c) -> x)
-   *)
+  Notation "{| x | P |}" := P.
+  Notation "{||}" := (Empty_set _).
 
-  Variable x y: U.
+  Notation "{| x |}" := (fun w => w = x).
+  Notation "{| x , y , .. , z |}" := (fun w => (or .. (or (w=x) (w=y)) .. (w=z))).
+
+  Lemma neq_imply_not_in_singletion:
+    forall  (U:Type) (a b:U), a <> b -> ~(b ∈ Singleton U a).
+  Proof.
+    move => U0 a0 b0 Hneq.
+    rewrite /not.
+    move => H1.
+    inversion H1.
+    move: Hneq.
+    rewrite /not.
+    apply.
+    apply H.
+  Qed.
+End SetsNotations.
+
+Section Valitation.
+
+  Import SetsNotations.
+  
+  Variable U: Type.
   Variable a b c: U.
   Definition S0 := Add U (Empty_set U) a.
   Definition S1 := Add U (Add U (Empty_set U) a) b.
   Definition S2 := Add U (Add U (Add U (Empty_set U) a) b) c.
   Definition P_S2 (x:U): Prop
     := (x = a) \/ (x = b) \/ (x = c).
-  Notation "{| x | P |}" := P.
-  Notation "{||}" := (Empty_set _).
-  
+
+
   Goal In U S0 a.
   Proof.
     rewrite /In.
@@ -145,22 +167,6 @@ Module SetsNotations.
     apply H.
   Qed.
 
-  Notation "{| x |}" := (fun w => w = x).
-  Notation "{| x , y , .. , z |}" := (fun w => (or .. (or (w=x) (w=y)) .. (w=z))).
-
-  Lemma neq_imply_not_in_singletion:
-    forall  (U:Type) (a b:U), a <> b -> ~(b ∈ Singleton U a).
-  Proof.
-    move => U0 a0 b0 Hneq.
-    rewrite /not.
-    move => H1.
-    inversion H1.
-    move: Hneq.
-    rewrite /not.
-    apply.
-    apply H.
-  Qed.
-
   Goal {| a, b, c |} = P_S2.
   Proof.
     apply: Extensionality_Ensembles.
@@ -270,4 +276,4 @@ Module SetsNotations.
     apply not_eq_sym.
   Qed.
 
-End SetsNotations.
+End Valitation.
