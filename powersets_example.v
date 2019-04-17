@@ -14,12 +14,6 @@ Import Prenex Implicits.
 Section PowerSets_Example.
   Variable U : Type.
   Variable a b c: U.
-  Notation "x ∈ X" := (In _ X x) (at level 48).
-  Notation "A ⊂ B" := (Included _ A B) (at level 48).
-  Notation "A ^c"   := (Complement _ A) (at level 49).
-  Notation "A ∪ B" := (Union _ A B) (at level 50).
-  Notation "A ∩ B" := (Intersection _ A B) (at level 50).
-  Notation "A \ B" := (Setminus _ A B) (at level 50).
 
   Definition P (X:Ensemble U) : (Ensemble (Ensemble U)) :=
     Power_set U X.
@@ -45,15 +39,21 @@ Section PowerSets_Example.
     +move => X.
      rewrite /In.
      case.
-     --case; move => H1; apply Definition_of_Power_set; rewrite H1; move => x H2.
-        left.
-        done.
-        right.
-        done.
-        move => HX.
-        apply Definition_of_Power_set.
-        rewrite HX.
-        done.
+     --case; case; move => H1; apply Definition_of_Power_set; rewrite H1 => w; rewrite /In => H2.
+       left.
+       apply H2.
+       right.
+       apply H2.
+       apply H2.
+       move => HE.
+       rewrite HE.
+       apply Definition_of_Power_set.
+       move => w.
+       done.
+    +move => X.
+     case => X0 HX0.
+     right.
+     Check singlx.
   Abort.
 
   Goal forall (X :Ensemble U), X ∈ P(X).
