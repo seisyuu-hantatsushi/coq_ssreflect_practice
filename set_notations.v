@@ -22,8 +22,10 @@ Module SetNotations.
     (fun x => P x).
 
   Notation "{| x ; U | P |}" := (intenston_set x P).
-  
+
 End SetNotations.
+
+Export Coq.Sets.Powerset_Classical_facts.
 
 Section Validation.
   Import SetNotations.

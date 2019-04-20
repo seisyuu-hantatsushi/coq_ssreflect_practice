@@ -1,18 +1,17 @@
 From mathcomp Require Import ssreflect.
 
-Require Import Powerset_Classical_facts.
-
-Require Import ext_set_example.
-Import SetsNotations.
+Require Import powersets_notations.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
 (* Reference 1 [R1]:集合と位相 斎藤毅 ISBN 978-4-13-062958-4 *)
-
 Section PowerSets_Example.
-  Variable U : Type.
+
+  Import PowersetNotations.
+
+  Variable U:Type.
   Variable a b c: U.
 
   Definition P (X:Ensemble U) : (Ensemble (Ensemble U)) :=
@@ -20,95 +19,43 @@ Section PowerSets_Example.
 
   Check P({| a, b |}).
 
-  Goal {|{| a |}|} ⊂ P({| a, b |}).
+  Goal {| {| a |}, {| a, b |} |} ⊂ P({| a, b |}).
   Proof.
-    move => X.
-    rewrite /In.
-    move => H1.
-    apply Definition_of_Power_set.
-    rewrite H1.
-    move => W H2.
+    move => X H1.
+    apply: Definition_of_Power_set.
+    inversion H1.
+    move => y H2.
+    inversion H.
     left.
-    apply H2.
-  Qed.
-
-  Goal forall (X:Ensemble U), X = (Singleton U a) -> X ⊂ Add U (Singleton U a) b.
-  Proof.
-    move => X HXeq x.
-    rewrite HXeq.
-    move => HX.
-    rewrite /Add.
-    left.
-    apply HX.
-  Qed.
-
-  Goal forall (X:Ensemble U), X = (Add U (Singleton U a) b) -> X ⊂ Add U (Singleton U a) b.
-  Proof.
-    move => X HXeq.
-    rewrite HXeq.
-    move => x.
+    move : H2.
+    rewrite H3.
+    apply.
+    inversion H.
+    move => y.
     apply.
   Qed.
 
-  Goal forall (X:Ensemble U), (forall (Y:Ensemble U), (Y ⊂ X -> Y ∈ P(X))) ->
-                              exists Y: Ensemble U, Y ∈ P(X) -> Y ⊂ X.
+  Goal {| {| a |}, {| b |}, {| a, b |}, {||} |} ⊂ P({| a, b |}).
   Proof.
-    move => X.
-    move => H.
-    exists X.
-    move => H1.
-    move => x.
-    done.
-  Qed.
-
-  Goal {|{| a |},{| b |},{| a, b |},{||}|} ⊂  P({| a, b |}).
-  Proof.
-    move => X.
-    rewrite /In.
+    move => X H1.
+    apply: Definition_of_Power_set.
+    move: H1.
+    case => Y.
+    case => Z.
+    case => W; case.
+    rewrite /Included.
+    move => x H1.
+    left.
+    apply H1.
+    right.
+    apply H.
     case.
-    --case; case; move => H1; apply Definition_of_Power_set; rewrite H1 => w; rewrite /In => H2.
-      left.
-      apply H2.
-      right.
-      apply H2.
-      apply H2.
-      move => HE.
-      rewrite HE.
-      apply Definition_of_Power_set.
-      move => w.
-      done.
-  Abort.
-
-  Goal forall (X :Ensemble U), X ∈ P(X).
-    move => X.
-    rewrite /In.
-    apply Definition_of_Power_set.
-    done.
+    rewrite /Included => x.
+    apply.
+    case.
+    rewrite /Included => x.
+    case.
   Qed.
-
-(*
-  Variable X : Ensemble U.
-  Inductive IP (A: Ensemble U) : Ensemble (Ensemble U) :=
-    intro_IP: forall (C:Ensemble U), (A ⊂ X -> A ⊂ C -> In (Ensemble U) (Power_set U X) C) -> In (Ensemble U) (IP A) C.
-  Check IP.
-  Check Definition_of_Power_set.
-  Definition_of_Power_set
-     : forall (U : Type) (A X : Ensemble U), X ⊂ A -> X ∈ Power_set U A
-  = { X ∈ Power(A) | X ⊂ A }
-  I(A) = { C ∈ Power(X) | A ⊂ C }
-  I(A) = { C ∈ { A ∈ Power(X) | A ⊂ X } | A ⊂ C }
-   -> forall A C, A ⊂ C -> C ∈ { A ∈ Power(X) | A ⊂ X }
-   -> forall A C, A ⊂ C -> C ∈ Power(X)
-*)
-
-  (* {C ∈ Power(X)| P(C)}, P(C)=A ⊂ C *)
-  Inductive sigPE (X:Ensemble U) (P:Ensemble U -> Prop) :
-      Ensemble (Ensemble U) :=
-    Definition_of_Intensive_Power_set:
-      forall C:Ensemble U, P C ->
-                           (Included U C X -> In (Ensemble U) (sigPE X P) C).
-
-  Notation "{ X |^ P }" := (sigPE X P).
 
   (* R1 Problem A 1.3.2 *)
   Section Problem_A_1_3_2.
