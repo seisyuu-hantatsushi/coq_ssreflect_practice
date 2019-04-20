@@ -32,28 +32,52 @@ Section PowerSets_Example.
     apply H2.
   Qed.
 
-  Goal {|{| a |},{| b |},{| a, b |},{||}|} = P({| a, b |}).
+  Goal forall (X:Ensemble U), X = (Singleton U a) -> X ⊂ Add U (Singleton U a) b.
   Proof.
-    apply: Extensionality_Ensembles.
-    split.
-    +move => X.
-     rewrite /In.
-     case.
-     --case; case; move => H1; apply Definition_of_Power_set; rewrite H1 => w; rewrite /In => H2.
-       left.
-       apply H2.
-       right.
-       apply H2.
-       apply H2.
-       move => HE.
-       rewrite HE.
-       apply Definition_of_Power_set.
-       move => w.
-       done.
-    +move => X.
-     case => X0 HX0.
-     right.
-     Check singlx.
+    move => X HXeq x.
+    rewrite HXeq.
+    move => HX.
+    rewrite /Add.
+    left.
+    apply HX.
+  Qed.
+
+  Goal forall (X:Ensemble U), X = (Add U (Singleton U a) b) -> X ⊂ Add U (Singleton U a) b.
+  Proof.
+    move => X HXeq.
+    rewrite HXeq.
+    move => x.
+    apply.
+  Qed.
+  
+
+  Goal forall (X:Ensemble U), (forall (Y:Ensemble U), (Y ⊂ X -> Y ∈ P(X))) ->
+                              exists Y: Ensemble U, Y ∈ P(X) -> Y ⊂ X.
+  Proof.
+    move => X.
+    move => H.
+    exists X.
+    move => H1.
+    move => x.
+    done.
+  Qed.
+
+  Goal {|{| a |},{| b |},{| a, b |},{||}|} ⊂  P({| a, b |}).
+  Proof.
+    move => X.
+    rewrite /In.
+    case.
+    --case; case; move => H1; apply Definition_of_Power_set; rewrite H1 => w; rewrite /In => H2.
+      left.
+      apply H2.
+      right.
+      apply H2.
+      apply H2.
+      move => HE.
+      rewrite HE.
+      apply Definition_of_Power_set.
+      move => w.
+      done.
   Abort.
 
   Goal forall (X :Ensemble U), X ∈ P(X).
