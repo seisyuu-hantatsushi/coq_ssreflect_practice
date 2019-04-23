@@ -18,11 +18,16 @@ Module SetNotations.
   Notation "{| x |}" := (Singleton _ x).
   Notation "{| x , y , .. , z |}" := (Union _ .. (Union _ (Singleton _ x) (Singleton _ y)) .. (Singleton _ z)).
 
-  Definition intenston_set (U: Type) (x: U) (P: U -> Prop) : Ensemble U :=
-    (fun x => P x).
 
-  Notation "{| x ; U | P |}" := (intenston_set x P).
+  (* { x;U | P(x) } *)
+  Inductive SchemaSpecification (U:Type) (x0:U) (P:U -> Prop): Ensemble U :=
+    Definition_of_Schema_Spec:
+      forall (x: U), P x -> In U (SchemaSpecification x0 P) x.
 
+  Notation "{| x ; U | P |}" := (SchemaSpecification x P).
+  Notation "{| x | P |}" := (SchemaSpecification x P).
+
+  Check SchemaSpecification.
 End SetNotations.
 
 Export Coq.Sets.Powerset_Classical_facts.
@@ -37,16 +42,12 @@ Section Validation.
     move => x.
     apply: Extensionality_Ensembles.
     split => y.
-    case.
-    move => H1.
-    rewrite H1.
+    case => [z [H1|H1]]; rewrite H1.
     left.
     reflexivity.
-    move => H1.
-    rewrite H1.
     right.
     reflexivity.
-    case => z H1.
+    case => z H1; apply Definition_of_Schema_Spec.
     left.
     apply eq_sym.
     apply Singleton_inv.
@@ -75,12 +76,10 @@ Section Validation.
   Goal {| a, b |} ⊂ {| a , b , c |}.
   Proof.
     move => x.
-    case => y H.
+    case => y H; left.
     -left.
-     left.
      apply H.
-    -left.
-     right.
+    -right.
      apply H.
   Qed.
 

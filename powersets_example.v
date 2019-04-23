@@ -1,6 +1,7 @@
 From mathcomp Require Import ssreflect.
 
-Require Import powersets_notations.
+(* Require Import powersets_notations. *)
+Require Import set_notations.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -9,7 +10,7 @@ Import Prenex Implicits.
 (* Reference 1 [R1]:集合と位相 斎藤毅 ISBN 978-4-13-062958-4 *)
 Section PowerSets_Example.
 
-  Import PowersetNotations.
+  Import SetNotations.
 
   Variable U:Type.
   Variable a b c: U.
@@ -59,29 +60,36 @@ Section PowerSets_Example.
 
   (* R1 Problem A 1.3.2 *)
   Section Problem_A_1_3_2.
-    Variable X:Ensemble U.
+    Variable X C:Ensemble U.
 
-    (* I(A) := {C ∈ Power(X) | A ⊂ C} *)
+    (* 
+       I(A) := { C ∈ Power(X) | A ⊂ C }
+       -> { C; Ensemble U | C ∈ Power(X) /\ A ⊂ C }
+     *)
     Definition I (A:Ensemble U) : Ensemble (Ensemble U) :=
-      { X |^ (fun C => A ⊂ C) }.
+      {| C | fun C => In (Ensemble U) (Power_set U X) C /\ A ⊂ C |}.
 
     (* to comfirmi definition if I(A) *)
     Goal forall (A:Ensemble U), A ⊂ X -> I(A) ⊂ P(X).
     Proof.
       move => A H1.
       rewrite /Included /In => x.
-      case => C HAC HCX.
-      apply Definition_of_Power_set.
-      done.
+      case => [C0 [HC0 HAC0]].
+      split.
+      move: HC0.
+      case => Y.
+      exact.
     Qed.
 
     Lemma LAinIA: forall (A:Ensemble U), A ⊂ X -> A ∈ I(A).
     Proof.
       -move => A H1.
        rewrite /In.
-       apply Definition_of_Intensive_Power_set.
-       done.
+       split.
+       split.
+       split.
        exact H1.
+       exact.
     Qed.
 
     (* (1) *)
@@ -102,18 +110,20 @@ Section PowerSets_Example.
        rewrite -HIeq.
        case.
        apply HT.
-       move => C HSC HCX.
-       exact HSC.
+       move => C0.
+       case => HPC0.
+       exact.
 
-     have LTS: forall (S T: Ensemble U), S ⊂ X /\ T ⊂ X -> I(S)=I(T) -> T ⊂ S.
+      have LTS: forall (S T: Ensemble U), S ⊂ X /\ T ⊂ X -> I(S)=I(T) -> T ⊂ S.
       -move => S T.
        case => HS HT HIeq.
        move: (@LAinIA S).
        rewrite HIeq.
        case.
        apply HS.
-       move => C HTC HCX.
-       exact HTC.
+       move => C0.
+       case => HTC0.
+       exact.
 
      (* main Prop *)
      move => HIeq.
@@ -132,48 +142,86 @@ Section PowerSets_Example.
     Qed.
 
     (* (2) *)
+    Goal forall (A B :Ensemble U), A ⊂ X /\ B ⊂ X /\ C ⊂ X -> (C ∈ (I(A) ∩ I(B)) <-> A ⊂ C /\ B ⊂ C).
+    Proof.
+      move => A B.
+      case => [HA [HB HC]].
+      rewrite /iff.
+      split.
+      -case => [Y H1 H2].
+       split.
+       inversion H1.
+       inversion H.
+       apply H4.
+       inversion H2.
+       inversion H.
+       apply H4.
+      -case => HAC HBC.
+       split.
+       split.
+       split.
+       split.
+       apply HC.
+       apply HAC.
+      -split.
+       split.
+       split.
+       apply HC.
+       apply HBC.
+    Qed.
+
+    (* (2) *)
     Goal forall (A B :Ensemble U), A ⊂ X /\ B ⊂ X -> (I(A ∪ B) = I(A) ∩ I(B)).
     Proof.
       move => A B.
       case => HA HB.
       apply: Extensionality_Ensembles.
-      split.
-      -move => x.
-       case => C.
-       rewrite /Included.
-       move => H1 H2.
-       split;
-         apply Definition_of_Intensive_Power_set;
-         move => x0;
-         move: (H1 x0);
-         move => H3 H4.
-       apply H3.
-       left.
-       apply H4.
-       apply (H2 x0).
-       apply H4.
-       apply H3.
-       right.
-       apply H4.
-       apply (H2 x0).
-       apply H4.
-      -move => D H1.
-       apply Definition_of_Intensive_Power_set.
-       inversion H1.
-       move => x1.
-       case => x2 H3.
-       move: H.
-       case => C HAC HCX.
-       move: H3.
-       apply HAC.
-       move: H0.
-       case => C HBC HCX.
-       move: H3.
-       apply HBC.
-       move: H1.
-       case => E H1.
-       case => C HBC HCX.
-       apply HCX.
+      split => Z H.
+      -split.
+       --split; split.
+         split.
+         inversion H.
+         inversion H0.
+         inversion H2.
+         apply H4.
+         inversion H.
+         inversion H0.
+         inversion H2.
+         move => y H6.
+         rewrite /Included in H3.
+         apply: (H3 y).
+         left.
+         exact H6.
+       --split; split.
+         split.
+         inversion H.
+         inversion H0.
+         inversion H2.
+         apply H4.
+         inversion H.
+         inversion H0.
+         inversion H2.
+         move => y H6.
+         apply: (H3 y).
+         right.
+         exact H6.
+      -split.
+       --split.
+         split.
+         inversion H.
+         inversion H0.
+         inversion H3.
+         inversion H5.
+         apply H7.
+       --move => x.
+         inversion H.
+         inversion H0.
+         inversion H3.
+         case => y.
+         apply: (H6 y).
+         inversion H1.
+         inversion H7.
+         apply: (H10 y).
     Qed.
 
   End Problem_A_1_3_2.
