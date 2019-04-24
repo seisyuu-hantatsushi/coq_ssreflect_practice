@@ -1,14 +1,15 @@
 From mathcomp Require Import ssreflect.
 
-Require Import powersets_notations.
+Require Import set_notations.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-Import PowersetNotations.
-
 Module DirectProductNotations.
+
+  Import SetNotations.
+  Export SetNotations.
 
   Definition OrderedPair (U:Type) (a b : U) := {|{|a|},{|a,b|}|}.
 
@@ -17,6 +18,8 @@ Module DirectProductNotations.
       forall (Z: Ensemble (Ensemble U)),
         (exists x:U, exists y:U, (x ∈ X /\ y ∈ Y /\ Z = {|{|x|},{|x,y|}|})) ->
         In (Ensemble (Ensemble U)) (DirectProduct X Y) Z.
+
+  Notation "𝒫( X )" := (@Power_set _ X) (at level 47).
 
   Notation "X × Y" := (@DirectProduct _ X Y) (at level 49).
   Notation "(| a , b |)" := (@OrderedPair _ a b) (at level 48).
@@ -33,7 +36,7 @@ Section PairExamples.
 
   (* R1 定義 1.3.1 *)
   (* R2 P.82-83 直積 *)
-  Goal forall (x y:U) (A B:Ensemble U), (x ∈ A /\ y ∈ B) -> OrderedPair x y ∈ Power_set (Ensemble U) (Power_set U (A ∪ B)).
+  Goal forall (x y:U) (A B:Ensemble U), (x ∈ A /\ y ∈ B) -> OrderedPair x y ∈ 𝒫(𝒫(A ∪ B)).
   Proof.
     move => x y A B.
     case => [HA HB].
@@ -78,7 +81,7 @@ Section PairExamples.
     inversion H3.
     inversion H5.
     rewrite H7.
-    apply Definition_of_DirectProduct.
+    split.
     exists x0.
     exists x1.
     split.
@@ -91,53 +94,63 @@ Section PairExamples.
   Qed.
 
   Check (| a , b |).
-  Goal forall (X Y:Ensemble U), a ∈ X /\ b ∈ Y -> (| a, b |) = { (X ∪ Y) |^ (fun A => {|a|} ⊂ A /\ A ⊂ {|a, b|} ) }.
+  (*
+    { A ∈ P(X ∪ Y) | {a} ⊂ A ⊂ {a, b} }
+    -> { A | A ∈ P(X ∪ Y) /\ {a} ⊂ A /\ A ⊂ {a, b} }
+  *)
+  
+  Goal forall (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> (| a, b |) ⊂ {| A | fun A => A ∈ 𝒫(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |}.
   Proof.
-    move => X Y.
-    case => [Ha Hb].
-    apply Extensionality_Ensembles.
-    split => W.
-    move => H1.
-    apply Definition_of_Intensive_Power_set.
-    inversion H1.
-    split.
-    move => w.
-    inversion H.
-    apply.
-    move => z H2.
-    inversion H.
-    left.
-    move: H2.
-    rewrite H3.
-    apply.
-    split.
-    inversion H.
-    move => z H3.
-    left.
-    apply H3.
-    inversion H.
-    move => z.
-    apply.
-    
-    inversion H1.
-    inversion H.
-    move => w.
-    case.
-    left.
-    apply Ha.
+    move => X Y A.
+    case => [Ha Hb Z].
+    -case => W.
+     --case.
+       split.
+       split.
+       split => x.
+       case.
+       left.
+       exact.
+     --split.
+       exact.
+     --left.
+       exact.
+    -case.
+     split.
+     --split.
+       split => x.
+       case => y; case.
+       ---left.
+          exact.
+       ---right.
+          exact.
+     --split => x.
+       left.
+       exact.
+       exact.
+  Qed.
 
-    inversion H.
-    move => w.
-    case => z; case.
-    left.
-    apply Ha.
-    right.
-    apply Hb.
-
-    (**)
-    case.
-    move => C.
-    move => H1 H2.
-    rewrite /OrderedPair.
-  Abort
+  Goal forall (x:U) (X z:Ensemble U), (a ∈ X /\ b ∈ X /\ x ∈ X /\ z ∈ (| a, b |)) -> ( x = a <-> x ∈ z ). 
+  Proof.
+    move => x X z.
+    case => [H1 [H2 [H3 H4]]].
+    rewrite /iff.
+    split.
+    -move => Hax.
+     rewrite Hax.
+     inversion H4.
+     inversion H.
+     reflexivity.
+     inversion H.
+     left.
+     reflexivity.
+     inversion H4.
+     inversion H.
+     case.
+     reflexivity.
+     move => H6.
+     move : H.
+     case.
+     apply Singleton_inv.
+     
 End PairExamples.
