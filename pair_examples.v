@@ -130,27 +130,49 @@ Section PairExamples.
        exact.
   Qed.
 
-  Goal forall (x:U) (X z:Ensemble U), (a ∈ X /\ b ∈ X /\ x ∈ X /\ z ∈ (| a, b |)) -> ( x = a <-> x ∈ z ). 
+  Goal forall (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> {| A | fun A => A ∈ 𝒫(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |} ⊂ (| a, b |).
   Proof.
-    move => x X z.
-    case => [H1 [H2 [H3 H4]]].
+    move => X Y A.
+    case => HaX HbY Z.
+    case => W.
+    case => HP.
+    case => Ha Hab.
+    move: HP.
+    case.
+    move => S.
+    rewrite /OrderedPair.
+    move => HS.
+    left.
+    rewrite /Included in HS.
+    move: (HS a) => HSa.
+    rewrite /Included in Ha.
+    rewrite /In.
+    have L1: S = {|a|}.
+    apply /Extensionality_Ensembles.
+    split => x.
+  Abort.
+
+  (* R1 A 1.3.4 2 *)
+  Goal forall (x:U) (X Y:Ensemble U), (a ∈ X /\ b ∈ Y /\ x ∈ X) -> ( x = a <-> (forall (z:Ensemble U), (z ∈ (| a, b |)) -> x ∈ z )).
+  Proof.
+    move => x X Y.
+    case => [HaX [HbY HxX]].
     rewrite /iff.
     split.
-    -move => Hax.
+    -move => Hax z.
      rewrite Hax.
-     inversion H4.
-     inversion H.
+     case => y.
+     case.
      reflexivity.
-     inversion H.
+     case.
      left.
      reflexivity.
-     inversion H4.
-     inversion H.
-     case.
-     reflexivity.
-     move => H6.
-     move : H.
-     case.
+    -move => H1.
+     apply eq_sym.
      apply Singleton_inv.
-     
+     apply (H1 {|a|}).
+     left.
+     split.
+  Qed.
+
 End PairExamples.
