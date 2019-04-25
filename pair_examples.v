@@ -93,12 +93,10 @@ Section PairExamples.
     reflexivity.
   Qed.
 
-  Check (| a , b |).
   (*
     { A ∈ P(X ∪ Y) | {a} ⊂ A ⊂ {a, b} }
     -> { A | A ∈ P(X ∪ Y) /\ {a} ⊂ A /\ A ⊂ {a, b} }
   *)
-  
   Goal forall (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> (| a, b |) ⊂ {| A | fun A => A ∈ 𝒫(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |}.
   Proof.
     move => X Y A.
@@ -174,5 +172,18 @@ Section PairExamples.
      left.
      split.
   Qed.
+
+  (* R1 A 1.3.4 3 *)
+  Goal forall (y:U) (X Y:Ensemble U), (a ∈ X /\ b ∈ Y /\ y ∈ Y) -> ( y = b <-> (exists! (z:Ensemble U), y ∈ z -> (z ∈ (| a, b |)))).
+  Proof.
+    move => y X Y.
+    case => [HaX [HbY HyY]].
+    rewrite /iff.
+    split => Heq.
+    exists {|a,b|}.
+    split => Z.
+    right.
+    reflexivity.
+  Abort.
 
 End PairExamples.
