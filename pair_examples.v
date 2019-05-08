@@ -34,6 +34,48 @@ Section PairExamples.
 
   Import DirectProductNotations.
 
+  Theorem DirectProduct_Product_Empty: forall (X:Ensemble U), X × {||} = {||}.
+  Proof.
+    move => X.
+    apply /Extensionality_Ensembles.
+    split => Y.
+    -case.
+     move => Z.
+     case => x.
+     case => y.
+     case => [H1 [H2 H3]].
+     rewrite H3.
+     apply NNPP.
+     rewrite /not => H4.
+     move: H2.
+     apply Noone_in_empty.
+    -move => H0.
+     apply NNPP.
+     rewrite /not => H1.
+     move: H0.
+     apply Noone_in_empty.
+  Qed.
+
+  Theorem DirectProduct_Product_Empty_Comm: forall (X:Ensemble U), X × {||} = {||} × X.
+  Proof.
+    move => X.
+    apply /Extensionality_Ensembles.
+    split => Y; rewrite DirectProduct_Product_Empty.
+    -move => H0.
+     apply NNPP.
+     rewrite /not => H1.
+     move : H0.
+     apply Noone_in_empty.
+    -case => Z.
+     case => x.
+     case => y.
+     case => [H0 [H1 H2]].
+     apply NNPP.
+     rewrite /not => H3.
+     move: H0.
+     apply Noone_in_empty.
+  Qed.
+
   (* R1 定義 1.3.1 *)
   (* R2 P.82-83 直積 *)
   Goal forall (x y:U) (A B:Ensemble U), (x ∈ A /\ y ∈ B) -> OrderedPair x y ∈ 𝒫(𝒫(A ∪ B)).
@@ -151,7 +193,7 @@ Section PairExamples.
   Abort.
 
   (* R1 A 1.3.4 2 *)
-  Goal forall (x:U) (X Y:Ensemble U), (a ∈ X /\ b ∈ Y /\ x ∈ X) -> ( x = a <-> (forall (z:Ensemble U), (z ∈ (| a, b |)) -> x ∈ z )).
+  Goal forall (x:U) (X Y:Ensemble U), (a ∈ X /\ b ∈ Y /\ x ∈ X) -> ( x = a <-> forall (z:Ensemble U), (z ∈ (| a, b |)) -> x ∈ z ).
   Proof.
     move => x X Y.
     case => [HaX [HbY HxX]].
@@ -172,18 +214,5 @@ Section PairExamples.
      left.
      split.
   Qed.
-
-  (* R1 A 1.3.4 3 *)
-  Goal forall (y:U) (X Y:Ensemble U), (a ∈ X /\ b ∈ Y /\ y ∈ Y) -> ( y = b <-> (exists! (z:Ensemble U), y ∈ z -> (z ∈ (| a, b |)))).
-  Proof.
-    move => y X Y.
-    case => [HaX [HbY HyY]].
-    rewrite /iff.
-    split => Heq.
-    exists {|a,b|}.
-    split => Z.
-    right.
-    reflexivity.
-  Abort.
 
 End PairExamples.
