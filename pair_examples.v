@@ -135,6 +135,64 @@ Section PairExamples.
     reflexivity.
   Qed.
 
+  Theorem DirectProductDistCup :
+    forall (A B C: Ensemble U), A × (B ∪ C) = A × B ∪ A × C.
+  Proof.
+    move => A B C.
+    apply /Extensionality_Ensembles.
+    split => X.
+    -case => Z.
+     case => x.
+     case => y.
+     case => [HA [HBC H0]].
+     inversion HBC.
+    --left.
+      split.
+      exists x.
+      exists y.
+      split.
+      apply HA.
+      split.
+      apply H.
+      apply H0.
+    --right.
+      split.
+      exists x.
+      exists y.
+      split.
+      apply HA.
+      split.
+      apply H.
+      apply H0.
+    -case => Y.
+     --case => Z.
+       case => x.
+       case => y.
+       case => [HA [HB HZ]].
+       split.
+       exists x.
+       exists y.
+       split.
+       apply HA.
+       split.
+       left.
+       apply HB.
+       apply HZ.
+     --case => Z.
+       case => x.
+       case => y.
+       case => [HA [HC HZ]].
+       split.
+       exists x.
+       exists y.
+       split.
+       apply HA.
+       split.
+       right.
+       apply HC.
+       apply HZ.
+  Qed.
+
   (*
     { A ∈ P(X ∪ Y) | {a} ⊂ A ⊂ {a, b} }
     -> { A | A ∈ P(X ∪ Y) /\ {a} ⊂ A /\ A ⊂ {a, b} }
