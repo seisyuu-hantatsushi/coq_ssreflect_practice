@@ -19,7 +19,8 @@ Module DirectProductNotations.
         (exists x:U, exists y:U, (x ∈ X /\ y ∈ Y /\ Z = {|{|x|},{|x,y|}|})) ->
         In (Ensemble (Ensemble U)) (DirectProduct X Y) Z.
 
-  Notation "𝒫( X )" := (@Power_set _ X) (at level 47).
+  (* 𝔓:Unicode 1D513 *)
+  Notation "𝔓( X )" := (@Power_set _ X) (at level 47).
 
   Notation "X × Y" := (@DirectProduct _ X Y) (at level 49).
   Notation "(| a , b |)" := (@OrderedPair _ a b) (at level 48).
@@ -78,7 +79,7 @@ Section PairExamples.
 
   (* R1 定義 1.3.1 *)
   (* R2 P.82-83 直積 *)
-  Goal forall (x y:U) (A B:Ensemble U), (x ∈ A /\ y ∈ B) -> OrderedPair x y ∈ 𝒫(𝒫(A ∪ B)).
+  Goal forall (x y:U) (A B:Ensemble U), (x ∈ A /\ y ∈ B) -> OrderedPair x y ∈ 𝔓(𝔓(A ∪ B)).
   Proof.
     move => x y A B.
     case => [HA HB].
@@ -197,7 +198,7 @@ Section PairExamples.
     { A ∈ P(X ∪ Y) | {a} ⊂ A ⊂ {a, b} }
     -> { A | A ∈ P(X ∪ Y) /\ {a} ⊂ A /\ A ⊂ {a, b} }
   *)
-  Goal forall (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> (| a, b |) ⊂ {| A | fun A => A ∈ 𝒫(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |}.
+  Goal forall (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> (| a, b |) ⊂ {| A | fun A => A ∈ 𝔓(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |}.
   Proof.
     move => X Y A.
     case => [Ha Hb Z].
@@ -228,7 +229,7 @@ Section PairExamples.
        exact.
   Qed.
 
-  Goal forall (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> {| A | fun A => A ∈ 𝒫(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |} ⊂ (| a, b |).
+  Goal forall (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> {| A | fun A => A ∈ 𝔓(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |} ⊂ (| a, b |).
   Proof.
     move => X Y A.
     case => HaX HbY Z.
