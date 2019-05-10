@@ -1,5 +1,6 @@
 From mathcomp Require Import ssreflect.
 
+Require Import Coq.Logic.Decidable.
 Require Import set_notations.
 
 Set Implicit Arguments.
@@ -113,10 +114,10 @@ Section PairExamples.
     apply HB.
   Qed.
 
-  Goal forall (X Y A B: Ensemble U) (x y:U), (x ∈ A) /\ (y ∈ B) /\ A ⊂ X /\ B ⊂ Y -> (A × B) ⊂ (X × Y).
+  Goal forall (X Y A B: Ensemble U), A ⊂ X /\ B ⊂ Y -> (A × B) ⊂ (X × Y).
   Proof.
-    move => X Y A B x y.
-    case => [Hx [Hy [HA HB Z]]].
+    move => X Y A B.
+    case => [HAX HBY Z].
     move => H.
     inversion H.
     inversion H0.
@@ -125,14 +126,14 @@ Section PairExamples.
     inversion H5.
     rewrite H7.
     split.
+    exists x.
     exists x0.
-    exists x1.
     split.
     move: H4.
-    apply HA.
+    apply HAX.
     split.
     move: H6.
-    apply HB.
+    apply HBY.
     reflexivity.
   Qed.
 
@@ -273,5 +274,40 @@ Section PairExamples.
      left.
      split.
   Qed.
+
+  Lemma L1: forall (X Y:Ensemble U), ((X = {||}) \/ (Y = {||}) -> False) <-> ((X = {||}) -> False) /\ ((Y = {||}) -> False).
+  Proof.
+    move => X Y.
+    rewrite /iff.
+    split.
+    apply not_or_and.
+    case.
+    move => HX HY.
+    case.
+    apply HX.
+    apply HY.
+  Qed.
+
+  Lemma L2: forall (X: Ensemble U), exists x, x ∈ X -> (X = {||} -> False).
+  Proof.
+    move => X.
+    exists a.
+    move => H0 H1.
+    move : H0.
+    rewrite H1.
+    apply Noone_in_empty.
+  Qed.
+
+  (* R1 A 1.3.5 1 *)
+  Goal forall (X Y:Ensemble U), X × Y = {||} <-> (X = {||}) \/ (Y = {||}).
+  Proof.
+    move => X Y.
+    rewrite /iff.
+    split.
+    apply contrapositive.
+    apply classic.
+    rewrite L1.
+    case => [HX HY].
+  Abort.
 
 End PairExamples.
