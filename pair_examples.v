@@ -7,6 +7,12 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
+(*
+   直観主義論理では
+      "a=0\/b=0 -> a*b=0"は証明できるが,
+      "a*b=0 -> a=0 \/ b = 0は証明できない.
+*)
+
 Module DirectProductNotations.
 
   Import SetNotations.
@@ -32,10 +38,226 @@ End DirectProductNotations.
 (* Reference 2 [R2]:数学の基礎 島内剛一                           *)
 Section PairExamples.
   Variable U:Type.
-  Variable a b c: U.
 
   Import DirectProductNotations.
 
+  Goal forall (a b:U), a<>b -> {|a|} <> {|b|}.
+  Proof.
+    move => a b HF.
+    rewrite /not.
+    move => H.
+    apply HF.
+    apply Singleton_inv.
+    rewrite H.
+    apply Singleton_intro.
+    reflexivity.
+  Qed.
+
+  Theorem T0: forall (x:U), {|x,x|} = {|x|}.
+  Proof.
+    move => x.
+    apply /Extensionality_Ensembles.
+    split => y.
+    move => H.
+    inversion H.
+    apply H0.
+    apply H0.
+    move => H.
+    left.
+    apply H.
+  Qed.
+
+  Goal forall (A B C:Ensemble U), (A ∪ B) = (B ∩ C) -> A ⊂ B /\ B ⊂ C.
+  Proof.
+    move => A B C.
+    split => x.
+    move => H1.
+    have L1: x ∈ (A ∪ B).
+    left.
+    apply H1.
+    rewrite H in L1.
+    inversion L1.
+    apply H0.
+    move => H1.
+    have L1: x ∈ (A ∪ B).
+    right.
+    apply H1.
+    rewrite H in L1.
+    inversion L1.
+    apply H2.
+  Qed.
+
+  Theorem T1: forall (a b:U), a ∈ {|b|} <-> a = b.
+  Proof.
+    rewrite /iff.
+    split.
+    move => H.
+    apply /eq_sym.
+    apply Singleton_inv.
+    apply H.
+    move => H.
+    rewrite H.
+    reflexivity.
+  Qed.
+
+  Theorem T2: forall (a b:U), {|a|} = {|b|} -> a = b.
+  Proof.
+    move => a b H.
+    have L1: a ∈ {|a|}.
+    apply Singleton_intro.
+    reflexivity.
+    rewrite H in L1.
+    apply eq_sym.
+    apply Singleton_inv.
+    apply L1.
+  Qed.
+
+  Theorem T3: forall (a b c:U), {|a|} = {|b,c|} -> a = b /\ b = c.
+  Proof.
+    move => a b c H.
+    have L1: b ∈ {|b,c|}.
+    left.
+    apply Singleton_intro.
+    reflexivity.
+    have L2: a=b.
+    rewrite -H in L1.
+    apply Singleton_inv.
+    apply L1.
+    split.
+    apply L2.
+    rewrite -L2.
+    have L3: c ∈ {|b,c|}.
+    right.
+    apply Singleton_intro.
+    reflexivity.
+    rewrite -H in L3.
+    apply Singleton_inv.
+    apply L3.
+  Qed.
+
+  (*
+      {|a|} <> {|b,c|} -> a<>b \/ b<>c
+      でないと証明できない.
+   *)
+  Goal forall (a b c:U), {|a|} <> {|b,c|} -> a <> b \/ b <> c.
+  Proof.
+    move => a b c.
+    apply contrapositive.
+    apply classic.
+    have L1: (a <> b \/ b <> c -> False) -> a = b /\ b = c.
+    
+  Qed.
+  
+  Theorem T11: forall (w x y z: U), (| x , y |) = (| w , z |) -> x = w /\ y = z.
+  Proof.
+    move => w x y z.
+    move => H0.
+    unfold OrderedPair in H0.
+    have L1: {|x|} ∈ {|{|x|},{|x,y|}|}.
+    left.
+    apply Singleton_intro.
+    reflexivity.
+    have L2: {|x,y|} ∈ {|{|x|},{|x,y|}|}.
+    right.
+    apply Singleton_intro.
+    reflexivity.
+    rewrite H0 in L1.
+    have L3: {|x|} = {|w|} \/ {|x|} = {|w,z|}.
+    move: L1.
+    case => Z.
+    move => H1.
+    left.
+    apply eq_sym.
+    apply Singleton_inv.
+    apply H1.
+    move => H1.
+    right.
+    apply eq_sym.
+    apply Singleton_inv.
+    apply H1.
+    have L4: x = w.
+    move: L3.
+    case.
+    apply T2.
+    move => H1.
+    have L3: x = w /\ w = z.
+    apply T3.
+    apply H1.
+    inversion L3.
+    apply H.
+    split.
+    apply L4.
+    (**)
+    have L5: x=z \/ x<>z -> y = z.
+    case.
+    move => H1.
+    have L6: {|w,z|}={|w|}.
+    rewrite -H1.
+    rewrite L4.
+    rewrite T0.
+    reflexivity.
+    have L7: {|{|w|},{|w,z|}|}={|{|w|}|}.
+    rewrite L6.
+    apply /Extensionality_Ensembles.
+    split => X.
+    case => Y.
+    exact.
+    exact.
+    left.
+    exact.
+    have L8: {|x,y|}={|w|}.
+    rewrite H0 in L2.
+    rewrite L7 in L2.
+    apply eq_sym.
+    apply Singleton_inv.
+    apply L2.
+    have L9: x = y /\ y = w.
+    apply T3.
+    rewrite L4.
+    rewrite L4 in L8.
+    have L9: {|y,w|} = {|w,y|}.
+    apply /Extensionality_Ensembles.
+    split => t.
+    case => t0; move => H00.
+    right.
+    apply H00.
+    left.
+    apply H00.
+    case => t0; move => H00.
+    right.
+    apply H00.
+    left.
+    apply H00.
+    rewrite L9.
+    apply eq_sym.
+    apply L8.
+    rewrite H1 in L9.
+    inversion L9.
+    apply eq_sym.
+    apply H.
+    move => H.
+    have L5: {|w,z|} ∈ {|{|w|},{|w,z|}|}.
+    right.
+    apply Singleton_intro.
+    reflexivity.
+    have L6: {|x|}={|w,z|} -> False.
+    move => H1.
+    apply H.
+    apply Singleton_inv.
+    rewrite H1.
+    right.
+    apply Singleton_intro.
+    reflexivity.
+  Abort.
+
+  Goal forall (x y z : U), x <> z -> ~({|x,z|}={|y|}).
+  Proof.
+    move => x y z H.
+    apply not_eq_sym.
+    rewrite /not.
+    move => H1.
+    apply H.
+    
   Theorem DirectProduct_Product_Empty: forall (X:Ensemble U), X × {||} = {||}.
   Proof.
     move => X.
@@ -137,7 +359,7 @@ Section PairExamples.
     reflexivity.
   Qed.
 
-  Theorem DirectProductDistCup :
+  Theorem DirectProductLeftDistUnion :
     forall (A B C: Ensemble U), A × (B ∪ C) = A × B ∪ A × C.
   Proof.
     move => A B C.
@@ -195,6 +417,44 @@ Section PairExamples.
        apply HZ.
   Qed.
 
+  Theorem DirectProductLeftDistIntersection :
+    forall (A B C: Ensemble U), A × (B ∩ C) = A × B ∩ A × C.
+  Proof.
+    move => A B C.
+    apply /Extensionality_Ensembles.
+    split => X; case => Z.
+    case => x.
+    case => y.
+    case => [HA [HBC H0]].
+     inversion HBC.
+     split; split; exists x; exists y; split.
+     --apply HA.
+       split.
+       apply H.
+       apply H0.
+     --apply HA.
+       split.
+       apply H1.
+       apply H0.
+    -move => H0.
+     move => H1.
+     inversion H0 as [D H01].
+     inversion H01 as [x0 H02].
+     inversion H02 as [y0 H03].
+     inversion H03 as [HA0 H04].
+     inversion H04 as [HB0 H05].
+     inversion H1 as [E H11].
+     inversion H11 as [x1 H12].
+     inversion H12 as [y1 H13].
+     inversion H13 as [HA1 H14].
+     inversion H14 as [HB1 H15].
+     have L1: x0 = x1 /\ y0 = y1.
+     move: H15.
+     rewrite H05.
+     move => H5.
+     
+  Qed.
+  
   (*
     { A ∈ P(X ∪ Y) | {a} ⊂ A ⊂ {a, b} }
     -> { A | A ∈ P(X ∪ Y) /\ {a} ⊂ A /\ A ⊂ {a, b} }
@@ -288,26 +548,33 @@ Section PairExamples.
     apply HY.
   Qed.
 
-  Lemma L2: forall (X: Ensemble U), exists x, x ∈ X -> (X = {||} -> False).
+  (*
+      古典論理では, ¬∀x(x∉A) <-> ∃x(x∈A)
+      直観主義論理では, ¬∀x(x∉A)がinhabited,  ∃x(x∈A)がnot emptyで区別される.
+   *)
+  Lemma L2: forall (X: Ensemble U), (exists x, x ∈ X) -> (X = {||} -> False).
   Proof.
     move => X.
-    exists a.
     move => H0 H1.
     move : H0.
+    case.
+    move => x.
     rewrite H1.
     apply Noone_in_empty.
   Qed.
 
-  (* R1 A 1.3.5 1 *)
-  Goal forall (X Y:Ensemble U), X × Y = {||} <-> (X = {||}) \/ (Y = {||}).
+  Lemma L3: forall (X: Ensemble U), Inhabited U X <-> (X = {||} -> False).
   Proof.
-    move => X Y.
+    move => X.
     rewrite /iff.
-    split.
-    apply contrapositive.
-    apply classic.
-    rewrite L1.
-    case => [HX HY].
-  Abort.
+    split => H0.
+    -apply Inhabited_not_empty.
+     apply H0.
+    -apply not_empty_Inhabited.
+     rewrite /not.
+     apply H0.
+  Qed.
+
+
 
 End PairExamples.
