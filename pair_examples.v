@@ -135,129 +135,152 @@ Section PairExamples.
     apply L3.
   Qed.
 
-  (*
-      {|a|} <> {|b,c|} -> a<>b \/ b<>c
-      でないと証明できない.
-   *)
-  Goal forall (a b c:U), {|a|} <> {|b,c|} -> a <> b \/ b <> c.
+  Theorem T4: forall (a b c d: U), a <> c -> {|a,b|}={|c,d|} -> a = d.
+  Proof.
+    +move => a b c d H0 H1.
+     --have L1: a ∈ {|a,b|}.
+       left.
+       apply Singleton_intro.
+       reflexivity.
+    +rewrite H1 in L1.
+     --have L2: a ∈ {|c,d|} <-> a = c \/ a = d.
+       rewrite /iff.
+       split.
+       ---case => x H20.
+       left.
+       apply eq_sym.
+       apply Singleton_inv.
+       apply H20.
+       right.
+       apply eq_sym.
+       apply Singleton_inv.
+       apply H20.
+       ---case => H20.
+          left.
+          rewrite H20.
+          apply Singleton_intro.
+          reflexivity.
+          right.
+          rewrite H20.
+          apply Singleton_intro.
+          reflexivity.
+    +move: L1.
+     rewrite L2.
+     rewrite -imp_not_l.
+     case.
+     apply.
+     apply H0.
+     apply classic.
+  Qed.
+
+  Theorem T5: forall (a b c: U), a ∈ {|b,c|} -> a = b \/ a = c.
   Proof.
     move => a b c.
-    apply contrapositive.
-    apply classic.
-    have L1: (a <> b \/ b <> c -> False) -> a = b /\ b = c.
-    
+    case => x H.
+    left.
+    apply eq_sym.
+    apply Singleton_inv.
+    apply H.
+    right.
+    apply eq_sym.
+    apply Singleton_inv.
+    apply H.
+  Qed.
+  
+  Theorem T6: forall (a b c d: U), {|a,b|}={|c,d|} -> (a = c /\ b = d) \/ (a = d /\ b = c).
+  Proof.
+    +move => a b c d.
+     move => H.
+     --have L0: forall (x y: U), x = y <-> y = x.
+       move => x y.
+       rewrite /iff.
+       split => H230; rewrite H230; reflexivity.
+     apply imp_not_l.
+     apply classic.
+     --have L1: a <> c \/ b <> d <-> (a = c /\ b = d -> False).
+       rewrite /iff.
+       split => H0.
+       apply or_not_and.
+       apply H0.
+       apply not_and_or.
+       rewrite /not.
+       apply H0.
+    +rewrite -L1.
+     case => H0.
+     split.
+     ++move: H.
+       move: H0.
+       apply T4. (* a <> c -> a = d *)
+       ---have L20: c ∈ {|a,b|}.
+          rewrite H.
+          left.
+          apply Singleton_intro.
+          reflexivity.
+       ---have L21: c = a \/ c = b.
+          move: L20.
+          apply T5.
+     --have L22: a = c \/ b = c -> (a <> c -> b = c).
+       rewrite imp_not_l.
+       apply.
+       apply classic.
+    +move: H0.
+     move: L21.
+     rewrite (L0 c a).
+     rewrite (L0 c b).
+     apply L22.
+    +split.
+     ---have L30: d ∈ {|a, b|}.
+        rewrite H.
+        right.
+        apply Singleton_intro.
+       reflexivity.
+     ---have L31: d = a \/ d = b.
+        move: L30.
+        apply (@T5 d a b).
+     --move: H0.
+       move: L31.
+       rewrite or_comm.
+       rewrite (L0 d a).
+       rewrite (L0 d b).
+       apply imp_not_l.
+       apply classic.
+     ---have L30: b ∈ {|c, d|}.
+        rewrite -H.
+        right.
+        apply Singleton_intro.
+        reflexivity.
+     ---have L31: b = c \/ b = d.
+        move: L30.
+        apply T5.
+     --move: H0.
+       move: L31.
+       rewrite or_comm.
+       apply imp_not_l.
+       apply classic.
   Qed.
   
   Theorem T11: forall (w x y z: U), (| x , y |) = (| w , z |) -> x = w /\ y = z.
   Proof.
-    move => w x y z.
-    move => H0.
-    unfold OrderedPair in H0.
-    have L1: {|x|} ∈ {|{|x|},{|x,y|}|}.
-    left.
-    apply Singleton_intro.
-    reflexivity.
-    have L2: {|x,y|} ∈ {|{|x|},{|x,y|}|}.
-    right.
-    apply Singleton_intro.
-    reflexivity.
-    rewrite H0 in L1.
-    have L3: {|x|} = {|w|} \/ {|x|} = {|w,z|}.
-    move: L1.
-    case => Z.
-    move => H1.
-    left.
-    apply eq_sym.
-    apply Singleton_inv.
-    apply H1.
-    move => H1.
-    right.
-    apply eq_sym.
-    apply Singleton_inv.
-    apply H1.
-    have L4: x = w.
-    move: L3.
-    case.
-    apply T2.
-    move => H1.
-    have L3: x = w /\ w = z.
-    apply T3.
-    apply H1.
-    inversion L3.
-    apply H.
-    split.
-    apply L4.
-    (**)
-    have L5: x=z \/ x<>z -> y = z.
-    case.
-    move => H1.
-    have L6: {|w,z|}={|w|}.
-    rewrite -H1.
-    rewrite L4.
-    rewrite T0.
-    reflexivity.
-    have L7: {|{|w|},{|w,z|}|}={|{|w|}|}.
-    rewrite L6.
-    apply /Extensionality_Ensembles.
-    split => X.
-    case => Y.
-    exact.
-    exact.
-    left.
-    exact.
-    have L8: {|x,y|}={|w|}.
-    rewrite H0 in L2.
-    rewrite L7 in L2.
-    apply eq_sym.
-    apply Singleton_inv.
-    apply L2.
-    have L9: x = y /\ y = w.
-    apply T3.
-    rewrite L4.
-    rewrite L4 in L8.
-    have L9: {|y,w|} = {|w,y|}.
-    apply /Extensionality_Ensembles.
-    split => t.
-    case => t0; move => H00.
-    right.
-    apply H00.
-    left.
-    apply H00.
-    case => t0; move => H00.
-    right.
-    apply H00.
-    left.
-    apply H00.
-    rewrite L9.
-    apply eq_sym.
-    apply L8.
-    rewrite H1 in L9.
-    inversion L9.
-    apply eq_sym.
-    apply H.
-    move => H.
-    have L5: {|w,z|} ∈ {|{|w|},{|w,z|}|}.
-    right.
-    apply Singleton_intro.
-    reflexivity.
-    have L6: {|x|}={|w,z|} -> False.
-    move => H1.
-    apply H.
-    apply Singleton_inv.
-    rewrite H1.
-    right.
-    apply Singleton_intro.
-    reflexivity.
+    +move => w x y z.
+     unfold OrderedPair.
+     move => H1.
   Abort.
-
-  Goal forall (x y z : U), x <> z -> ~({|x,z|}={|y|}).
+  
+  Goal forall (x y z : U), x <> y -> ~({|x,z|}={|y|}).
   Proof.
     move => x y z H.
     apply not_eq_sym.
     rewrite /not.
     move => H1.
     apply H.
-    
+    apply eq_sym.
+    apply Singleton_inv.
+    rewrite H1.
+    left.
+    apply Singleton_intro.
+    reflexivity.
+  Qed.
+  
   Theorem DirectProduct_Product_Empty: forall (X:Ensemble U), X × {||} = {||}.
   Proof.
     move => X.
