@@ -186,12 +186,14 @@ Section PairExamples.
     apply Singleton_inv.
     apply H.
   Qed.
-  
+
   Theorem T6: forall (V:Type) (a b c d: V),
-      {|a,b|}={|c,d|} -> (a = c /\ b = d) \/ (a = d /\ b = c).
+      {|a,b|}={|c,d|} <-> (a = c /\ b = d) \/ (a = d /\ b = c).
   Proof.
     +move => V a b c d.
-     move => H.
+     rewrite /iff.
+     split.
+     ++move => H.
      --have L0: forall (x y: V), x = y <-> y = x.
        move => x y.
        rewrite /iff.
@@ -206,39 +208,39 @@ Section PairExamples.
        apply not_and_or.
        rewrite /not.
        apply H0.
-    +rewrite -L1.
-     case => H0.
-     split.
-     ++move: H.
-       move: H0.
-       apply T4. (* a <> c -> a = d *)
-       ---have L20: c ∈ {|a,b|}.
-          rewrite H.
-          left.
-          apply Singleton_intro.
-          reflexivity.
-       ---have L21: c = a \/ c = b.
-          move: L20.
-          apply T5.
-     --have L22: a = c \/ b = c -> (a <> c -> b = c).
-       rewrite imp_not_l.
-       apply.
-       apply classic.
-    +move: H0.
-     move: L21.
-     rewrite (L0 c a).
-     rewrite (L0 c b).
-     apply L22.
+    ++rewrite -L1.
+      case => H0.
+      split.
+      +++move: H.
+         move: H0.
+         apply T4. (* a <> c -> a = d *)
+      ---have L20: c ∈ {|a,b|}.
+         rewrite H.
+         left.
+         apply Singleton_intro.
+         reflexivity.
+      ---have L21: c = a \/ c = b.
+         move: L20.
+         apply T5.
+      ---have L22: a = c \/ b = c -> (a <> c -> b = c).
+         rewrite imp_not_l.
+         apply.
+         apply classic.
+    ++move: H0.
+      move: L21.
+      rewrite (L0 c a).
+      rewrite (L0 c b).
+      apply L22.
     +split.
      ---have L30: d ∈ {|a, b|}.
         rewrite H.
         right.
         apply Singleton_intro.
-       reflexivity.
+        reflexivity.
      ---have L31: d = a \/ d = b.
         move: L30.
         apply (@T5 V d a b).
-     --move: H0.
+     ++move: H0.
        move: L31.
        rewrite or_comm.
        rewrite (L0 d a).
@@ -253,14 +255,28 @@ Section PairExamples.
      ---have L31: b = c \/ b = d.
         move: L30.
         apply T5.
-     --move: H0.
+     ++move: H0.
        move: L31.
        rewrite or_comm.
        apply imp_not_l.
        apply classic.
+    +case; case => [H0 H1]; rewrite H0; rewrite H1.
+     ++reflexivity.
+       ---have L1: {|d,c|} = {|c,d|}.
+          apply /Extensionality_Ensembles.
+          split => x; case => y; move => H2.
+          right.
+          apply H2.
+          left.
+          apply H2.
+          right.
+          apply H2.
+          left.
+          apply H2.
+     ++apply L1.
   Qed.
 
-  Theorem T11: forall (w x y z: U), (| x , y |) = (| w , z |) -> x = w /\ y = z.
+  Theorem ordered_pair_imply_to_and: forall (w x y z: U), (| x , y |) = (| w , z |) -> x = w /\ y = z.
   Proof.
     +move => w x y z.
      unfold OrderedPair.
@@ -270,12 +286,39 @@ Section PairExamples.
        apply H1.
     +move: L1.
      case.
-     case => H00 H01.
+     case => H00.
+     rewrite T6.
+     case.
+     apply.
+     case => H01 H02.
      split.
-     
-     
-  Abort.
-  
+     move: H00.
+     apply T2.
+     rewrite -H01.
+     rewrite H02.
+     apply eq_sym.
+     move: H00.
+     apply T2.
+    +case => H00 H01.
+     --have L1: x = w /\ w = z.
+       move: H00.
+       apply T3.
+     --have L2: w = x /\ x = y.
+       move: H01.
+       ---have L20: {|x,y|} = {|w|} <-> {|w|} = {|x,y|}.
+          rewrite /iff.
+          split; move => H20; rewrite H20; reflexivity.
+     --rewrite L20.
+       apply T3.
+       inversion L1.
+       inversion L2.
+       split.
+       apply H.
+       rewrite -H3.
+       rewrite -H0.
+       apply H.
+  Qed.
+
   Goal forall (x y z : U), x <> y -> ~({|x,z|}={|y|}).
   Proof.
     move => x y z H.
@@ -290,7 +333,7 @@ Section PairExamples.
     apply Singleton_intro.
     reflexivity.
   Qed.
-  
+
   Theorem DirectProduct_Product_Empty: forall (X:Ensemble U), X × {||} = {||}.
   Proof.
     move => X.
@@ -484,17 +527,30 @@ Section PairExamples.
      have L1: x0 = x1 /\ y0 = y1.
      move: H15.
      rewrite H05.
-     move => H5.
-     
+     apply ordered_pair_imply_to_and.
+     split.
+     exists x1.
+     exists y1.
+     split.
+     apply HA1.
+     split.
+     move: L1.
+     case.
+     move => H16 H17.
+     split.
+     rewrite -H17.
+     apply HB0.
+     apply HB1.
+     apply H15.
   Qed.
-  
+
   (*
     { A ∈ P(X ∪ Y) | {a} ⊂ A ⊂ {a, b} }
     -> { A | A ∈ P(X ∪ Y) /\ {a} ⊂ A /\ A ⊂ {a, b} }
   *)
-  Goal forall (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> (| a, b |) ⊂ {| A | fun A => A ∈ 𝔓(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |}.
+  Goal forall (a b:U) (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> (| a, b |) ⊂ {| A | fun A => A ∈ 𝔓(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |}.
   Proof.
-    move => X Y A.
+    move => a b X Y A.
     case => [Ha Hb Z].
     -case => W.
      --case.
@@ -523,9 +579,9 @@ Section PairExamples.
        exact.
   Qed.
 
-  Goal forall (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> {| A | fun A => A ∈ 𝔓(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |} ⊂ (| a, b |).
+  Goal forall (a b: U) (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> {| A | fun A => A ∈ 𝔓(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |} ⊂ (| a, b |).
   Proof.
-    move => X Y A.
+    move => a b X Y A.
     case => HaX HbY Z.
     case => W.
     case => HP.
@@ -546,9 +602,9 @@ Section PairExamples.
   Abort.
 
   (* R1 A 1.3.4 2 *)
-  Goal forall (x:U) (X Y:Ensemble U), (a ∈ X /\ b ∈ Y /\ x ∈ X) -> ( x = a <-> forall (z:Ensemble U), (z ∈ (| a, b |)) -> x ∈ z ).
+  Goal forall (a b x:U) (X Y:Ensemble U), (a ∈ X /\ b ∈ Y /\ x ∈ X) -> ( x = a <-> forall (z:Ensemble U), (z ∈ (| a, b |)) -> x ∈ z ).
   Proof.
-    move => x X Y.
+    move => a b x X Y.
     case => [HaX [HbY HxX]].
     rewrite /iff.
     split.
@@ -607,7 +663,5 @@ Section PairExamples.
      rewrite /not.
      apply H0.
   Qed.
-
-
 
 End PairExamples.
