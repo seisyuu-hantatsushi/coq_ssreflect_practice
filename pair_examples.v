@@ -135,9 +135,9 @@ Section PairExamples.
     apply L3.
   Qed.
 
-  Theorem T4: forall (a b c d: U), a <> c -> {|a,b|}={|c,d|} -> a = d.
+  Theorem T4: forall (V:Type) (a b c d: V), a <> c -> {|a,b|}={|c,d|} -> a = d.
   Proof.
-    +move => a b c d H0 H1.
+    +move => V a b c d H0 H1.
      --have L1: a ∈ {|a,b|}.
        left.
        apply Singleton_intro.
@@ -173,9 +173,9 @@ Section PairExamples.
      apply classic.
   Qed.
 
-  Theorem T5: forall (a b c: U), a ∈ {|b,c|} -> a = b \/ a = c.
+  Theorem T5: forall (V:Type) (a b c: V), a ∈ {|b,c|} -> a = b \/ a = c.
   Proof.
-    move => a b c.
+    move => V a b c.
     case => x H.
     left.
     apply eq_sym.
@@ -187,11 +187,12 @@ Section PairExamples.
     apply H.
   Qed.
   
-  Theorem T6: forall (a b c d: U), {|a,b|}={|c,d|} -> (a = c /\ b = d) \/ (a = d /\ b = c).
+  Theorem T6: forall (V:Type) (a b c d: V),
+      {|a,b|}={|c,d|} -> (a = c /\ b = d) \/ (a = d /\ b = c).
   Proof.
-    +move => a b c d.
+    +move => V a b c d.
      move => H.
-     --have L0: forall (x y: U), x = y <-> y = x.
+     --have L0: forall (x y: V), x = y <-> y = x.
        move => x y.
        rewrite /iff.
        split => H230; rewrite H230; reflexivity.
@@ -236,7 +237,7 @@ Section PairExamples.
        reflexivity.
      ---have L31: d = a \/ d = b.
         move: L30.
-        apply (@T5 d a b).
+        apply (@T5 V d a b).
      --move: H0.
        move: L31.
        rewrite or_comm.
@@ -258,12 +259,21 @@ Section PairExamples.
        apply imp_not_l.
        apply classic.
   Qed.
-  
+
   Theorem T11: forall (w x y z: U), (| x , y |) = (| w , z |) -> x = w /\ y = z.
   Proof.
     +move => w x y z.
      unfold OrderedPair.
      move => H1.
+     --have L1: ({|x|}={|w|}/\{|x,y|}={|w,z|}) \/ ({|x|}={|w,z|}/\{|x,y|}={|w|}).
+       apply (@T6 (Ensemble U) {|x|} {|x,y|} {|w|} {|w,z|}).
+       apply H1.
+    +move: L1.
+     case.
+     case => H00 H01.
+     split.
+     
+     
   Abort.
   
   Goal forall (x y z : U), x <> y -> ~({|x,z|}={|y|}).
