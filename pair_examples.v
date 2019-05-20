@@ -19,38 +19,6 @@ Section PairExamples.
 
   Import SetNotations.
 
-  Goal forall (a b:U), a<>b -> {|a|} <> {|b|}.
-  Proof.
-    move => a b HF.
-    rewrite /not.
-    move => H.
-    apply HF.
-    apply Singleton_inv.
-    rewrite H.
-    apply Singleton_intro.
-    reflexivity.
-  Qed.
-
-  Goal forall (A B C:Ensemble U), (A ∪ B) = (B ∩ C) -> A ⊂ B /\ B ⊂ C.
-  Proof.
-    move => A B C.
-    split => x.
-    move => H1.
-    have L1: x ∈ (A ∪ B).
-    left.
-    apply H1.
-    rewrite H in L1.
-    inversion L1.
-    apply H0.
-    move => H1.
-    have L1: x ∈ (A ∪ B).
-    right.
-    apply H1.
-    rewrite H in L1.
-    inversion L1.
-    apply H2.
-  Qed.
-
   Theorem T_0: forall (a b c:U), {|a|} = {|b,c|} -> a = b /\ b = c.
   Proof.
     move => a b c H.
@@ -107,13 +75,25 @@ Section PairExamples.
       exact H.
       right.
       exact H.
+    ++have L1: forall (x y: V), {|x, y|} = {|y, x|}.
+      move => x y.
+      apply /Extensionality_Ensembles.
+      split => z; case => w H.
+      right.
+      apply H.
+      left.
+      apply H.
+      right.
+      apply H.
+      left.
+      apply H.
     +move => a b c d.
      rewrite /iff.
      split.
      ++move => H.
        apply imp_not_l.
        apply classic.
-     --have L1: a <> c \/ b <> d <-> (a = c /\ b = d -> False).
+     --have L2: a <> c \/ b <> d <-> (a = c /\ b = d -> False).
        rewrite /iff.
        split => H0.
        apply or_not_and.
@@ -121,73 +101,62 @@ Section PairExamples.
        apply not_and_or.
        rewrite /not.
        apply H0.
-    ++rewrite -L1.
+    ++rewrite -L2.
       case => H0.
       split.
-      +++move: H.
-         move: H0.
-         apply T_1. (* a <> c -> a = d *)
-      ---have L20: c ∈ {|a,b|}.
+      (* a = c \/ a = d -> a <> c -> a = d *)
+      ---have L01: a = c \/ a = d.
+         apply theorem_of_pairing.
+         rewrite -H.
+         left.
+         apply Singleton_intro.
+         reflexivity.
+      ---move: H0.
+         move: L01.
+         rewrite (eq_iff a c).
+         rewrite (eq_iff a d).
+         apply L0.
+      (* a = c \/ b = c -> a <> c -> b = c *)
+      ---have L02: a = c \/ b = c.
+         rewrite (eq_iff a c).
+         rewrite (eq_iff b c).
+         apply theorem_of_pairing.
          rewrite H.
          left.
          apply Singleton_intro.
          reflexivity.
-      ---have L21: c = a \/ c = b.
-         move: L20.
-         apply theorem_of_pairing.
-    ++move: H0. (* a = c \/ b = c ->  a <> c -> b = c *)
-      move: L21.
-      rewrite (eq_iff c a).
-      rewrite (eq_iff c b).
-      apply L0.
+      ---move: H0.
+         move: L02.
+         apply L0.
     +split.
-     ---have L30: d ∈ {|a, b|}.
-        rewrite H.
-        right.
-        apply Singleton_intro.
-        reflexivity.
-     ---have L31: d = a \/ d = b.
-        move: L30.
-        apply theorem_of_pairing.
      ++move: H0.
-       move: L31.
-       rewrite (eq_iff d a).
-       rewrite (eq_iff d b).
-       rewrite or_comm.
+     (* b = d \/ a = d -> b <> d -> a = d *)
+       ---have L30: b = d \/ a = d.
+          rewrite (eq_iff b d).
+          rewrite (eq_iff a d).
+          apply theorem_of_pairing.
+          rewrite L1.
+          rewrite H.
+          right.
+          apply Singleton_intro.
+          reflexivity.
+     ++move: L30.
        apply L0.
-       move: H0.
-       apply imp_not_l.
-       apply classic.
-       apply theorem_of_pairing.
-       ---have L10: {|d,c|} = {|c,d|}.
-          apply /Extensionality_Ensembles.
-          split => x; case => y; move => H2.
+     (* b = d -> b = c -> b <> d -> b = c *)
+     ++move: H0.
+       ---have L31: b = d \/ b = c.
+          apply theorem_of_pairing.
+          rewrite L1.
+          rewrite -H.
           right.
-          apply H2.
-          left.
-          apply H2.
-          right.
-          apply H2.
-          left.
-          apply H2.
-     ++rewrite L10.
-       rewrite -H.
-       right.
-       apply Singleton_intro.
-       reflexivity.
+          apply Singleton_intro.
+          reflexivity.
+     ++move: L31.
+       rewrite (eq_iff b d).
+       rewrite (eq_iff b c).
+       apply L0.
     +case; case => [H0 H1]; rewrite H0; rewrite H1.
      ++reflexivity.
-       ---have L1: {|d,c|} = {|c,d|}.
-          apply /Extensionality_Ensembles.
-          split => x; case => y; move => H2.
-          right.
-          apply H2.
-          left.
-          apply H2.
-          right.
-          apply H2.
-          left.
-          apply H2.
      ++apply L1.
   Qed.
 
@@ -242,21 +211,6 @@ Section PairExamples.
        rewrite H0.
        rewrite H1.
        reflexivity.
-  Qed.
-
-  Goal forall (x y z : U), x <> y -> ~({|x,z|}={|y|}).
-  Proof.
-    move => x y z H.
-    apply not_eq_sym.
-    rewrite /not.
-    move => H1.
-    apply H.
-    apply eq_sym.
-    apply Singleton_inv.
-    rewrite H1.
-    left.
-    apply Singleton_intro.
-    reflexivity.
   Qed.
 
   Theorem DirectProduct_Product_Empty: forall (X:Ensemble U), X × {||} = {||}.
@@ -470,6 +424,7 @@ Section PairExamples.
   Qed.
 
   (*
+    R1 A 1.3.4 1
     { A ∈ P(X ∪ Y) | {a} ⊂ A ⊂ {a, b} }
     -> { A | A ∈ P(X ∪ Y) /\ {a} ⊂ A /\ A ⊂ {a, b} }
   *)
@@ -504,26 +459,67 @@ Section PairExamples.
        exact.
   Qed.
 
+
+  Goal forall (a: U) (S: Ensemble U), S={||} \/ S={|a|} -> S ⊂ {|a|}.
+  Proof.
+    move => a S.
+    case => H.
+    rewrite H.
+    move => x.
+    case.
+    rewrite H.
+    move => x.
+    apply.
+  Qed.
+  
+  Goal forall (a: U) (S: Ensemble U),
+      S ⊂ {|a|} -> forall (x:U), x ∈ S -> x = a.
+  Proof.
+    move => a S H x H0.
+    apply singleton_eq_iff.
+    move: H0.
+    apply H.
+  Qed.
+
+  Goal forall (a b: U) (S: Ensemble U),
+      ({|a|} ⊂ S /\ S ⊂ {|a,b|}) -> forall (x:U), x ∈ S -> x = a \/ x = b.
+  Proof.
+    move => a b S.
+    case => HaS HSab x.
+    unfold Included in HSab.
+    move: (HSab x) => Hx.
+    move => H.
+    apply theorem_of_pairing.
+    move: H.
+    apply Hx.
+  Qed.
+
   Goal forall (a b: U) (X Y A:Ensemble U), a ∈ X /\ b ∈ Y -> {| A | fun A => A ∈ 𝔓(X ∪ Y) /\ {|a|} ⊂ A /\ A ⊂ {|a, b|} |} ⊂ (| a, b |).
   Proof.
     move => a b X Y A.
-    case => HaX HbY Z.
-    case => W.
-    case => HP.
-    case => Ha Hab.
-    move: HP.
+    case => HaX HbY W.
+    case => Z.
     case.
-    move => S.
-    rewrite /OrderedPair.
-    move => HS.
+    case => [S HSXY].
+    move => H.
+    unfold OrderedPair.
+    apply theorem_of_pairing.
+  Abort.
+
+  Goal forall (x y z : U), x <> y -> ~({|x,z|}={|y|}).
+  Proof.
+    move => x y z H.
+    apply not_eq_sym.
+    rewrite /not.
+    move => H1.
+    apply H.
+    apply eq_sym.
+    apply Singleton_inv.
+    rewrite H1.
     left.
-    rewrite /Included in HS.
-    move: (HS a) => HSa.
-    rewrite /Included in Ha.
-    rewrite /In.
-    have L1: S = {|a|}.
-    apply /Extensionality_Ensembles.
-    split => x.
+    apply Singleton_intro.
+    reflexivity.
+  Qed.
   Abort.
 
   (* R1 A 1.3.4 2 *)
