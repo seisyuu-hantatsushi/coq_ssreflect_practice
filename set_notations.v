@@ -9,12 +9,13 @@ Import Prenex Implicits.
 
 Module SetNotations.
 
-  Notation "x ∈ X" := (In _ X x) (at level 48).
-  Notation "A ⊂ B" := (Included _ A B) (at level 48).
+  Notation "x ∈ X" := (In _ X x) (right associativity, at level 48).
+  Notation "A ⊂ B" := (Included _ A B) (right associativity, at level 48).
+  Notation "A ⊊ B" := (Strict_Included _ A B) (right associativity, at level 48).
   Notation "A ^c"   := (Complement _ A) (at level 49).
-  Notation "A ∪ B" := (Union _ A B) (at level 50).
-  Notation "A ∩ B" := (Intersection _ A B) (at level 50).
-  Notation "A \ B"  := (Setminus _ A B) (at level 50).
+  Notation "A ∪ B" := (Union _ A B) (left associativity, at level 50).
+  Notation "A ∩ B" := (Intersection _ A B) (left associativity, at level 50).
+  Notation "A \ B"  := (Setminus _ A B) (left associativity, at level 50).
 
   Notation "{||}"  := (Empty_set _).
   Notation "{| x |}" := (Singleton _ x).
