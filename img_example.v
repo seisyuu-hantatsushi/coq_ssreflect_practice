@@ -20,11 +20,12 @@ Section ImgExample.
   Inductive InvIm (B: Ensemble V) (f:U -> V): Ensemble U :=
     InvIm_intro: forall (x:U), (f x) ∈ B -> x ∈ (InvIm B f).
 
+  Definition Compsite (A B C : Type) (f:A -> B) (g:B -> C): A -> C := fun (x:A) => g (f x).
+  
   (* ℑ:Unicode 2111, 𝔪:Unicode 1D52A *)
   Notation "ℑ𝔪( f | A )" := (Im _ _ A f) (at level 60).
   Notation "ℑ𝔪^-1( f | A )" := (InvIm A f) (at level 60).
-
-  Definition ImgCompsite (f:U -> V) (g:V -> W): U -> W := fun (x:U) => g (f x).
+  Notation "f ・ g" := (@Compsite _ _ _ f g) (left associativity, at level 50).
 
   Lemma InvIm_def: forall (B: Ensemble V) (f:U -> V) (x:U),
       x ∈ (InvIm B f) -> (f x) ∈ B.
@@ -169,6 +170,12 @@ Section ImgExample.
     apply Full_intro.
   Qed.
 
-  
+  Lemma compsite_assc: forall (A B C D:Type) (f:A->B) (g:B->C) (h:C->D), f ・ ( g ・ h ) = ( f ・ g ) ・ h.
+  Proof.
+    move => A B C D f g h.
+    unfold Compsite.
+    reflexivity.
+  Qed.
+
   
 End ImgExample.
