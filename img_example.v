@@ -19,8 +19,17 @@ Section ImgExample.
   (* R3 1.2.4 definition *)
   Inductive InvIm (B: Ensemble V) (f:U -> V): Ensemble U :=
     InvIm_intro: forall (x:U), (f x) ∈ B -> x ∈ (InvIm B f).
-  
+
   Notation "ℑ𝔪( f | A )" := (Im _ _ A f) (at level 60).
+  Notation "ℑ𝔪^-1( f | A )" := (InvIm A f) (at level 60).
+
+  Lemma InvIm_def: forall (B: Ensemble V) (f:U -> V) (x:U),
+      x ∈ (InvIm B f) -> (f x) ∈ B.
+  Proof.
+    move => B f x.
+    case => b.
+    apply.
+  Qed.
 
   Lemma Img_Subset: forall (A B:Ensemble U) (f: U -> V),
       A ⊂ B -> ℑ𝔪( f | A ) ⊂ ℑ𝔪( f | B ).
@@ -33,6 +42,14 @@ Section ImgExample.
     apply HsA.
   Qed.
 
+
+  Goal forall (A B:Ensemble U) (f:U -> V),
+      (ℑ𝔪( f | A ) \ ℑ𝔪( f | B )) ⊂ ℑ𝔪( f | (A \ B) ).
+  Proof.
+    move => A B f x.
+    case => HA HnB.
+    move: (@Im_def U V (A\B) f).
+    
   (* R2 Problem 2.3.8 *)
   Lemma Img_Union: forall (A B:Ensemble U) (f: U -> V),
       ℑ𝔪( f | A ∪ B ) = ℑ𝔪( f | A ) ∪ ℑ𝔪( f | B ).
@@ -71,7 +88,15 @@ Section ImgExample.
     apply HB.
   Qed.
 
-  Check InvIm.
-  Goal forall (A:Ensemble U) (f:U->V), A ⊂ InvIm (ℑ𝔪( f | A )) f. 
+  (* R2 Problem 2.3.10 *)
+  Goal forall (A:Ensemble U) (f:U->V), A ⊂ ℑ𝔪^-1( f | (ℑ𝔪( f | A ))).
+  Proof.
+    move => A f x H.
+    split.
+    apply Im_def.
+    apply H.
+  Qed.
 
+  Goal 
+  
 End ImgExample.
