@@ -17,15 +17,18 @@ Section ImgExample.
   Import SetNotations.
 
   (* R3 1.2.4 definition *)
-  Inductive InvIm (B: Ensemble V) (f:U -> V): Ensemble U :=
+  Inductive InvIm {U V:Type} (B: Ensemble V) (f:U -> V): Ensemble U :=
     InvIm_intro: forall (x:U), (f x) ∈ B -> x ∈ (InvIm B f).
 
-  Definition Compsite (A B C : Type) (g:B -> C) (f:A -> B) : A -> C := fun (x:A) => g (f x).
+  Definition Id (A:Type) : A -> A := fun (x:A) => x.
+
+  Definition Compsite {A B C : Type} (g:B -> C) (f:A -> B) : A -> C := fun (x:A) => g (f x).
 
   (* ℑ:Unicode 2111, 𝔪:Unicode 1D52A *)
-  Notation "ℑ𝔪( f | A )" := (Im _ _ A f) (at level 60).
+  Notation "ℑ𝔪( f | A )" := (@Im _ _ A f) (at level 60).
   Notation "ℑ𝔪^-1( f | A )" := (InvIm A f) (at level 60).
-  Notation "g ・ f" := (@Compsite _ _ _ g f) (left associativity, at level 50).
+  (* ∘ : Unicode 2218 *)
+  Notation "g ∘ f" := (Compsite g f) (left associativity, at level 50).
 
   Lemma InvIm_def: forall (B: Ensemble V) (f:U -> V) (x:U),
       x ∈ (InvIm B f) -> (f x) ∈ B.
@@ -174,16 +177,23 @@ Section ImgExample.
   Qed.
 
   (* h ・ ( g ・ f ) = ( h ・ g ) ・ f *)
-  Lemma compsite_assc: forall (A B C D:Type) (f:A->B) (g:B->C) (h:C->D), h ・ ( g ・ f ) = ( h ・ g ) ・ f.
+  Lemma compsite_assc: forall (A B C D:Type) (f:A->B) (g:B->C) (h:C->D), h ∘ ( g ∘ f ) = ( h ∘ g ) ∘ f.
   Proof.
     move => A B C D f g h.
     unfold Compsite.
     reflexivity.
   Qed.
 
+  Goal forall (A B: Type) (f:A->B), id ∘ f = f.
+    move => A B f.
+    unfold Compsite.
+    unfold id.
+    reflexivity.
+  Qed.
+
   (* R3 Problem 1.3.1 (g ・ f)[A] = g[f[A]] *)
   Goal forall (X Y Z: Type) (A:Ensemble X) (f:X -> Y) (g:Y -> Z),
-      ℑ𝔪( g ・ f | A ) = ℑ𝔪( g | ℑ𝔪( f | A )).
+      ℑ𝔪( g ∘ f | A ) = ℑ𝔪( g | ℑ𝔪( f | A )).
   Proof.
     move => X Y Z A f g.
     apply /Extensionality_Ensembles.
@@ -197,7 +207,7 @@ Section ImgExample.
     inversion H0.
     rewrite H1.
     rewrite H4.
-    have L1: forall a:X, g (f a) = (g ・ f) a.
+    have L1: forall a:X, g (f a) = (g ∘ f) a.
     move => a.
     unfold Compsite.
     reflexivity.
@@ -207,5 +217,21 @@ Section ImgExample.
   Qed.
 
   (* R3 Problem 1.3.2 R ⊂ Z -> (g ・ f)^-1[R] = f^-1 [g^-1 [R]] *)
-  
+  Goal forall (X Y Z: Type) (R:Ensemble Z) (f:X -> Y) (g:Y -> Z),
+      ℑ𝔪^-1( g ∘ f | R ) =  ℑ𝔪^-1( f | ℑ𝔪^-1( g | R )).
+  Proof.
+    move => X Y Z R f g.
+    apply /Extensionality_Ensembles.
+    split => x; move => H; inversion H.
+    split.
+    split.
+    apply H0.
+    inversion H0.
+    split.
+    apply H2.
+  Qed.
+
 End ImgExample.
+
+Export SetNotations.
+Export Coq.Sets.Image.
