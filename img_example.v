@@ -20,12 +20,12 @@ Section ImgExample.
   Inductive InvIm (B: Ensemble V) (f:U -> V): Ensemble U :=
     InvIm_intro: forall (x:U), (f x) ∈ B -> x ∈ (InvIm B f).
 
-  Definition Compsite (A B C : Type) (f:A -> B) (g:B -> C): A -> C := fun (x:A) => g (f x).
-  
+  Definition Compsite (A B C : Type) (g:B -> C) (f:A -> B) : A -> C := fun (x:A) => g (f x).
+
   (* ℑ:Unicode 2111, 𝔪:Unicode 1D52A *)
   Notation "ℑ𝔪( f | A )" := (Im _ _ A f) (at level 60).
   Notation "ℑ𝔪^-1( f | A )" := (InvIm A f) (at level 60).
-  Notation "f ・ g" := (@Compsite _ _ _ f g) (left associativity, at level 50).
+  Notation "g ・ f" := (@Compsite _ _ _ g f) (left associativity, at level 50).
 
   Lemma InvIm_def: forall (B: Ensemble V) (f:U -> V) (x:U),
       x ∈ (InvIm B f) -> (f x) ∈ B.
@@ -92,6 +92,7 @@ Section ImgExample.
     apply HB.
   Qed.
 
+  (* f[A] \ f[B] ⊂ f[A \ B] *)
   Goal forall (A B:Ensemble U) (f:U -> V),
       (ℑ𝔪( f | A ) \ ℑ𝔪( f | B )) ⊂ ℑ𝔪( f | (A \ B) ).
   Proof.
@@ -110,6 +111,7 @@ Section ImgExample.
     apply HaB.
   Qed.
 
+  (* f^-1[C ∪ D] = f^-1[C] ∪ f^-1[D] *)
   Lemma InvIm_Union:
     forall (C D: Ensemble V) (f:U->V), ℑ𝔪^-1( f | C ∪ D ) = ℑ𝔪^-1( f | C ) ∪ ℑ𝔪^-1( f | D ).
   Proof.
@@ -131,6 +133,7 @@ Section ImgExample.
     apply H2.
   Qed.
 
+  (* f^-1[C ∩ D] = f^-1[C] ∩ f^-1[D] *)
   Lemma InvIm_Intersection:
     forall (C D: Ensemble V) (f:U->V), ℑ𝔪^-1( f | C ∩ D ) = ℑ𝔪^-1( f | C ) ∩ ℑ𝔪^-1( f | D ).
   Proof.
@@ -170,12 +173,39 @@ Section ImgExample.
     apply Full_intro.
   Qed.
 
-  Lemma compsite_assc: forall (A B C D:Type) (f:A->B) (g:B->C) (h:C->D), f ・ ( g ・ h ) = ( f ・ g ) ・ h.
+  (* h ・ ( g ・ f ) = ( h ・ g ) ・ f *)
+  Lemma compsite_assc: forall (A B C D:Type) (f:A->B) (g:B->C) (h:C->D), h ・ ( g ・ f ) = ( h ・ g ) ・ f.
   Proof.
     move => A B C D f g h.
     unfold Compsite.
     reflexivity.
   Qed.
 
+  (* R3 Problem 1.3.1 (g ・ f)[A] = g[f[A]] *)
+  Goal forall (X Y Z: Type) (A:Ensemble X) (f:X -> Y) (g:Y -> Z),
+      ℑ𝔪( g ・ f | A ) = ℑ𝔪( g | ℑ𝔪( f | A )).
+  Proof.
+    move => X Y Z A f g.
+    apply /Extensionality_Ensembles.
+    split => z H.
+    inversion H as [x HxA].
+    rewrite H0.
+    apply Im_def.
+    apply Im_def.
+    apply HxA.
+    inversion H.
+    inversion H0.
+    rewrite H1.
+    rewrite H4.
+    have L1: forall a:X, g (f a) = (g ・ f) a.
+    move => a.
+    unfold Compsite.
+    reflexivity.
+    rewrite L1.
+    apply Im_def.
+    apply H3.
+  Qed.
+
+  (* R3 Problem 1.3.2 R ⊂ Z -> (g ・ f)^-1[R] = f^-1 [g^-1 [R]] *)
   
 End ImgExample.
