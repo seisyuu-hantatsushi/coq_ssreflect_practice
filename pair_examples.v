@@ -19,6 +19,12 @@ Section PairExamples.
 
   Import SetNotations.
 
+  Inductive Pr1 {U:Type} (XY: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
+  | pr1_accessor: forall (x:U), (exists y:U, (|x,y|) ∈ XY) ->  Pr1 XY x.
+
+  Inductive Pr2 {U:Type} (XY: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
+  | pr2_accessor: forall (y:U), (exists x:U, (|x,y|) ∈ XY) ->  Pr2 XY y.
+
   Theorem T_0: forall (a b c:U), {|a|} = {|b,c|} -> a = b /\ b = c.
   Proof.
     move => a b c H.
@@ -520,7 +526,6 @@ Section PairExamples.
     apply Singleton_intro.
     reflexivity.
   Qed.
-  Abort.
 
   (* R1 A 1.3.4 2 *)
   Goal forall (a b x:U) (X Y:Ensemble U), (a ∈ X /\ b ∈ Y /\ x ∈ X) -> ( x = a <-> forall (z:Ensemble U), (z ∈ (| a, b |)) -> x ∈ z ).
@@ -583,6 +588,35 @@ Section PairExamples.
     -apply not_empty_Inhabited.
      rewrite /not.
      apply H0.
+  Qed.
+
+  Goal forall (X Y:Ensemble U) (y:U), y ∈ Y -> Pr1 (X × Y) = X.
+  Proof.
+    move => X Y y HY.
+    apply Extensionality_Ensembles.
+    split => x H.
+    inversion H.
+    inversion H0 as [y1].
+    inversion H2.
+    inversion H3.
+    inversion H5 as [y2].
+    inversion H6.
+    inversion H8.
+    move: H10.
+    rewrite ordered_pair_iff.
+    case => H10 H11.
+    rewrite H10.
+    apply H7.
+    split.
+    exists y.
+    split.
+    exists x.
+    exists y.
+    split.
+    apply H.
+    split.
+    apply HY.
+    reflexivity.
   Qed.
 
 End PairExamples.
