@@ -7,7 +7,7 @@ Unset Strict Implicit.
 Import Prenex Implicits.
 
 Require Import Coq.Sets.Image.
-
+Require Import Coq.Init.Nat.
 (* R2 島内剛一 数学の基礎 *)
 (* R3 斎藤正彦 数学の基礎 ISBN 4-13-062909-3 *)
 
@@ -22,13 +22,17 @@ Section ImgExample.
 
   Definition Id (A:Type) : A -> A := fun (x:A) => x.
 
-  Definition Compsite {A B C : Type} (g:B -> C) (f:A -> B) : A -> C := fun (x:A) => g (f x).
+  Definition Composite {A B C : Type} (g:B -> C) (f:A -> B) : A -> C := fun (x:A) => g (f x).
 
+  Definition surjective {U V:Type} (f:U -> V) := forall y:V, exists x:U, f x = y.
+
+  Definition bijective {U V:Type} (f:U -> V) := injective U V f /\ surjective f.
+ 
   (* ℑ:Unicode 2111, 𝔪:Unicode 1D52A *)
   Notation "ℑ𝔪( f | A )" := (@Im _ _ A f) (at level 60).
   Notation "ℑ𝔪^-1( f | A )" := (InvIm A f) (at level 60).
   (* ∘ : Unicode 2218 *)
-  Notation "g ∘ f" := (Compsite g f) (left associativity, at level 50).
+  Notation "g ∘ f" := (Composite g f) (left associativity, at level 50).
 
   Lemma InvIm_def: forall (B: Ensemble V) (f:U -> V) (x:U),
       x ∈ (InvIm B f) -> (f x) ∈ B.
@@ -180,13 +184,13 @@ Section ImgExample.
   Lemma compsite_assc: forall (A B C D:Type) (f:A->B) (g:B->C) (h:C->D), h ∘ ( g ∘ f ) = ( h ∘ g ) ∘ f.
   Proof.
     move => A B C D f g h.
-    unfold Compsite.
+    unfold Composite.
     reflexivity.
   Qed.
 
   Goal forall (A B: Type) (f:A->B), id ∘ f = f.
     move => A B f.
-    unfold Compsite.
+    unfold Composite.
     unfold id.
     reflexivity.
   Qed.
@@ -209,7 +213,7 @@ Section ImgExample.
     rewrite H4.
     have L1: forall a:X, g (f a) = (g ∘ f) a.
     move => a.
-    unfold Compsite.
+    unfold Composite.
     reflexivity.
     rewrite L1.
     apply Im_def.
@@ -229,6 +233,31 @@ Section ImgExample.
     inversion H0.
     split.
     apply H2.
+  Qed.
+
+  Goal forall (f:U -> V) (g:V -> W), injective U W (g ∘ f) -> injective U V f.
+  Proof.
+    move => f g.
+    unfold injective.
+    move => H.
+    move => x y Hf.
+    apply H.
+    unfold Composite.
+    rewrite Hf.
+    reflexivity.
+  Qed.
+
+  Goal forall (f:U -> V) (g:V -> W), surjective (g ∘ f) -> surjective g.
+  Proof.
+    move => f g.
+    unfold surjective.
+    move => H z.
+    move: (H z) => H0.
+    destruct H0.
+    rewrite -H0.
+    exists (f x).
+    unfold Composite.
+    reflexivity.
   Qed.
 
 End ImgExample.
