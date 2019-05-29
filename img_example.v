@@ -7,32 +7,33 @@ Unset Strict Implicit.
 Import Prenex Implicits.
 
 Require Import Coq.Sets.Image.
-Require Import Coq.Init.Nat.
+
+(* R1 斎藤毅   集合と位相 ISBN 978-4-13-062958-4 *)
 (* R2 島内剛一 数学の基礎 *)
 (* R3 斎藤正彦 数学の基礎 ISBN 4-13-062909-3 *)
 
+Import SetNotations.
+
+(* R3 1.2.4 definition *)
+Inductive InvIm {U V:Type} (B: Ensemble V) (f:U -> V): Ensemble U :=
+  InvIm_intro: forall (x:U), (f x) ∈ B -> x ∈ (InvIm B f).
+
+Definition Id (A:Type) : A -> A := fun (x:A) => x.
+
+Definition Composite {A B C : Type} (g:B -> C) (f:A -> B) : A -> C := fun (x:A) => g (f x).
+
+Definition surjective {U V:Type} (f:U -> V) := forall y:V, exists x:U, f x = y.
+
+Definition bijective {U V:Type} (f:U -> V) := injective U V f /\ surjective f.
+
+(* ℑ:Unicode 2111, 𝔪:Unicode 1D52A *)
+Notation "ℑ𝔪( f | A )" := (@Im _ _ A f) (at level 60).
+Notation "ℑ𝔪^-1( f | A )" := (InvIm A f) (at level 60).
+(* ∘ : Unicode 2218 *)
+Notation "g ∘ f" := (Composite g f) (left associativity, at level 50).
+
 Section ImgExample.
   Variable U V W:Type.
-
-  Import SetNotations.
-
-  (* R3 1.2.4 definition *)
-  Inductive InvIm {U V:Type} (B: Ensemble V) (f:U -> V): Ensemble U :=
-    InvIm_intro: forall (x:U), (f x) ∈ B -> x ∈ (InvIm B f).
-
-  Definition Id (A:Type) : A -> A := fun (x:A) => x.
-
-  Definition Composite {A B C : Type} (g:B -> C) (f:A -> B) : A -> C := fun (x:A) => g (f x).
-
-  Definition surjective {U V:Type} (f:U -> V) := forall y:V, exists x:U, f x = y.
-
-  Definition bijective {U V:Type} (f:U -> V) := injective U V f /\ surjective f.
- 
-  (* ℑ:Unicode 2111, 𝔪:Unicode 1D52A *)
-  Notation "ℑ𝔪( f | A )" := (@Im _ _ A f) (at level 60).
-  Notation "ℑ𝔪^-1( f | A )" := (InvIm A f) (at level 60).
-  (* ∘ : Unicode 2218 *)
-  Notation "g ∘ f" := (Composite g f) (left associativity, at level 50).
 
   Lemma InvIm_def: forall (B: Ensemble V) (f:U -> V) (x:U),
       x ∈ (InvIm B f) -> (f x) ∈ B.
@@ -260,6 +261,8 @@ Section ImgExample.
     reflexivity.
   Qed.
 
+  
+  
 End ImgExample.
 
 Export SetNotations.
