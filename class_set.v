@@ -50,23 +50,18 @@ Inductive Pr2 {U:Type} (XY: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
 Inductive Graph {U:Type} (f:U->U) (X Y:Ensemble U) : Ensemble (Ensemble (Ensemble U)) :=
 | Definition_of_Graph: forall(x y:U), y = f x /\ (|x,y|) ∈ (X × Y) -> (|x,y|) ∈ Graph f X Y.
 
-Definition SingleValued {U:Type} (A : Ensemble (Ensemble (Ensemble U))) :=
-  forall (x y z:U), (|x,y|) ∈ A /\ (|x,z|) ∈ A -> y = z.
+Inductive SingleValued {U:Type} (A : Ensemble (Ensemble (Ensemble U))) :
+  Ensemble (Ensemble (Ensemble U)) :=
+| Definition_of_SingleValued:
+    forall (x y z:U), (|x,y|) ∈ A /\ (|x,z|) ∈ A -> y = z -> (|x,y|) ∈ SingleValued A.
 
-Definition Function {U:Type} (f:U -> U) (X:Ensemble U) (Y:Ensemble U) :=
-  SingleValued (Graph f X Y).
+Definition FunctionClass {U:Type} (A : Ensemble (Ensemble (Ensemble U))) :=
+  SingleValued A.
 
-Inductive Domain {U:Type} (f:U->U) (G:Graph f ) : Ensemble U :=
-  | Definition_of_Domain: forall (x:U), (exists y:U, y = f x /\ (|x,y|) ∈ G) -> Domain f G x.
-Inductive Range {U:Type} (f:U->U) (G:Graph U) : Ensemble U :=
-  | Definition_of_Range: forall (y:U), (exists x:U, y = f x /\ (|x,y|) ∈ G) -> Range f G y.
- *)
+Inductive Domain {U:Type} (G: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
+  | Definition_of_Domain: forall (x:U) (f:U->U), (exists y:U, y = f x /\ (|x,y|) ∈ G) -> Domain G x.
 
 Definition Family_of_Sets {K U:Type} := K -> (Ensemble U).
-
-
-
-
 
 Section Class_Set.
 
@@ -163,7 +158,6 @@ Section Class_Set.
     +move: L1.
      rewrite theorem_of_pairing.
      rewrite -imp_not_l.
-     case.
      apply.
      apply H0.
      apply classic.
@@ -321,38 +315,6 @@ Section Class_Set.
        rewrite H0.
        rewrite H1.
        reflexivity.
-  Qed.
-
-  Goal forall (x y:U) (X Y:Ensemble U), (|x,y|) ∈ (X × Y) <-> x ∈ X /\ y ∈ Y.
-  Proof.
-    rewrite /iff.
-    split.
-    (* (|x,y|) ∈ (X × Y) -> x ∈ X /\ y ∈ Y *)
-    +move => H.
-     inversion H.
-     inversion H0.
-     inversion H2 as [y0].
-     inversion H3.
-     inversion H5.
-     move: H7.
-     rewrite ordered_pair_iff.
-     case => H7 H8.
-     rewrite H7.
-     rewrite H8.
-     split.
-     apply H4.
-     apply H6.
-    (* x ∈ X /\ y ∈ Y -> (|x,y|) ∈ (X × Y) *)
-    +case => HX HY.
-     split.
-     exists x.
-     exists y.
-     split.
-     apply HX.
-     split.
-     apply HY.
-     unfold OrderedPair.
-     reflexivity.
   Qed.
 
 End Class_Set.
