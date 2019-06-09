@@ -19,6 +19,24 @@ Notation "{||}"  := (Empty_set _).
 Notation "{| x |}" := (Singleton _ x).
 Notation "{| x , y , .. , z |}" := (Union _ .. (Union _ (Singleton _ x) (Singleton _ y)) .. (Singleton _ z)).
 
+Theorem Axiom_of_EmptySet:
+  forall (U:Type) (X:Ensemble U), X = {||} <-> (forall (x:U), x ∈ X -> False).
+  move => X.
+  rewrite /iff.
+  split.
+  move => HE.
+  rewrite HE.
+  apply Noone_in_empty.
+  move => HF.
+  apply /Extensionality_Ensembles.
+  split => y.
+  move => H0.
+  move: (HF y).
+  case.
+  apply H0.
+  case.
+Qed.
+
 (* Axiom of separation { x;U | P(x) } *)
 Inductive SchemaOfSeparation (U:Type) (x:U) (P:U -> Prop): Ensemble U :=
   Definition_of_Schema_Sepatation:
@@ -36,7 +54,7 @@ Inductive DirectProduct {U:Type} (X Y:Ensemble U) : Ensemble (Ensemble (Ensemble
 (* 𝔓:Unicode 1D513 *)
 Notation "𝔓( X )" := (@Power_set _ X) (at level 47).
 
-Notation "X × Y" := (DirectProduct X Y) (at level 49).
+Notation "X × Y" := (DirectProduct X Y) (at level 47).
 Notation "(| a , b |)" := (OrderedPair a b) (at level 48).
 
 (* Binary Relation {z|z=(|x,y|) /\ x ∈ X /\ y ∈ Y} *)
@@ -50,16 +68,9 @@ Inductive Pr2 {U:Type} (XY: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
 Inductive Graph {U:Type} (f:U->U) (X Y:Ensemble U) : Ensemble (Ensemble (Ensemble U)) :=
 | Definition_of_Graph: forall(x y:U), y = f x /\ (|x,y|) ∈ (X × Y) -> (|x,y|) ∈ Graph f X Y.
 
-Inductive SingleValued {U:Type} (A : Ensemble (Ensemble (Ensemble U))) :
-  Ensemble (Ensemble (Ensemble U)) :=
-| Definition_of_SingleValued:
-    forall (x y z:U), (|x,y|) ∈ A /\ (|x,z|) ∈ A -> y = z -> (|x,y|) ∈ SingleValued A.
-
-Definition FunctionClass {U:Type} (A : Ensemble (Ensemble (Ensemble U))) :=
-  SingleValued A.
 
 Inductive Domain {U:Type} (G: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
-  | Definition_of_Domain: forall (x:U) (f:U->U), (exists y:U, y = f x /\ (|x,y|) ∈ G) -> Domain G x.
+| Definition_of_Domain: forall (x:U) (f:U->U), (exists y:U, y = f x /\ (|x,y|) ∈ G) -> Domain G x.
 
 Definition Family_of_Sets {K U:Type} := K -> (Ensemble U).
 
