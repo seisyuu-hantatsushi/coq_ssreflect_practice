@@ -126,4 +126,36 @@ Section Direct_Product_Theories.
     reflexivity.
   Qed.
 
+  Theorem direct_product_included:
+    forall (X Y W Z:Ensemble U), W × Z ⊂ X × Y <-> X × Y = {||} \/ (W ⊂ X /\ Z ⊂ Y).
+  Proof.
+    +move => X Y W Z.
+     rewrite /iff.
+     split.
+     move => H.
+     apply or_dist_and.
+     rewrite direct_product_empty_iff.
+     ++suff: (Y={||} \/ W ⊂ X) /\ (X={||} \/ Z ⊂ Y).
+       case.
+       move => H0.
+       move => H1.
+       split.
+       inversion H0.
+       left.
+       right.
+       apply H2.
+       right.
+       apply H2.
+       inversion H1.
+       left.
+       left.
+       apply H2.
+       right.
+       apply H2.
+    +rewrite Axiom_of_EmptySet.
+     rewrite Axiom_of_EmptySet.
+     
+          
+   Abort.
+  
 End Direct_Product_Theories.
