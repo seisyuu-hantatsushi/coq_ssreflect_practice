@@ -151,7 +151,45 @@ Section Direct_Product_Theories.
     apply HA.
     apply HB.
   Qed.
-  
+
+ (* ((forall x : U, x ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)) /\
+  ((forall x : U, x ∈ X -> False) \/ (forall x : U, x ∈ Z -> x ∈ Y)) *)
+
+  Goal forall (X Y W :Ensemble U), ((forall x : U, x ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)) <-> ((forall t: U, t ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)).
+  Proof.
+    move => X Y W.
+    rewrite /iff.
+    split; case; move => H.
+    left.
+    apply H.
+    right.
+    apply H.
+    left.
+    apply H.
+    right.
+    apply H.
+  Qed.
+
+  Goal forall (X Y W :Ensemble U), ((forall x : U, x ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)) -> forall (t: U), (t ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X).
+  Proof.
+    move => X Y W.
+    case.
+    move => H.
+    left.
+    apply (H t0).
+    move => H.
+    right.
+    apply H.
+  Qed.
+
+  Goal forall (X Y W :Ensemble U), (forall (t: U), (t ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)) -> ((forall x : U, x ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)).
+  Proof.
+    move => X Y W.
+    left.
+    move => x.
+    move : (H x).
+    rewrite or_not_l_iff_1.
+    
   Theorem direct_product_included:
     forall (X Y W Z:Ensemble U), W × Z ⊂ X × Y <-> X × Y = {||} \/ (W ⊂ X /\ Z ⊂ Y).
   Proof.
