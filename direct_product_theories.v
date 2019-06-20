@@ -182,13 +182,26 @@ Section Direct_Product_Theories.
     apply H.
   Qed.
 
-  Goal forall (X Y W :Ensemble U), (forall (t: U), (t ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)) -> ((forall x : U, x ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)).
+  Goal forall (X Y W Z:Ensemble U), W × Z ⊂ X × Y -> forall (t s:U), (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y.
   Proof.
-    move => X Y W.
-    left.
-    move => x.
-    move : (H x).
-    rewrite or_not_l_iff_1.
+    move => X Y W Z H t0 s0.
+    unfold Included in H.
+    apply H.
+  Qed.
+
+  Goal forall (X Y W Z:Ensemble U), (forall (t s:U), (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y) -> (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))).
+  Proof.
+    move => X Y W Z H t0 s0.
+    rewrite -direct_product_and_iff.
+    rewrite -direct_product_and_iff.
+    apply H.
+  Qed.
+
+  Goal  forall (X Y W Z:Ensemble U),
+      (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))) ->
+      forall (t s:U), ((t ∈ W /\ s ∈ Z) -> t ∈ X) /\ ((t ∈ W /\ s ∈ Z) -> s ∈ Y).
+  Proof.
+    move => X Y W Z H t0 s0.
     
   Theorem direct_product_included:
     forall (X Y W Z:Ensemble U), W × Z ⊂ X × Y <-> X × Y = {||} \/ (W ⊂ X /\ Z ⊂ Y).
@@ -211,7 +224,7 @@ Section Direct_Product_Theories.
        right.
        apply H2.
        inversion H1.
-       left. 
+       left.
        left.
        apply H2.
        right.
