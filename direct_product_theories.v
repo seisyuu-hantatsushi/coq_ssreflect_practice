@@ -10,7 +10,8 @@ Require Import class_set_theories.
 Section Direct_Product_Theories.
 
   Variable U:Type.
-
+  Variable a0: U.
+  
   Theorem direct_product_empty_r: forall (X:Ensemble U), X × {||} = {||}.
   Proof.
     move => X.
@@ -151,8 +152,23 @@ Section Direct_Product_Theories.
     apply HB.
   Qed.
 
+  Goal forall (X W Z:Ensemble U), (forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False))) ->
+                                    (forall(t:U), (t ∈ W -> t ∈ X)) \/ (forall(s:U), (s ∈ Z -> False)).
+  Proof.
+    move => X W Z H.
+    apply imp_not_l.
+    apply classic.
+    move => H0 s H1.
+    apply H0.
+    move => t.
+    move: H1.
+    rewrite -(or_not_r_iff_1 (t ∈ W -> t ∈ X) (s ∈ Z)).
+    apply H.
+    apply classic.
+  Qed.
+
   Theorem direct_product_included:
-    forall (X Y W Z:Ensemble U), W × Z ⊂ X × Y <-> X × Y = {||} \/ (W ⊂ X /\ Z ⊂ Y).
+    forall (X Y W Z:Ensemble U), W × Z ⊂ X × Y <-> W × Z = {||} \/ (W ⊂ X /\ Z ⊂ Y).
   Proof.
     +move => X Y W Z.
      rewrite /iff.
@@ -238,13 +254,45 @@ Section Direct_Product_Theories.
        apply L3.
        apply classic.
        apply classic.
-    (* forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False)) /\ ((s ∈ Z -> s ∈ Y) \/ (t ∈ W -> False)) 
+    (* (forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False)) /\ ((s ∈ Z -> s ∈ Y) \/ (t ∈ W -> False))) ->
+       forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False))) /\ (forall (t s:U),((s ∈ Z -> s ∈ Y) \/ (t ∈ W -> False)) *)
+    +have L5: (forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False))) /\ (forall (t s:U),((s ∈ Z -> s ∈ Y) \/ (t ∈ W -> False))).
+     split; apply L4.
+    (*
+       (forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False))) /\ (forall (t s:U),((s ∈ Z -> s ∈ Y) \/ (t ∈ W -> False))))
        ->
-       forall (
+       ((forall (t:U), (t ∈ W -> t ∈ X)) \/ forall (s:U), (s ∈ Z -> False)) /\ ((forall (s:U), (s ∈ Z -> s ∈ Y)) \/ (forall (t:U), (t ∈ W -> False)))
      *)
-    +apply or_dist_and.
+    +have L6: ((forall (t:U), (t ∈ W -> t ∈ X)) \/ (forall (s:U), (s ∈ Z -> False))) /\ ((forall (s:U), (s ∈ Z -> s ∈ Y)) \/ (forall (t:U), (t ∈ W -> False))).
+     move: L5.
+     case.
+     move => L61 L62.
+     split; apply imp_not_l.
+     ++apply classic.
+       move => L63 s L64.
+       apply L63.
+       move => t.
+       move: L64.
+       rewrite -(or_not_r_iff_1 (t ∈ W -> t ∈ X) (s ∈ Z)).
+       apply L61.
+       apply classic.
+     ++apply classic.
+       move => L63 t L64.
+       apply L63.
+       move => s.
+       move: L64.
+       rewrite -(or_not_r_iff_1 (s ∈ Z -> s ∈ Y) (t ∈ W)).
+       apply L62.
+       apply classic.
+    +fold (Included U W X) in L6.
+     fold (Included U Z Y) in L6.
+     move : L6.
+     rewrite -(Axiom_of_EmptySet Z).
+     rewrite -(Axiom_of_EmptySet W).
+     move => L6.
      rewrite direct_product_empty_iff.
-     ++suff: (Y={||} \/ W ⊂ X) /\ (X={||} \/ Z ⊂ Y).
+     apply or_dist_and.
+     ++suff: (Z={||} \/ W ⊂ X) /\ (W={||} \/ Z ⊂ Y).
        case.
        move => H0.
        move => H1.
@@ -261,10 +309,24 @@ Section Direct_Product_Theories.
        apply H2.
        right.
        apply H2.
-    +rewrite Axiom_of_EmptySet.
-     rewrite Axiom_of_EmptySet.
+     rewrite (or_comm (Z={||}) (W ⊂ X)).
+     rewrite (or_comm (W={||}) (Z ⊂ Y)).
+     apply L6.
+    +case.
+     move => H.
+     rewrite H.
+     apply Included_Empty.
+     case => H0 H1.
      unfold Included.
-     
-   Abort.
-  
+     move => S.
+     case => [T [x [y [HxW [HyZ [HT]]]]]].
+     rewrite HT.
+     apply direct_product_and_iff.
+     split.
+     move: HxW.
+     apply H0.
+     move: HyZ.
+     apply H1.
+  Qed.
+
 End Direct_Product_Theories.
