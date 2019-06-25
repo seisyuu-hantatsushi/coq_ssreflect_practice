@@ -126,7 +126,6 @@ Section Direct_Product_Theories.
     reflexivity.
   Qed.
 
-  Variable t s:U.
   Lemma or_not_l_iff_3: forall (A B C:Prop), (A -> False) \/ (B -> False) \/ C <-> (A /\ B -> C).
   Proof.
     move => A B C.
@@ -152,57 +151,6 @@ Section Direct_Product_Theories.
     apply HB.
   Qed.
 
- (* ((forall x : U, x ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)) /\
-  ((forall x : U, x ∈ X -> False) \/ (forall x : U, x ∈ Z -> x ∈ Y)) *)
-
-  Goal forall (X Y W :Ensemble U), ((forall x : U, x ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)) <-> ((forall t: U, t ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)).
-  Proof.
-    move => X Y W.
-    rewrite /iff.
-    split; case; move => H.
-    left.
-    apply H.
-    right.
-    apply H.
-    left.
-    apply H.
-    right.
-    apply H.
-  Qed.
-
-  Goal forall (X Y W :Ensemble U), ((forall x : U, x ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X)) -> forall (t: U), (t ∈ Y -> False) \/ (forall x : U, x ∈ W -> x ∈ X).
-  Proof.
-    move => X Y W.
-    case.
-    move => H.
-    left.
-    apply (H t0).
-    move => H.
-    right.
-    apply H.
-  Qed.
-
-  Goal forall (X Y W Z:Ensemble U), W × Z ⊂ X × Y -> forall (t s:U), (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y.
-  Proof.
-    move => X Y W Z H t0 s0.
-    unfold Included in H.
-    apply H.
-  Qed.
-
-  Goal forall (X Y W Z:Ensemble U), (forall (t s:U), (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y) -> (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))).
-  Proof.
-    move => X Y W Z H t0 s0.
-    rewrite -direct_product_and_iff.
-    rewrite -direct_product_and_iff.
-    apply H.
-  Qed.
-
-  Goal  forall (X Y W Z:Ensemble U),
-      (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))) ->
-      forall (t s:U), ((t ∈ W /\ s ∈ Z) -> t ∈ X) /\ ((t ∈ W /\ s ∈ Z) -> s ∈ Y).
-  Proof.
-    move => X Y W Z H t0 s0.
-    
   Theorem direct_product_included:
     forall (X Y W Z:Ensemble U), W × Z ⊂ X × Y <-> X × Y = {||} \/ (W ⊂ X /\ Z ⊂ Y).
   Proof.
@@ -210,7 +158,91 @@ Section Direct_Product_Theories.
      rewrite /iff.
      split.
      move => H.
-     apply or_dist_and.
+     (* W × Z ⊂ X × Y -> forall (t s:U), (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y *)
+     ++have L0: forall (t s:U), (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y.
+       move => t s.
+       unfold Included in H.
+       apply H.
+     (* (forall (t s:U), (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y) -> (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))) *)
+     ++have L1: forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y)).
+       move => t s.
+       rewrite -direct_product_and_iff.
+       rewrite -direct_product_and_iff.
+       apply L0.
+     (* (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))) -> (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> t ∈ X) /\ ((t ∈ W /\ s ∈ Z) -> s ∈ Y)) *)
+     ++have L2: forall (t s:U), ((t ∈ W /\ s ∈ Z) -> t ∈ X) /\ ((t ∈ W /\ s ∈ Z) -> s ∈ Y).
+       move => t s.
+       split; apply L1.
+     (*  forall (t s:U), ((t ∈ W /\ s ∈ Z) -> t ∈ X) /\ ((t ∈ W /\ s ∈ Z) -> s ∈ Y) -> forall (t s:U), ((t ∈ W -> False) \/ (s ∈ Z -> False) \/ t ∈ X) /\ ((t ∈ W -> False) \/ (s ∈ Z -> False) \/ s ∈ Y) *)
+     ++have L3: forall (t s:U), ((t ∈ W -> False) \/ (s ∈ Z -> False) \/ t ∈ X) /\ ((t ∈ W -> False) \/ (s ∈ Z -> False) \/ s ∈ Y).
+       move => t0 s0.
+       +++have L31: ((t0 ∈ W /\ s0 ∈ Z) -> False) <-> (t0 ∈ W -> False) \/ (s0 ∈ Z -> False).
+          rewrite /iff.
+          split.
+          move => HF.
+          apply not_and_or.
+          unfold not.
+          apply HF.
+          move => HF.
+          apply or_not_and.
+          unfold not.
+          apply HF.
+       +++have L32: forall (P:Prop), (((t0 ∈ W -> False) \/ (s0 ∈ Z -> False)) \/ P) <-> ((t0 ∈ W -> False) \/ (s0 ∈ Z -> False) \/ P).
+          move => P.
+          rewrite /iff.
+          split.
+          case.
+          move => HL1.
+          inversion HL1.
+          left.
+          apply H0.
+          right.
+          left.
+          apply H0.
+          move => HL1.
+          right.
+          right.
+          apply HL1.
+          move => HL1.
+          inversion HL1.
+          left.
+          left.
+          apply H0.
+          inversion H0.
+          left.
+          right.
+          apply H1.
+          right.
+          apply H1.
+     ++rewrite -L32.
+       rewrite -L32.
+       rewrite -L31.
+       rewrite or_not_l_iff_2.
+       rewrite or_not_l_iff_2.
+       apply L2.
+       apply classic.
+       apply classic.
+     (* forall (t s:U), ((t ∈ W -> False) \/ (s ∈ Z -> False) \/ t ∈ X) /\ ((t ∈ W -> False) \/ (s ∈ Z -> False) \/ s ∈ Y) ->
+        forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False)) /\ ((s ∈ Z -> s ∈ Y) \/ (t ∈ W -> False)) *)
+     ++have L4: forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False)) /\ ((s ∈ Z -> s ∈ Y) \/ (t ∈ W -> False)).
+       move => t s.
+       rewrite -(or_not_l_iff_1 (t ∈ W) (t ∈ X)).
+       rewrite or_assoc.
+       rewrite (or_comm (t ∈ X) (s ∈ Z -> False)).
+       rewrite -(or_not_l_iff_1 (s ∈ Z) (s ∈ Y)).
+       rewrite or_assoc.
+       rewrite (or_comm (s ∈ Y) (t ∈ W -> False)).
+       rewrite -(or_assoc (s ∈ Z -> False) (t ∈ W -> False) (s ∈ Y)).
+       rewrite (or_comm (s ∈ Z -> False) (t ∈ W -> False)).
+       rewrite or_assoc.
+       apply L3.
+       apply classic.
+       apply classic.
+    (* forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False)) /\ ((s ∈ Z -> s ∈ Y) \/ (t ∈ W -> False)) 
+       ->
+       forall (
+     *)
+    +apply or_dist_and.
      rewrite direct_product_empty_iff.
      ++suff: (Y={||} \/ W ⊂ X) /\ (X={||} \/ Z ⊂ Y).
        case.
@@ -232,35 +264,6 @@ Section Direct_Product_Theories.
     +rewrite Axiom_of_EmptySet.
      rewrite Axiom_of_EmptySet.
      unfold Included.
-     have: (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y.
-     unfold Included in H.
-     apply H.
-     rewrite direct_product_and_iff.
-     rewrite direct_product_and_iff.
-     move => H0.
-     have: (t ∈ W /\ s ∈ Z -> t ∈ X) /\ (t ∈ W /\ s ∈ Z -> s ∈ Y).
-     split.
-     move => H1.
-     move: H0.
-     case.
-     apply H1.
-     move => H2 H3.
-     apply H2.
-     move => H1.
-     move: H0.
-     case.
-     apply H1.
-     move => H2.
-     apply.
-     have L0: (t ∈ W /\ s ∈ Z -> t ∈ X) <-> ((t ∈ W -> False) \/ (s ∈ Z -> False) \/ t ∈ X).
-     rewrite /iff.
-     split => H1; apply or_not_l_iff_3; apply H1.
-     have L1: (t ∈ W /\ s ∈ Z -> s ∈ Y) <-> ((t ∈ W -> False) \/ (s ∈ Z -> False) \/ s ∈ Y).
-     rewrite /iff.
-     split => H1; apply or_not_l_iff_3; apply H1.
-     rewrite L0.
-     rewrite L1.
-     
      
    Abort.
   
