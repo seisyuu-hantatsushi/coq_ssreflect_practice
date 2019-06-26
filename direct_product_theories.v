@@ -5,13 +5,13 @@ Unset Strict Implicit.
 Import Prenex Implicits.
 
 Require Import logic_theories.
+Require Import logic_pred_theories.
 Require Import class_set_theories.
 
 Section Direct_Product_Theories.
 
   Variable U:Type.
-  Variable a0: U.
-  
+
   Theorem direct_product_empty_r: forall (X:Ensemble U), X × {||} = {||}.
   Proof.
     move => X.
@@ -79,8 +79,7 @@ Section Direct_Product_Theories.
     apply Noone_in_empty.
     apply L0.
     have L1: (exists x y:U, (|x,y|) ∈ X × Y) -> ~(forall (x y:U), ~((|x,y|) ∈ X × Y)).
-    case => x.
-    case => y.
+    case => [x [y]].
     move => HL10.
     unfold not.
     move => HL11.
@@ -88,9 +87,7 @@ Section Direct_Product_Theories.
     apply HL11.
     apply L1.
     have L2: (exists x y:U, x ∈ X /\ y ∈ Y) -> (exists x y:U, (|x,y|) ∈ X × Y).
-    case => x.
-    case => y.
-    case => HX HY.
+    case => [x [y [HX HY]]].
     exists x.
     exists y.
     rewrite direct_product_and_iff.
@@ -100,8 +97,7 @@ Section Direct_Product_Theories.
     apply L2.
     have L3: (exists x:U, x ∈ X) /\ (exists y:U, y ∈ Y) -> (exists x y:U, x ∈ X /\ y ∈ Y).
     case.
-    case => x HX.
-    case => y HY.
+    case => [x HX [y HY]].
     exists x.
     exists y.
     split.
@@ -113,61 +109,17 @@ Section Direct_Product_Theories.
     unfold not.
     apply H.
     inversion L4.
-    split; apply not_all_not_ex; unfold not.
-    rewrite -Axiom_of_EmptySet.
+    split; apply not_all_not_ex; unfold not; rewrite -Axiom_of_EmptySet.
     apply H0.
-    rewrite -Axiom_of_EmptySet.
     apply H1.
-    case => H.
-    rewrite H.
+    case => H; rewrite H.
     rewrite direct_product_empty_l.
     reflexivity.
-    rewrite H.
     rewrite direct_product_empty_r.
     reflexivity.
   Qed.
 
-  Lemma or_not_l_iff_3: forall (A B C:Prop), (A -> False) \/ (B -> False) \/ C <-> (A /\ B -> C).
-  Proof.
-    move => A B C.
-    rewrite /iff.
-    split => H.
-    case.
-    move => HA.
-    apply or_not_l_iff_2.
-    apply classic.
-    move: HA.
-    apply or_not_l_iff_2.
-    apply classic.
-    apply H.
-    apply or_not_l_iff_2.
-    apply classic.
-    move => HA.
-    apply or_not_l_iff_2.
-    apply classic.
-    move => HB.
-    apply H.
-    split.
-    apply HA.
-    apply HB.
-  Qed.
-
-  Goal forall (X W Z:Ensemble U), (forall (t s:U), ((t ∈ W -> t ∈ X) \/ (s ∈ Z -> False))) ->
-                                    (forall(t:U), (t ∈ W -> t ∈ X)) \/ (forall(s:U), (s ∈ Z -> False)).
-  Proof.
-    move => X W Z H.
-    apply imp_not_l.
-    apply classic.
-    move => H0 s H1.
-    apply H0.
-    move => t.
-    move: H1.
-    rewrite -(or_not_r_iff_1 (t ∈ W -> t ∈ X) (s ∈ Z)).
-    apply H.
-    apply classic.
-  Qed.
-
-  Theorem direct_product_included:
+  Theorem direct_product_included_iff:
     forall (X Y W Z:Ensemble U), W × Z ⊂ X × Y <-> W × Z = {||} \/ (W ⊂ X /\ Z ⊂ Y).
   Proof.
     +move => X Y W Z.
@@ -194,12 +146,10 @@ Section Direct_Product_Theories.
        move => t0 s0.
        +++have L31: ((t0 ∈ W /\ s0 ∈ Z) -> False) <-> (t0 ∈ W -> False) \/ (s0 ∈ Z -> False).
           rewrite /iff.
-          split.
-          move => HF.
+          split; move => HF.
           apply not_and_or.
           unfold not.
           apply HF.
-          move => HF.
           apply or_not_and.
           unfold not.
           apply HF.
@@ -267,23 +217,10 @@ Section Direct_Product_Theories.
      move: L5.
      case.
      move => L61 L62.
-     split; apply imp_not_l.
-     ++apply classic.
-       move => L63 s L64.
-       apply L63.
-       move => t.
-       move: L64.
-       rewrite -(or_not_r_iff_1 (t ∈ W -> t ∈ X) (s ∈ Z)).
-       apply L61.
-       apply classic.
-     ++apply classic.
-       move => L63 t L64.
-       apply L63.
-       move => s.
-       move: L64.
-       rewrite -(or_not_r_iff_1 (s ∈ Z -> s ∈ Y) (t ∈ W)).
-       apply L62.
-       apply classic.
+     split; apply forall_bound_or_dist_2.
+     apply L61.
+     move => t s.
+     apply L62.
     +fold (Included U W X) in L6.
      fold (Included U Z Y) in L6.
      move : L6.
@@ -294,8 +231,7 @@ Section Direct_Product_Theories.
      apply or_dist_and.
      ++suff: (Z={||} \/ W ⊂ X) /\ (W={||} \/ Z ⊂ Y).
        case.
-       move => H0.
-       move => H1.
+       move => H0 H1.
        split.
        inversion H0.
        left.
@@ -327,6 +263,27 @@ Section Direct_Product_Theories.
      apply H0.
      move: HyZ.
      apply H1.
+  Qed.
+
+  Theorem direct_product_included_right:
+    forall (X Y Z:Ensemble U), ~(X={||}) /\ X × Z ⊂ X × Y -> Z ⊂ Y.
+  Proof.
+    move => X Y Z.
+    case => HFX.
+    rewrite direct_product_included_iff.
+    rewrite direct_product_empty_iff.
+    case.
+    case.
+    apply contrapositive.
+    apply classic.
+    move => H.
+    apply HFX.
+    move => H.
+    rewrite H.
+    apply Included_Empty.
+    case.
+    move => H.
+    apply.
   Qed.
 
 End Direct_Product_Theories.
