@@ -19,8 +19,7 @@ Section Direct_Product_Theories.
     split => Y.
     -case.
      move => Z.
-     case => [x [y]].
-     case => [H1 [H2 H3]].
+     case => [x [y [H1 [H2 H3]]]].
      rewrite H3.
      apply NNPP.
      rewrite /not => H4.
@@ -213,7 +212,8 @@ Section Direct_Product_Theories.
        ->
        ((forall (t:U), (t ∈ W -> t ∈ X)) \/ forall (s:U), (s ∈ Z -> False)) /\ ((forall (s:U), (s ∈ Z -> s ∈ Y)) \/ (forall (t:U), (t ∈ W -> False)))
      *)
-    +have L6: ((forall (t:U), (t ∈ W -> t ∈ X)) \/ (forall (s:U), (s ∈ Z -> False))) /\ ((forall (s:U), (s ∈ Z -> s ∈ Y)) \/ (forall (t:U), (t ∈ W -> False))).
+    +have L6: ((forall (t:U), (t ∈ W -> t ∈ X)) \/ (forall (s:U), (s ∈ Z -> False))) /\
+              ((forall (s:U), (s ∈ Z -> s ∈ Y)) \/ (forall (t:U), (t ∈ W -> False))).
      move: L5.
      case.
      move => L61 L62.
@@ -281,9 +281,83 @@ Section Direct_Product_Theories.
     move => H.
     rewrite H.
     apply Included_Empty.
-    case.
-    move => H.
+    case => H.
     apply.
+  Qed.
+
+  Theorem direct_product_included_partial:
+    forall (X Y Z:Ensemble U), Z ⊂ Y -> X × Z ⊂ X × Y.
+  Proof.
+    move => X Y Z H.
+    apply direct_product_included_iff.
+    right.
+    split => x.
+    apply.
+    apply H.
+  Qed.
+
+  Theorem direct_product_union_dist_r:
+    forall (X Y Z:Ensemble U), X × (Y ∪ Z) = X × Y ∪ X × Z.
+  Proof.
+    move => X Y Z.
+    apply /Extensionality_Ensembles.
+    +split => S.
+     case => T.
+     case => [x [y [H1 [H2 [H3]]]]].
+     inversion H2.
+     ++left.
+       rewrite H3.
+       apply direct_product_and_iff.
+       split.
+       apply H1.
+       apply H.
+     ++right.
+       rewrite H3.
+       apply direct_product_and_iff.
+       split.
+       apply H1.
+       apply H.
+    +case; move => T; case => V; case => [x [y [H1 [H2 [H3]]]]]; rewrite H3; apply direct_product_and_iff; split.
+     apply H1.
+     left.
+     apply H2.
+    +apply H1.
+     right.
+     apply H2.
+  Qed.
+
+  Theorem direct_product_intersection_dist_r:
+    forall (X Y Z:Ensemble U), X × (Y ∩ Z) = X × Y ∩ X × Z.
+  Proof.
+    move => X Y Z.
+    apply /Extensionality_Ensembles.
+    split => S.
+    +case => T.
+     case => [x [y [H1 [H2 [H3]]]]].
+     inversion H2 as [y0 H4 H5 H6].
+     split; split; exists x; exists y.
+     split.
+     apply H1.
+     split.
+     apply H4.
+     apply H3.
+     split.
+     apply H1.
+     split.
+     apply H5.
+     apply H3.
+    +case => T.
+     case => V.
+     case => [x [y [H1 [H2 H3]]]].
+     rewrite H3.
+     rewrite direct_product_and_iff.
+     case => [H4 H5].
+     rewrite direct_product_and_iff.
+     split.
+     apply H1.
+     split.
+     apply H2.
+     apply H5.
   Qed.
 
 End Direct_Product_Theories.
