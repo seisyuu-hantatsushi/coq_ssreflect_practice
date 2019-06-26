@@ -9,7 +9,6 @@ Require Import Coq.Logic.Decidable.
 
 Section Logic_Pred_Theories.
   Variable U:Type.
-  Variable C:Prop.
   Variable a0:U.
 
   Lemma forall_bound_variable_and_dist_iff:
@@ -42,7 +41,7 @@ Section Logic_Pred_Theories.
   Qed.
 
   Lemma forall_bound_variable_and_out:
-    forall (A:U->Prop), (C /\ forall (x:U), A x) <-> forall (x:U), C /\ A x.
+    forall (A:U->Prop) (C:Prop), (C /\ forall (x:U), A x) <-> forall (x:U), C /\ A x.
   Proof.
     move => A.
     rewrite /iff.
@@ -62,7 +61,7 @@ Section Logic_Pred_Theories.
   Qed.
 
   Lemma forall_bound_variable_or_out:
-    forall (A:U->Prop), (C \/ forall (x:U), A x) <-> (forall (x:U), C \/ A x).
+    forall (A:U->Prop) (C:Prop), (C \/ forall (x:U), A x) <-> (forall (x:U), C \/ A x).
   Proof.
     move => A.
     rewrite /iff.
@@ -105,6 +104,23 @@ Section Logic_Pred_Theories.
        move => y.
        apply H.
        apply y.
+  Qed.
+
+  Lemma forall_bound_or_dist_2:
+    forall (A B:U -> Prop), (forall (t s:U), ((A t) \/ (B s))) -> (forall (t:U), (A t)) \/ (forall (s:U), (B s)).
+  Proof.
+    move => A B H.
+    apply imp_not_l.
+    apply classic.
+    move => H0 s.
+    move: H0.
+    apply imp_not_l.
+    apply classic.
+    apply or_comm.
+    apply forall_bound_variable_or_out.
+    move => t.
+    apply or_comm.
+    apply H.
   Qed.
 
 End Logic_Pred_Theories.
