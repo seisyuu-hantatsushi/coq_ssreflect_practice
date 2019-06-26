@@ -258,6 +258,50 @@ Section Direct_Product_Theories.
      apply H1.
   Qed.
 
+  Theorem direct_product_eq_to_or:
+    forall (A B C D:Ensemble U), A × B = C × D -> A × B = {||} \/ C × D = {||} \/ (A = C /\ B = D).
+  Proof.
+    +move => A B C D H.
+     ++have L0: (A × B ⊂ C × D) /\ (C × D ⊂ A × B).
+       apply Extension.
+       apply H.
+    +inversion L0 as [LH0 LH1].
+     apply imp_not_l.
+     apply classic.
+     move => H0.
+     apply imp_not_l.
+     apply classic.
+     move => H1.
+     ++suff: (A ⊂ C /\ B ⊂ D) /\ (C ⊂ A /\ D ⊂ B).
+       case => [[H2 H3] [H4 H5]].
+       split.
+       apply /Extensionality_Ensembles.
+       unfold Same_set.
+       split.
+       apply H2.
+       apply H4.
+       apply /Extensionality_Ensembles.
+       unfold Same_set.
+       split.
+       apply H3.
+       apply H5.
+    +split.
+     move: H0.
+     apply imp_not_l.
+     apply classic.
+     apply direct_product_included_iff.
+     apply LH0.
+     move: H1.
+     apply imp_not_l.
+     apply classic.
+     apply direct_product_included_iff.
+     apply LH1.
+  Qed.
+
+  Theorem direct_product_or_eq:
+    forall (A B C D:Ensemble U), (A × B = {||} /\ C × D = {||}) \/ (A = C /\ B = D) -> A × B = C × D.
+  Abort.
+  
   Theorem direct_product_included_right:
     forall (X Y Z:Ensemble U), ~(X={||}) /\ X × Z ⊂ X × Y -> Z ⊂ Y.
   Proof.

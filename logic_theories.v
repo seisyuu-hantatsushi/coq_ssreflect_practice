@@ -39,6 +39,17 @@ Section Logic_Theories.
     apply H0.
   Qed.
 
+  Lemma or_imply_to_imply_and:
+    forall (A B C:Prop), (A \/ B -> C) -> ((A -> C) /\ (B -> C)).
+  Proof.
+    move => A B C H.
+    split; move => H0; apply H.
+    left.
+    apply H0.
+    right.
+    apply H0.
+  Qed.
+  
   Lemma or_not_l_iff_3: forall (A B C:Prop), (A -> False) \/ (B -> False) \/ C <-> (A /\ B -> C).
   Proof.
     move => A B C.
