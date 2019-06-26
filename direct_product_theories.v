@@ -300,8 +300,11 @@ Section Direct_Product_Theories.
 
   Theorem direct_product_or_eq:
     forall (A B C D:Ensemble U), (A × B = {||} /\ C × D = {||}) \/ (A = C /\ B = D) -> A × B = C × D.
-  Abort.
-  
+  Proof.
+    move => A B C D.
+    case => H; inversion H; rewrite H0; rewrite H1; reflexivity.
+  Qed.
+
   Theorem direct_product_included_right:
     forall (X Y Z:Ensemble U), ~(X={||}) /\ X × Z ⊂ X × Y -> Z ⊂ Y.
   Proof.
