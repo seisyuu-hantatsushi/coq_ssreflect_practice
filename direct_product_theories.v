@@ -67,55 +67,48 @@ Section Direct_Product_Theories.
     move => X Y.
     rewrite /iff.
     split.
-    apply contrapositive.
-    apply classic.
-    move => H.
-    have L0: ~(forall (x y:U), ~((|x,y|) ∈ X × Y)) -> X × Y = {||} -> False.
-    move => HL0 HL1.
-    apply HL0.
-    rewrite HL1.
-    move => x y.
-    apply Noone_in_empty.
-    apply L0.
-    have L1: (exists x y:U, (|x,y|) ∈ X × Y) -> ~(forall (x y:U), ~((|x,y|) ∈ X × Y)).
-    case => [x [y]].
-    move => HL10.
-    unfold not.
-    move => HL11.
-    move: HL10.
-    apply HL11.
-    apply L1.
-    have L2: (exists x y:U, x ∈ X /\ y ∈ Y) -> (exists x y:U, (|x,y|) ∈ X × Y).
-    case => [x [y [HX HY]]].
-    exists x.
-    exists y.
-    rewrite direct_product_and_iff.
-    split.
-    apply HX.
-    apply HY.
-    apply L2.
-    have L3: (exists x:U, x ∈ X) /\ (exists y:U, y ∈ Y) -> (exists x y:U, x ∈ X /\ y ∈ Y).
-    case.
-    case => [x HX [y HY]].
-    exists x.
-    exists y.
-    split.
-    apply HX.
-    apply HY.
-    apply L3.
-    have L4: ((X = {||} -> False) /\ (Y = {||} -> False)).
-    apply not_or_and.
-    unfold not.
-    apply H.
-    inversion L4.
-    split; apply not_all_not_ex; unfold not; rewrite -Axiom_of_EmptySet.
-    apply H0.
-    apply H1.
-    case => H; rewrite H.
-    rewrite direct_product_empty_l.
-    reflexivity.
-    rewrite direct_product_empty_r.
-    reflexivity.
+    +apply contrapositive.
+     apply classic.
+     move => H.
+     ++suff: ~(forall (x y:U), ~((|x,y|) ∈ X × Y)).
+       move => H0 H1.
+       apply H0.
+       rewrite H1.
+       move => x y.
+       apply Noone_in_empty.
+     ++suff: exists x y:U, (|x,y|) ∈ X × Y.
+       case => [x [y]].
+       move => H0.
+       unfold not.
+       move => H1.
+       move: H0.
+       apply H1.
+     ++suff: exists x y:U, x ∈ X /\ y ∈ Y.
+       case => [x [y [HX HY]]].
+       exists x.
+       exists y.
+       rewrite direct_product_and_iff.
+       split.
+       apply HX.
+       apply HY.
+     ++suff: (exists x:U, x ∈ X) /\ (exists y:U, y ∈ Y).
+       case.
+       case => [x HX [y HY]].
+       exists x.
+       exists y.
+       split.
+       apply HX.
+       apply HY.
+     ++split; apply not_all_not_ex; unfold not; rewrite -Axiom_of_EmptySet; move => H1; apply H.
+       left.
+       apply H1.
+       right.
+       apply H1.
+    +case => H; rewrite H.
+     rewrite direct_product_empty_l.
+     reflexivity.
+     rewrite direct_product_empty_r.
+     reflexivity.
   Qed.
 
   Theorem direct_product_included_iff:
