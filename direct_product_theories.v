@@ -126,8 +126,7 @@ Section Direct_Product_Theories.
      (* (forall (t s:U), (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y) -> (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))) *)
      ++have L1: forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y)).
        move => t s.
-       rewrite -direct_product_and_iff.
-       rewrite -direct_product_and_iff.
+       rewrite -!direct_product_and_iff.
        apply L0.
      (* (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))) -> (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> t ∈ X) /\ ((t ∈ W /\ s ∈ Z) -> s ∈ Y)) *)
      ++have L2: forall (t s:U), ((t ∈ W /\ s ∈ Z) -> t ∈ X) /\ ((t ∈ W /\ s ∈ Z) -> s ∈ Y).
@@ -172,11 +171,9 @@ Section Direct_Product_Theories.
           apply H1.
           right.
           apply H1.
-     ++rewrite -L32.
-       rewrite -L32.
+     ++rewrite -!L32.
        rewrite -L31.
-       rewrite or_not_l_iff_2.
-       rewrite or_not_l_iff_2.
+       rewrite !or_not_l_iff_2.
        apply L2.
        apply classic.
        apply classic.
@@ -248,7 +245,7 @@ Section Direct_Product_Theories.
      case => H0 H1.
      unfold Included.
      move => S.
-     case => [T [x [y [HxW [HyZ [HT]]]]]].
+     case => [T [x [y [HxW [HyZ HT]]]]].
      rewrite HT.
      apply direct_product_and_iff.
      split.
@@ -343,7 +340,7 @@ Section Direct_Product_Theories.
     apply /Extensionality_Ensembles.
     +split => S.
      case => T.
-     case => [x [y [H1 [H2 [H3]]]]].
+     case => [x [y [H1 [H2 H3]]]].
      inversion H2.
      ++left.
        rewrite H3.
@@ -357,7 +354,7 @@ Section Direct_Product_Theories.
        split.
        apply H1.
        apply H.
-    +case; move => T; case => V; case => [x [y [H1 [H2 [H3]]]]]; rewrite H3; apply direct_product_and_iff; split.
+    +case; move => T; case => V; case => [x [y [H1 [H2 H3]]]]; rewrite H3; apply direct_product_and_iff; split.
      apply H1.
      left.
      apply H2.
@@ -373,7 +370,7 @@ Section Direct_Product_Theories.
     apply /Extensionality_Ensembles.
     split => S.
     +case => T.
-     case => [x [y [H1 [H2 [H3]]]]].
+     case => [x [y [H1 [H2 H3]]]].
      inversion H2 as [y0 H4 H5 H6].
      split; split; exists x; exists y.
      split.
