@@ -59,6 +59,12 @@ Notation "(| a , b |)" := (OrderedPair a b) (at level 48).
 
 (* Binary Relation {z|z=(|x,y|) /\ x ∈ X /\ y ∈ Y} *)
 
+Inductive FirstOfOrderedPair {U:Type} (XY: (Ensemble (Ensemble U))): Ensemble U :=
+| ordered_pair_first_accessor: forall (x:U), (exists y:U, (|x,y|) = XY) -> FirstOfOrderedPair XY x.
+
+Inductive SecondOfOrderedPair {U:Type} (XY: (Ensemble (Ensemble U))): Ensemble U :=
+| ordered_pair_second_accessor: forall (y:U), (exists x:U, (|x,y|) = XY) -> SecondOfOrderedPair XY y.
+
 Inductive Pr1 {U:Type} (XY: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
 | pr1_accessor: forall (x:U), (exists y:U, (|x,y|) ∈ XY) ->  Pr1 XY x.
 
@@ -326,6 +332,46 @@ Section Class_Set.
        rewrite H0.
        rewrite H1.
        reflexivity.
+  Qed.
+
+  Lemma FirstOfOrderedPairAccess: forall (a b:U), FirstOfOrderedPair ((| a, b |)) = {|a|}.
+  Proof.
+    move => a b.
+    apply /Extensionality_Ensembles.
+    split => z.
+    case => [x [y]].
+    rewrite ordered_pair_iff.
+    case => H0 H1.
+    apply singleton_eq_iff.
+    apply H0.
+    move => H.
+    split.
+    exists b.
+    apply ordered_pair_iff.
+    split.
+    apply singleton_eq_iff.
+    apply H.
+    reflexivity.
+  Qed.
+
+  Lemma SecondOfOrderedPairAccess: forall (a b:U), SecondOfOrderedPair ((| a, b |)) = {|b|}.
+  Proof.
+    move => a b.
+    apply /Extensionality_Ensembles.
+    split => z.
+    case => [y [x]].
+    rewrite ordered_pair_iff.
+    case => Hxa Hyb.
+    apply singleton_eq_iff.
+    apply Hyb.
+    move => H.
+    split.
+    exists a.
+    rewrite ordered_pair_iff.
+    split.
+    reflexivity.
+    apply singleton_eq_iff.
+    apply H.
   Qed.
 
 End Class_Set.
