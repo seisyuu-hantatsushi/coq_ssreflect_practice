@@ -71,13 +71,6 @@ Inductive Pr1 {U:Type} (XY: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
 Inductive Pr2 {U:Type} (XY: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
 | pr2_accessor: forall (y:U), (exists x:U, (|x,y|) ∈ XY) ->  Pr2 XY y.
 
-Inductive Graph {U:Type} (f:U->U) (X Y:Ensemble U) : Ensemble (Ensemble (Ensemble U)) :=
-| Definition_of_Graph: forall(x y:U), y = f x /\ (|x,y|) ∈ (X × Y) -> (|x,y|) ∈ Graph f X Y.
-
-
-Inductive Domain {U:Type} (G: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
-| Definition_of_Domain: forall (x:U) (f:U->U), (exists y:U, y = f x /\ (|x,y|) ∈ G) -> Domain G x.
-
 Definition Family_of_Sets {K U:Type} := K -> (Ensemble U).
 
 Section Class_Set.
