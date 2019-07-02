@@ -12,8 +12,8 @@ Section BinaryRelation.
 
   Definition BinaryRelation := U -> U -> Prop.
 
-  Inductive Graph (A B: Ensemble U) (R:BinaryRelation): Ensemble (Ensemble (Ensemble U)) :=
-  | Definition_of_Graph: forall (x y:U), R x y /\ (|x, y|) ∈ A × B -> (|x, y|) ∈ Graph A B R.
+  Inductive GraphOfBinaryRelation (A B: Ensemble U) (R:BinaryRelation): Ensemble (Ensemble (Ensemble U)) :=
+  | Definition_of_Graph: forall (x y:U), R x y /\ (|x, y|) ∈ A × B -> (|x, y|) ∈ GraphOfBinaryRelation A B R.
 
   Definition reflexive : Prop := forall (x:U) (R:BinaryRelation), R x x.
   Definition transitive : Prop := forall (x y z:U) (R:BinaryRelation), R x y -> R y z -> R x z.
