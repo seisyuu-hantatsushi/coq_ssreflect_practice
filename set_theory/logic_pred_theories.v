@@ -29,6 +29,20 @@ Section Logic_Pred_Theories.
     split; apply H.
   Qed.
 
+  Lemma forall_bound_variable_and_dist_iff_2:
+    forall (A B:U->U->Prop), ((forall (x y:U), A x y) /\ (forall (x y:U), B x y)) <-> forall (x y:U), A x y /\ B x y.
+  Proof.
+    move => A B.
+    rewrite /iff.
+    split.
+    case => H0 H1 x y.
+    split.
+    apply H0.
+    apply H1.
+    move => H.
+    split; apply H.
+  Qed.
+
   Lemma forall_bound_variable_or_dist:
     forall (A B:U->Prop), (forall (x:U), A x) \/ (forall (x:U), B x) -> forall (x:U), A x \/ B x.
   Proof.
