@@ -12,6 +12,39 @@ Section Direct_Product_Theories.
 
   Variable U:Type.
 
+  Theorem ordered_pair_in_direct_product_iff_and:
+    forall (A B:Ensemble U) (a b:U), (|a,b|) ∈ A × B <-> a ∈ A /\ b ∈ B.
+  Proof.
+    move => A B a b.
+    rewrite /iff.
+    split.
+    move => H.
+    inversion H.
+    inversion H0.
+    inversion H2 as [y].
+    inversion H3.
+    inversion H5.
+    fold (OrderedPair x y) in H7.
+    move : H7.
+    rewrite (ordered_pair_iff a b x y).
+    case => H7 H8.
+    rewrite H7.
+    rewrite H8.
+    split.
+    apply H4.
+    apply H6.
+    case => [H0 H1].
+    split.
+    exists a.
+    exists b.
+    split.
+    apply H0.
+    split.
+    apply H1.
+    fold (OrderedPair a b).
+    reflexivity.
+  Qed.
+
   Theorem direct_product_empty_r: forall (X:Ensemble U), X × {||} = {||}.
   Proof.
     move => X.
@@ -87,7 +120,7 @@ Section Direct_Product_Theories.
        case => [x [y [HX HY]]].
        exists x.
        exists y.
-       rewrite direct_product_and_iff.
+       rewrite ordered_pair_in_direct_product_iff_and.
        split.
        apply HX.
        apply HY.
@@ -126,7 +159,7 @@ Section Direct_Product_Theories.
      (* (forall (t s:U), (|t,s|) ∈ W × Z -> (|t,s|) ∈ X × Y) -> (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))) *)
      ++have L1: forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y)).
        move => t s.
-       rewrite -!direct_product_and_iff.
+       rewrite -!ordered_pair_in_direct_product_iff_and.
        apply L0.
      (* (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> (t ∈ X /\ s ∈ Y))) -> (forall (t s:U), ((t ∈ W /\ s ∈ Z) -> t ∈ X) /\ ((t ∈ W /\ s ∈ Z) -> s ∈ Y)) *)
      ++have L2: forall (t s:U), ((t ∈ W /\ s ∈ Z) -> t ∈ X) /\ ((t ∈ W /\ s ∈ Z) -> s ∈ Y).
@@ -247,7 +280,7 @@ Section Direct_Product_Theories.
      move => S.
      case => [T [x [y [HxW [HyZ HT]]]]].
      rewrite HT.
-     apply direct_product_and_iff.
+     apply ordered_pair_in_direct_product_iff_and.
      split.
      move: HxW.
      apply H0.
@@ -344,17 +377,17 @@ Section Direct_Product_Theories.
      inversion H2.
      ++left.
        rewrite H3.
-       apply direct_product_and_iff.
+       apply ordered_pair_in_direct_product_iff_and.
        split.
        apply H1.
        apply H.
      ++right.
        rewrite H3.
-       apply direct_product_and_iff.
+       apply ordered_pair_in_direct_product_iff_and.
        split.
        apply H1.
        apply H.
-    +case; move => T; case => V; case => [x [y [H1 [H2 H3]]]]; rewrite H3; apply direct_product_and_iff; split.
+    +case; move => T; case => V; case => [x [y [H1 [H2 H3]]]]; rewrite H3; apply ordered_pair_in_direct_product_iff_and; split.
      apply H1.
      left.
      apply H2.
@@ -387,9 +420,9 @@ Section Direct_Product_Theories.
      case => V.
      case => [x [y [H1 [H2 H3]]]].
      rewrite H3.
-     rewrite direct_product_and_iff.
+     rewrite ordered_pair_in_direct_product_iff_and.
      case => [H4 H5].
-     rewrite direct_product_and_iff.
+     rewrite ordered_pair_in_direct_product_iff_and.
      split.
      apply H1.
      split.
@@ -397,4 +430,42 @@ Section Direct_Product_Theories.
      apply H5.
   Qed.
 
+  Goal forall (y:U) (X Y:Ensemble U), y ∈ Y -> Pr1 (X × Y) = X.
+  Proof.
+    move => y X Y HY.
+    apply /Extensionality_Ensembles.
+    split => x H.
+    inversion H.
+    inversion H0 as [y0].
+    apply ordered_pair_in_direct_product_iff_and in H2.
+    inversion H2.
+    apply H3.
+    split.
+    exists y.
+    apply ordered_pair_in_direct_product_iff_and.
+    split.
+    apply H.
+    apply HY.
+  Qed.
+
+  Goal forall (x:U) (X Y:Ensemble U), x ∈ X -> Pr2 (X × Y) = Y.
+  Proof.
+    move => x X Y HX.
+    apply /Extensionality_Ensembles.
+    split => y H.
+    inversion H.
+    inversion H0 as [x0].
+    apply ordered_pair_in_direct_product_iff_and in H2.
+    inversion H2.
+    apply H4.
+    split.
+    exists x.
+    apply ordered_pair_in_direct_product_iff_and.
+    split.
+    apply HX.
+    apply H.
+  Qed.
+
 End Direct_Product_Theories.
+
+Export class_set_theories.
