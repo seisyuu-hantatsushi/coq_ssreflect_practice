@@ -274,10 +274,10 @@ Section Class_Set.
      ++apply L1.
   Qed.
 
-  Theorem ordered_pair_iff: forall (w x y z: U), (| x , y |) = (| w , z |) <-> x = w /\ y = z.
+  Theorem ordered_pair_iff: forall (x y w z: U), (| x , y |) = (| w , z |) <-> x = w /\ y = z.
   Proof.
      unfold OrderedPair.
-    +move => w x y z.
+    +move => x y w z.
      rewrite /iff.
      split.
      (* {|{|x|}, {|x, y|}|} = {|{|w|}, {|w, z|}|} -> x = w /\ y = z *)

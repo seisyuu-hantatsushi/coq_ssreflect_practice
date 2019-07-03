@@ -6,6 +6,7 @@ Import Prenex Implicits.
 
 Require Import logic_theories.
 Require Import logic_pred_theories.
+Require Import class_set.
 Require Import class_set_theories.
 
 Section Direct_Product_Theories.
@@ -25,7 +26,7 @@ Section Direct_Product_Theories.
     inversion H3.
     inversion H5.
     fold (OrderedPair x y) in H7.
-    move : H7.
+    move: H7.
     rewrite (ordered_pair_iff a b x y).
     case => H7 H8.
     rewrite H7.
