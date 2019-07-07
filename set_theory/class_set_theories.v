@@ -26,6 +26,16 @@ Section Class_Set_Theories.
        apply H.
   Qed.
 
+  Theorem union_assoc:
+    forall (X Y Z:Ensemble U), (X ∪ Y) ∪ Z = X ∪ Y ∪ Z.
+  Proof.
+    move => X Y Z.
+    apply /Extensionality_Ensembles.
+    +split => x.
+     apply.
+     apply.
+  Qed.
+  
   Lemma noone_in_complement: forall (x:U) (X:Ensemble U), x ∈ X <-> (x ∈ (X^c) -> False).
   Proof.
     move => x X.

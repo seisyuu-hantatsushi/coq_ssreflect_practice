@@ -8,8 +8,8 @@ Require Import Coq.Logic.Decidable. (* Introducing decidable *)
 Require Import Coq.Sets.Powerset_Classical_facts.
 
 Notation "x ∈ X" := (In _ X x) (right associativity, at level 48).
-Notation "A ⊂ B" := (Included _ A B) (right associativity, at level 48).
-Notation "A ⊊ B" := (Strict_Included _ A B) (right associativity, at level 48).
+Notation "A ⊂ B" := (Included _ A B) (right associativity, at level 51).
+Notation "A ⊊ B" := (Strict_Included _ A B) (right associativity, at level 51).
 Notation "A ^c"   := (Complement _ A) (at level 47).
 Notation "A ∪ B" := (Union _ A B) (left associativity, at level 50).
 Notation "A ∩ B" := (Intersection _ A B) (left associativity, at level 50).
