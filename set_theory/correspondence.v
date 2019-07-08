@@ -166,7 +166,7 @@ Section Correspondence.
   Inductive InverseCorrespondence (f:Ensemble (Ensemble (Ensemble U))) :
     Ensemble (Ensemble (Ensemble U)) :=
   | Definition_of_InverseCorrespondence :
-      forall (x y:U), (|x,y|) ∈ f -> (|y , x|) ∈ InverseCorrespondence f.
+      forall (x y: U), (|x,y|) ∈ f -> (|y,x|) ∈ InverseCorrespondence f.
 
   Goal forall (x y:U) (A B:Ensemble U) (R:BinaryRelation U), (|x,y|) ∈ (GraphOfBinaryRelation A B R) <-> (|y,x|) ∈ InverseCorrespondence (GraphOfBinaryRelation A B R).
   Proof.
@@ -213,7 +213,14 @@ Section Correspondence.
     rewrite H8 in H6.
     apply H6.
   Qed.
-
+(*
+  Goal forall (A B C:Ensemble U) (R:BinaryRelation U), C ⊂ Image (InverseCorrespondence (GraphOfBinaryRelation A B R)) (Image (GraphOfBinaryRelation A B R) C).
+  Proof.
+    move => A B C R.
+    move => x.
+    move => H.
+    split.
+*)
   Inductive CompoundCorrespondence (f:Ensemble (Ensemble (Ensemble U))) (g:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
   | Definition_of_CompoundCorrespondence :
       forall (x y:U), (exists z:U, (|x,z|) ∈ f /\ (|z,y|) ∈ g) -> (|x,y|) ∈ CompoundCorrespondence f g.
