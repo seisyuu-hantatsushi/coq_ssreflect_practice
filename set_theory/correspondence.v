@@ -213,14 +213,22 @@ Section Correspondence.
     rewrite H8 in H6.
     apply H6.
   Qed.
-(*
-  Goal forall (A B C:Ensemble U) (R:BinaryRelation U), C ⊂ Image (InverseCorrespondence (GraphOfBinaryRelation A B R)) (Image (GraphOfBinaryRelation A B R) C).
+
+  Goal forall (A B C D :Ensemble U) (R:BinaryRelation U),
+      Image (InverseCorrespondence (GraphOfBinaryRelation A B R)) (C ∩ D) ⊂ (Image (InverseCorrespondence (GraphOfBinaryRelation A B R)) C) ∩ (Image (InverseCorrespondence (GraphOfBinaryRelation A B R)) D).
   Proof.
-    move => A B C R.
-    move => x.
-    move => H.
-    split.
-*)
+    move => A B C D R x H.
+    inversion H as [x0].
+    inversion H0 as [y].
+    inversion H2 as [HCD].
+    inversion HCD as [y2 HC HD].
+    split; split; exists y; split.
+    apply HC.
+    apply H3.
+    apply HD.
+    apply H3.
+  Qed.
+
   Inductive CompoundCorrespondence (f:Ensemble (Ensemble (Ensemble U))) (g:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
   | Definition_of_CompoundCorrespondence :
       forall (x y:U), (exists z:U, (|x,z|) ∈ f /\ (|z,y|) ∈ g) -> (|x,y|) ∈ CompoundCorrespondence f g.
