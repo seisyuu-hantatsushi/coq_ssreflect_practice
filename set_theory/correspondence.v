@@ -233,6 +233,7 @@ Section Correspondence.
   | Definition_of_CompoundCorrespondence :
       forall (x y:U), (exists z:U, (|x,z|) ∈ f /\ (|z,y|) ∈ g) -> (|x,y|) ∈ CompoundCorrespondence g f.
 
+  (* g ∘ f (D) = g(f(D)) *)
   Goal forall (A B C D:Ensemble U) (R1 R2:BinaryRelation U),
       Image (CompoundCorrespondence (GraphOfBinaryRelation B C R2) (GraphOfBinaryRelation A B R1)) D =
       Image (GraphOfBinaryRelation B C R2) (Image (GraphOfBinaryRelation A B R1) D).
@@ -275,7 +276,8 @@ Section Correspondence.
      apply H8.
      apply H4.
   Qed.
-  
+
+  (* h ∘ (g ∘ f) = (h ∘ g) ∘ f *)
   Goal forall (A B C D:Ensemble U) (R1 R2 R3:BinaryRelation U),
       CompoundCorrespondence (GraphOfBinaryRelation C D R3) (CompoundCorrespondence (GraphOfBinaryRelation B C R2) (GraphOfBinaryRelation A B R1)) = CompoundCorrespondence (CompoundCorrespondence (GraphOfBinaryRelation C D R3) (GraphOfBinaryRelation B C R2)) (GraphOfBinaryRelation A B R1).
   Proof.
@@ -322,6 +324,7 @@ Section Correspondence.
      apply H9.
   Qed.
 
+  (* (g ∘ f)^(-1) = f^(-1) ∘ g^(-1) *)
   Goal forall (A B C:Ensemble U) (R1 R2:BinaryRelation U),
       InverseCorrespondence (CompoundCorrespondence (GraphOfBinaryRelation C B R2) (GraphOfBinaryRelation A B R1))
       = CompoundCorrespondence (InverseCorrespondence (GraphOfBinaryRelation A B R1)) (InverseCorrespondence (GraphOfBinaryRelation C B R2)).
@@ -365,6 +368,36 @@ Section Correspondence.
     apply H6.
   Qed.
 
+  Goal forall (A B:Ensemble U) (R :BinaryRelation U),
+      (GraphOfBinaryRelation A B R) ⊂ A × B <-> InverseCorrespondence (GraphOfBinaryRelation A B R) ⊂ B × A.
+  Proof.
+    move => A B R.
+    rewrite /iff.
+    split => H Z.
+    +split.
+     inversion H0.
+     inversion H1.
+     inversion H4.
+     apply ordered_pair_iff in H3.
+     apply ordered_pair_in_direct_product_iff_and in H6.
+     inversion H3.
+     inversion H6.
+     rewrite H7 in H9.
+     rewrite H8 in H10.
+     exists y.
+     exists x.
+     split.
+     apply H10.
+     split.
+     apply H9.
+     fold (OrderedPair y x).
+     reflexivity.
+    +move => H0.
+     inversion H0.
+     inversion H1.
+     apply H4.
+  Qed.
+  
 End Correspondence.
 
 
