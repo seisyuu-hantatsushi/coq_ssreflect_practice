@@ -229,12 +229,147 @@ Section Correspondence.
     apply H3.
   Qed.
 
-  Inductive CompoundCorrespondence (f:Ensemble (Ensemble (Ensemble U))) (g:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
+  Inductive CompoundCorrespondence (g:Ensemble (Ensemble (Ensemble U))) (f:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
   | Definition_of_CompoundCorrespondence :
-      forall (x y:U), (exists z:U, (|x,z|) ∈ f /\ (|z,y|) ∈ g) -> (|x,y|) ∈ CompoundCorrespondence f g.
+      forall (x y:U), (exists z:U, (|x,z|) ∈ f /\ (|z,y|) ∈ g) -> (|x,y|) ∈ CompoundCorrespondence g f.
 
+  Goal forall (A B C D:Ensemble U) (R1 R2:BinaryRelation U),
+      Image (CompoundCorrespondence (GraphOfBinaryRelation B C R2) (GraphOfBinaryRelation A B R1)) D =
+      Image (GraphOfBinaryRelation B C R2) (Image (GraphOfBinaryRelation A B R1) D).
+  Proof.
+    move => A B C D R1 R2.
+    apply Extensionality_Ensembles.
+    split => y H.
+    +inversion H.
+     inversion H0 as [x].
+     inversion H2 as [HD].
+     inversion H3.
+     inversion H5 as [z].
+     inversion H6.
+     apply ordered_pair_iff in H4.
+     inversion H4.
+     split.
+     exists z.
+     split.
+     split.
+     exists x.
+     split.
+     apply HD.
+     rewrite H9 in H7.
+     apply H7.
+     rewrite H10 in H8.
+     apply H8.
+    +inversion H.
+     inversion H0 as [z].
+     inversion H2.
+     inversion H3.
+     inversion H5 as [x].
+     inversion H7 as [HD].
+     split.
+     exists x.
+     split.
+     apply HD.
+     split.
+     exists z.
+     split.
+     apply H8.
+     apply H4.
+  Qed.
   
+  Goal forall (A B C D:Ensemble U) (R1 R2 R3:BinaryRelation U),
+      CompoundCorrespondence (GraphOfBinaryRelation C D R3) (CompoundCorrespondence (GraphOfBinaryRelation B C R2) (GraphOfBinaryRelation A B R1)) = CompoundCorrespondence (CompoundCorrespondence (GraphOfBinaryRelation C D R3) (GraphOfBinaryRelation B C R2)) (GraphOfBinaryRelation A B R1).
+  Proof.
+    move => A B C D R1 R2 R3.
+    apply Extensionality_Ensembles.
+    split => X H.
+    +inversion H.
+     inversion H0 as [z].
+     inversion H2.
+     inversion H3.
+     inversion H6 as [z0].
+     inversion H7.
+     split.
+     exists z0.
+     apply ordered_pair_iff in H5.
+     inversion H5.
+     split.
+     rewrite H10 in H8.
+     apply H8.
+     split.
+     exists y0.
+     split.
+     apply H9.
+     rewrite H11.
+     apply H4.
+    +inversion H.
+     inversion H0 as [z].
+     inversion H2.
+     inversion H4.
+     inversion H6 as [z0].
+     inversion H7.
+     split.
+     exists z0.
+     apply ordered_pair_iff in H5.
+     inversion H5.
+     split.
+     split.
+     exists z.
+     split.
+     apply H3.
+     rewrite -H10.
+     apply H8.
+     rewrite -H11.
+     apply H9.
+  Qed.
+
+  Goal forall (A B C:Ensemble U) (R1 R2:BinaryRelation U),
+      InverseCorrespondence (CompoundCorrespondence (GraphOfBinaryRelation C B R2) (GraphOfBinaryRelation A B R1))
+      = CompoundCorrespondence (InverseCorrespondence (GraphOfBinaryRelation A B R1)) (InverseCorrespondence (GraphOfBinaryRelation C B R2)).
+  Proof.
+    move => A B C R1 R2.
+    apply Extensionality_Ensembles.
+    split => X H.
+    inversion H.
+    inversion H0.
+    inversion H3 as [z].
+    inversion H4.
+    apply ordered_pair_iff in H2.
+    inversion H2.
+    split.
+    exists z.
+    split.
+    split.
+    rewrite H8 in H6.
+    apply H6.
+    split.
+    rewrite H7 in H5.
+    apply H5.
+    inversion H.
+    inversion H0 as [z].
+    inversion H2.
+    inversion H3.
+    inversion H4.
+    apply ordered_pair_iff in H5.
+    inversion H5.
+    apply ordered_pair_iff in H7.
+    inversion H7.
+    split.
+    split.
+    exists z.
+    split.
+    rewrite -H12.
+    rewrite -H11.
+    apply H8.
+    rewrite -H9.
+    rewrite -H10.
+    apply H6.
+  Qed.
+
 End Correspondence.
+
+
+
+
 
 
 
