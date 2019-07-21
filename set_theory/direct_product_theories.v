@@ -467,6 +467,14 @@ Section Direct_Product_Theories.
     apply H.
   Qed.
 
+  Lemma ordered_pair_swap:
+    forall (x y z w:U), (|x,y|) = (|z,w|) <-> (|y,x|) = (|w,z|).
+  Proof.
+    move => x y z w.
+    rewrite /iff.
+    split => H; apply ordered_pair_iff in H; inversion H; rewrite H0;  rewrite H1; reflexivity.
+  Qed.
+  
 End Direct_Product_Theories.
 
 Export class_set_theories.
