@@ -49,7 +49,7 @@ Section Logic_Theories.
     right.
     apply H0.
   Qed.
-  
+
   Lemma or_not_l_iff_3: forall (A B C:Prop), (A -> False) \/ (B -> False) \/ C <-> (A /\ B -> C).
   Proof.
     move => A B C.
@@ -73,6 +73,12 @@ Section Logic_Theories.
     split.
     apply HA.
     apply HB.
+  Qed.
+
+  Lemma imply_and_to_or_imply: forall (A B C:Prop), (A -> B /\ C) -> (A -> B) /\ (A -> C).
+  Proof.
+    move => A B C H.
+    split; apply H.
   Qed.
 
 End Logic_Theories.
