@@ -12,8 +12,8 @@ Definition FunctionOfMap {U:Type} := U -> U.
 Inductive GraphOfMap {U:Type} (A B:Ensemble U) (f:FunctionOfMap) : Ensemble (Ensemble (Ensemble U)) :=
 | Definition_of_GraphOfMap: forall (x y:U), y = f x /\ (|x,y|) ∈ A × B -> (|x,y|) ∈ GraphOfMap A B f.
 
-Definition Mapping {U:Type} (f: Ensemble (Ensemble (Ensemble U))) (A: Ensemble U) :=
-  forall (x:U), x ∈ A -> exists y:U, (|x, y|) ∈ f.
+Definition Mapping {U:Type} (f: Ensemble (Ensemble (Ensemble U))) (F:FunctionOfMap) (A B: Ensemble U) :=
+  f = GraphOfMap A B F /\ forall (x:U), x ∈ A -> exists y:U, (|x, y|) ∈ f.
 
 Inductive DomainOfMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
 | Definition_of_DomainOfMap: forall (x:U), x ∈ Pr1 f -> x ∈ DomainOfMap f.
@@ -41,8 +41,11 @@ Definition Sujection {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (R:Ensemble U
 Definition Bijection {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (R:Ensemble U) :=
   Injection f /\ Sujection f R.
 
+(* ≔ : Unicode 2254 (COLON EQUAL) *)
+(* ⊦ : Unicode 22A6 (ASSERTION) *)
 (* ⟼: Unicode:27FC (LONG RIGHTWARDS ARROW FROM BAR) *)
-Notation "f : A ⟼ B" := (GraphOfMap A B f) (at level 43).
+
+Notation "F ≔ f ⊢ A ⟼ B" := (Mapping F f A B) (at level 43).
 
 Notation "f ^-1" := (InverseMap f) (at level 44).
 
@@ -61,14 +64,15 @@ Section FunctionDefinition.
   Variables A B C D: Ensemble U.
   Variables F G: U -> U.
 
-  Definition f := F : A ⟼ B.
-  Definition g := G : B ⟼ C.
-
   (* Proofing uniqueness of function *)
-  Goal Mapping f A -> forall (x y z:U), (|x,y|) ∈ f /\ (|x,z|) ∈ f -> y = z.
+  Goal forall (f:Ensemble (Ensemble (Ensemble U))), (f ≔ F ⊢ A ⟼ B) -> forall (x y z:U), (|x,y|) ∈ f /\ (|x,z|) ∈ f -> y = z.
   Proof.
-    move => H x y z.
+    unfold Mapping.
+    move => f.
+    case => HF H x y z.
     case => Hfy Hfz.
+    rewrite HF in Hfy.
+    rewrite HF in Hfz.
     inversion Hfy.
     inversion Hfz.
     inversion H1 as [H4 H5].
@@ -86,7 +90,13 @@ Section FunctionDefinition.
     reflexivity.
   Qed.
 
-  Goal forall (x:U), x ∈ 𝕯( f ) -> exists! y, {|y|} = ImageOfMap f {|x|}.
+  Goal forall (f:Ensemble (Ensemble (Ensemble U))),
+      (f ≔ F ⊢ A ⟼ B) ->
+      forall (x:U),
+        x ∈ 𝕯( f ) -> exists! y, {|y|} = ImageOfMap f {|x|}.
+    unfold Mapping.
+    move => f.
+    case => Hf HfS.
     move => x HxDF.
     inversion HxDF.
     inversion H.
@@ -109,6 +119,8 @@ Section FunctionDefinition.
      inversion H4 as [y0'].
      inversion H5 as [x'].
      inversion H7.
+     rewrite Hf in H3.
+     rewrite Hf in H9.
      inversion H9 as [x'' y''].
      inversion H10.
      inversion H3 as [x''' y'''].
@@ -126,10 +138,10 @@ Section FunctionDefinition.
      rewrite H18.
      rewrite H8.
      reflexivity.
-     move => y' H5.
-     apply Extension in H5.
-     unfold Same_set in H5.
-     inversion H5.
+     move => y' H4.
+     apply Extension in H4.
+     unfold Same_set in H4.
+     inversion H4.
      apply singleton_eq_iff.
      apply (H6 y).
      split.
@@ -140,15 +152,19 @@ Section FunctionDefinition.
      apply H3.
   Qed.
 
-  Goal Mapping f A -> 𝕯( f ) = A.
+  Goal forall (f:Ensemble (Ensemble (Ensemble U))),
+      (f ≔ F ⊢ A ⟼ B) -> 𝕯( f ) = A.
   Proof.
-    move => H.
+    unfold Mapping.
+    move => f.
+    case => H HfS.
     apply /Extensionality_Ensembles.
     split => x.
     +move => HxDF.
      inversion HxDF.
      inversion H0.
      inversion H2 as [y].
+     rewrite H in H4.
      inversion H4 as [x' y'].
      inversion H5.
      rewrite H6 in H8.
@@ -157,16 +173,22 @@ Section FunctionDefinition.
      apply H9.
     +split.
     split.
-    apply (H x).
+    apply (HfS x).
     apply H0.
   Qed.
 
-  Goal g ∘ f ⊂ A × C.
+  Goal forall (f g:Ensemble (Ensemble (Ensemble U))),
+      (f ≔ F ⊢ A ⟼ B) /\ (g ≔ F ⊢ B ⟼ C) -> g ∘ f ⊂ A × C.
   Proof.
+    unfold Mapping.
+    move => f g. 
+    case => [[Hf HfS [Hg HgS]]].
     move => Z H.
     inversion H.
     inversion H0 as [z].
     inversion H2.
+    rewrite Hf in H3.
+    rewrite Hg in H4.
     inversion H3 as [x' z'].
     inversion H5.
     rewrite H6 in H8.
@@ -183,43 +205,44 @@ Section FunctionDefinition.
     apply H16.
   Qed.
 
-  Goal forall (f0 g0: U -> U) (F0 G0:Ensemble (Ensemble (Ensemble U))),
-      F0 = f0 : A ⟼ B /\ Mapping F0 A /\ G0 = g0 : C ⟼ D /\ Mapping G0 C /\ B ⊂ C -> 𝕯(G0 ∘ F0) = A /\ 𝕽(G0 ∘ F0) ⊂ D.
+  Goal forall (f g:Ensemble (Ensemble (Ensemble U))),
+      f ≔ F ⊢ A ⟼ B /\ g ≔ G ⊢ C ⟼ D /\ B ⊂ C -> 𝕯(g ∘ f) = A /\ 𝕽(g ∘ f) ⊂ D.
   Proof.
-    move => f0 g0 F0 G0.
-    case => HF [HFM [HG [HGM HBC]]].
+    unfold Mapping.
+    move => f g.
+    case => [[Hf HfS] [[Hg HgS] HBC]].
     split.
     +apply /Extensionality_Ensembles.
      split => x.
-     ++move => HxDGF.
-       move : (HFM x) => HFMx.
-       inversion HxDGF.
+     ++move => H.
        inversion H.
-       inversion H1 as [z].
-       inversion H3 as [x' z'].
-       apply ordered_pair_iff in H5.
-       inversion H5.
-       inversion H4 as [z''].
-       inversion H8.
-       rewrite HF in H9.
-       inversion H9 as [x0' z0'].
-       inversion H11.
-       rewrite H12 in H14.
-       rewrite H6 in H14.
-       apply ordered_pair_in_direct_product_iff_and in H14.
-       inversion H14.
-       apply H15.
-       move : (HFM x) => HFMx.
+       inversion H0 as [x1].
+       inversion H2 as [z1].
+       inversion H4 as [x' y].
+       apply ordered_pair_iff in H6.
+       inversion H6.
+       inversion H5 as [z'].
+       inversion H9.
+       rewrite Hf in H10.
+       rewrite Hg in H11.
+       inversion H10 as [x0' z0'].
+       inversion H12.
+       rewrite H13 in H15.
+       rewrite H7 in H15.
+       apply ordered_pair_in_direct_product_iff_and in H15.
+       inversion H15.
+       apply H16.
+       move : (HfS x) => HfSx.
        move => HA.
        split.
        split.
-       move : HFMx.
+       move : HfSx.
        case.
        apply HA.
        move => z HFz.
-       move : (HGM z).
+       move : (HgS z).
        case.
-       rewrite HF in HFz.
+       rewrite Hf in HFz.
        inversion HFz.
        inversion H0.
        rewrite H in H2.
@@ -241,8 +264,8 @@ Section FunctionDefinition.
      inversion H3 as [x0' y0'].
      inversion H4 as [z].
      inversion H6.
-     rewrite HF in H7.
-     rewrite HG in H8.
+     rewrite Hf in H7.
+     rewrite Hg in H8.
      apply ordered_pair_iff in H5.
      inversion H5.
      rewrite H10 in H8.

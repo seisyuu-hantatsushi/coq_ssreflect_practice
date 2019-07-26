@@ -14,8 +14,8 @@ Inductive GraphOfMap {U:Type} (A B:Ensemble U) (f:FunctionOfMap) : Ensemble (Ens
 | Definition_of_GraphOfMap:
     forall (x y:U), (y = f x) /\ (|x,y|) ∈ A × B -> (|x,y|) ∈ GraphOfMap A B f.
 
-Definition Mapping {U:Type} (f : Ensemble (Ensemble (Ensemble U))) (A:Ensemble U) := 
-  forall (x:U), x ∈ A -> exists y:U, ((|x,y|) ∈ f).
+Definition Mapping {U:Type} (F: Ensemble (Ensemble (Ensemble U))) (f:FunctionOfMap) (A B:Ensemble U) :=
+  F = GraphOfMap A B f /\ forall (x:U), x ∈ A -> exists y:U, ((|x,y|) ∈ F).
 
 Inductive DomainOfMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
 | Definition_of_DomainOfMap: forall (x:U), x ∈ Pr1 f -> x ∈ DomainOfMap f.
@@ -37,7 +37,7 @@ Inductive InverseMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensemble (E
 Variable U : Type.
 
 Goal forall (A B:Ensemble U) (f: U -> U) (F:Ensemble (Ensemble (Ensemble U))),
-    F = GraphOfMap A B f /\ Mapping F A -> DomainOfMap F = A.
+    Mapping F f A B -> DomainOfMap F = A.
 Proof.
   move => A B f F.
   case => H.
@@ -66,7 +66,7 @@ Qed.
 
 (* Proofing uniqueness of function *)
 Goal forall (A B:Ensemble U) (f: U -> U) (F:Ensemble (Ensemble (Ensemble U))) (x y z:U),
-    F = GraphOfMap A B f /\ Mapping F A -> ((|x,y|) ∈ F /\ (|x,z|) ∈ F -> y = z).
+    Mapping F f A B  -> ((|x,y|) ∈ F /\ (|x,z|) ∈ F -> y = z).
 Proof.
   move => A B f F x y z H.
   inversion H as [HF HFM].
@@ -91,7 +91,7 @@ Proof.
 Qed.
 
 Goal forall (A B:Ensemble U) (f:U -> U) (F:Ensemble (Ensemble (Ensemble U))),
-    F = GraphOfMap A B f /\ Mapping F A -> (forall (x:U), x ∈ DomainOfMap F -> exists! y, {|y|} = ImageOfMap F {|x|}).
+    Mapping F f A B -> (forall (x:U), x ∈ DomainOfMap F -> exists! y, {|y|} = ImageOfMap F {|x|}).
 Proof.
   move => A B f F H.
   inversion H as [HF HFM].
@@ -156,10 +156,11 @@ Proof.
 Qed.
 
 Goal forall (A B C D:Ensemble U) (f g: U -> U) (F G:Ensemble (Ensemble (Ensemble U))),
-    F = GraphOfMap A B f /\ Mapping F A /\ G = GraphOfMap C D g /\ Mapping G C /\ B ⊂ C -> DomainOfMap (CompoundMap G F) = A /\ RangeOfMap (CompoundMap G F) ⊂ D.
+    Mapping F f A B /\ Mapping G g C D /\ B ⊂ C -> DomainOfMap (CompoundMap G F) = A /\ RangeOfMap (CompoundMap G F) ⊂ D.
 Proof.
   move => A B C D f g F G.
-  case => HF [HFM [HG [HGM HBC]]].
+  unfold Mapping.
+  case => [[HF HFM] [[HG HGM] HBC]].
   split.
   +apply /Extensionality_Ensembles.
    split => x.
