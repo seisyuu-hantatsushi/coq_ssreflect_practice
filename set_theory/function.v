@@ -181,7 +181,7 @@ Section FunctionDefinition.
       (f ≔ F ⊢ A ⟼ B) /\ (g ≔ F ⊢ B ⟼ C) -> g ∘ f ⊂ A × C.
   Proof.
     unfold Mapping.
-    move => f g. 
+    move => f g.
     case => [[Hf HfS [Hg HgS]]].
     move => Z H.
     inversion H.

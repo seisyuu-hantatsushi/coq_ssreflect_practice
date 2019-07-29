@@ -56,6 +56,56 @@ Section FunctionTheories.
      apply H6.
   Qed.
 
+  Theorem union_inversion_mapping_domain:
+    forall (f:Ensemble (Ensemble (Ensemble U))) (X Y:Ensemble U),
+      (f ≔ F ⊢ A ⟼ B) -> f^-1 '' (X ∪ Y) = (f^-1 '' X) ∪ (f^-1 '' Y).
+  Proof.
+    move => f X Y H.
+    inversion H as [Hf HfS].
+    apply /Extensionality_Ensembles.
+    +split => x H0.
+     inversion H0 as [x0 [y0 H1]].
+     rewrite -H2 in H1.
+     inversion H1.
+     inversion H3 as [y0' | y0'].
+     inversion H4 as [x1 y1].
+     ++left.
+       split.
+       exists y0.
+       split.
+       apply H5.
+       rewrite -H2.
+       rewrite -H8.
+       split.
+       apply H7.
+     ++right.
+       split.
+       exists y0.
+       split.
+       apply H5.
+       rewrite -H2.
+       apply H4.
+    +split.
+     ++inversion H0.
+       inversion H1 as [x0'].
+       inversion H3 as [y].
+       inversion H5.
+       inversion H7 as [x1 y1].
+       exists y.
+       split.
+       left.
+       apply H6.
+       apply H7.
+     ++inversion H1 as [x0'].
+       inversion H3 as [y].
+       inversion H5.
+       exists y.
+       split.
+       right.
+       apply H6.
+       apply H7.
+  Qed.
+  
   Theorem FunctionTheory_1:
     forall (f:Ensemble (Ensemble (Ensemble U))), f ≔ F ⊢ A ⟼ B /\ Injection f -> forall (y x0 x1:U), (|y, x0|) ∈ f^-1 /\ (|y, x1|) ∈ f^-1 -> x0 = x1.
   Proof.
