@@ -105,9 +105,70 @@ Section FunctionTheories.
        apply H6.
        apply H7.
   Qed.
-  
+
+  Theorem intersction_inversion_mapping_domain:
+    forall (f:Ensemble (Ensemble (Ensemble U))) (X Y:Ensemble U),
+      (f ≔ F ⊢ A ⟼ B) -> f^-1 '' (X ∩ Y) = (f^-1 '' X) ∩ (f^-1 '' Y).
+  Proof.
+    move => f X Y H.
+    unfold Mapping in H.
+    inversion H as [Hf HfS].
+    rewrite Hf.
+    apply /Extensionality_Ensembles.
+    split => x H0.
+    +inversion H0 as [x'].
+     inversion H1 as [y].
+     inversion H3.
+     inversion H4 as [y'].
+     split; split; exists y; split.
+     apply H6.
+     apply H5.
+     apply H7.
+     apply H5.
+    +inversion H0 as [x'].
+     inversion H1 as [x0].
+     inversion H4 as [y].
+     inversion H6.
+     inversion H2 as [x0'].
+     inversion H9 as [y'].
+     inversion H11.
+     inversion H8 as [x2 y2].
+     inversion H14.
+     inversion H13 as [x3 y3].
+     inversion H18 as [x3' y3'].
+     inversion H17.
+     inversion H20.
+     apply ordered_pair_iff in H15.
+     inversion H15.
+     apply ordered_pair_iff in H16.
+     inversion H16.
+     apply ordered_pair_iff in H19.
+     inversion H19.
+     apply ordered_pair_iff in H21.
+     inversion H21.
+     rewrite H28 in H22.
+     rewrite H32 in H24.
+     rewrite H27 in H22.
+     rewrite H31 in H24.
+     rewrite -H22 in H24.
+     rewrite H33 in H24.
+     rewrite H30 in H24.
+     rewrite H29 in H24.
+     rewrite H26 in H24.
+     rewrite H24 in H12.
+     split.
+     exists y.
+     split.
+     split.
+     apply H7.
+     apply H12.
+     rewrite H24 in H13.
+     apply H13.
+  Qed.
+
   Theorem FunctionTheory_1:
-    forall (f:Ensemble (Ensemble (Ensemble U))), f ≔ F ⊢ A ⟼ B /\ Injection f -> forall (y x0 x1:U), (|y, x0|) ∈ f^-1 /\ (|y, x1|) ∈ f^-1 -> x0 = x1.
+    forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ F ⊢ A ⟼ B /\ Injection f -> forall (y x0 x1:U), (|y, x0|) ∈ f^-1 /\ (|y, x1|) ∈ f^-1 -> x0 = x1.
   Proof.
     move => f.
     case => [H HIf].
