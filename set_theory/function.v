@@ -41,6 +41,9 @@ Definition Sujection {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (R:Ensemble U
 Definition Bijection {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (R:Ensemble U) :=
   Injection f /\ Sujection f R.
 
+Definition IdentityMapping {U:Type} (f: Ensemble (Ensemble (Ensemble U))) (A: Ensemble U) :=
+  Mapping f (fun x => x) A A.
+
 (* ≔ : Unicode 2254 (COLON EQUAL) *)
 (* ⊦ : Unicode 22A6 (ASSERTION) *)
 (* ⟼: Unicode:27FC (LONG RIGHTWARDS ARROW FROM BAR) *)
@@ -50,7 +53,7 @@ Notation "F ≔ f ⊢ A ⟼ B" := (Mapping F f A B) (at level 43).
 Notation "f ^-1" := (InverseMap f) (at level 44).
 
 Notation "f '' A" := (ImageOfMap f A) (at level 45).
-
+in
 (* 𝕯: Unicode:1D56F, 𝕽: Unicode:1D57D *)
 Notation "𝕯( f )" := (DomainOfMap f) (at level 45).
 Notation "𝕽( f )" := (RangeOfMap f) (at level 45).
@@ -277,6 +280,48 @@ Section FunctionDefinition.
      apply H16.
   Qed.
 
+  Goal forall (f:Ensemble (Ensemble (Ensemble U))) (x:U),
+      x ∈ A /\ IdentityMapping f A -> f '' {|x|} = {|x|}. 
+  Proof.
+    move => f x.
+    unfold IdentityMapping.
+    unfold Mapping.
+    case => HA [H HfS].
+    rewrite H.
+    apply /Extensionality_Ensembles.
+    split => y H0.
+    +inversion H0.
+     inversion H1.
+     inversion H3.
+     inversion H5.
+     inversion H7.
+     apply ordered_pair_iff in H6.
+     inversion H6.
+     apply singleton_eq_iff in H4.
+     rewrite -H4.
+     rewrite -H10.
+     rewrite -H11.
+     apply singleton_eq_iff.
+     apply H8.
+    +split.
+     exists y.
+     split.
+     apply H0.
+     split.
+     split.
+     reflexivity.
+     split.
+     exists x.
+     exists y.
+     apply singleton_eq_iff in H0.
+     rewrite H0.
+     split.
+     apply HA.
+     split.
+     apply HA.
+     apply ordered_pair_iff.
+     done.
+  Qed.
 End FunctionDefinition.
 
 Require Export class_set.

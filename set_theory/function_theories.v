@@ -292,3 +292,5 @@ Section FunctionTheories.
   Qed.
 
 End FunctionTheories.
+
+Require Export function.
