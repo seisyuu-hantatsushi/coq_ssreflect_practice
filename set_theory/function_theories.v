@@ -166,6 +166,24 @@ Section FunctionTheories.
      apply H13.
   Qed.
 
+  Theorem included_image:
+    forall (f:Ensemble (Ensemble (Ensemble U))) (A':Ensemble U),
+      (f ≔ F ⊢ A ⟼ B) /\ A' ⊂ A -> f '' A' ⊂ f '' A.
+  Proof.
+    move => f A'.
+    case => [[Hf HfS] H].
+    move => y H0.
+    split.
+    inversion H0.
+    inversion H1.
+    inversion H3.
+    exists x.
+    split.
+    apply H.
+    apply H4.
+    apply H5.
+  Qed.
+
   Theorem FunctionTheory_1:
     forall (f:Ensemble (Ensemble (Ensemble U))),
       f ≔ F ⊢ A ⟼ B /\ Injection f -> forall (y x0 x1:U), (|y, x0|) ∈ f^-1 /\ (|y, x1|) ∈ f^-1 -> x0 = x1.

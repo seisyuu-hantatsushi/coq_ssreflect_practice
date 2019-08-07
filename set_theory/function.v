@@ -281,7 +281,7 @@ Section FunctionDefinition.
   Qed.
 
   Goal forall (f:Ensemble (Ensemble (Ensemble U))) (x:U),
-      x ∈ A /\ IdentityMapping f A -> f '' {|x|} = {|x|}. 
+      x ∈ A /\ IdentityMapping f A -> f '' {|x|} = {|x|}.
   Proof.
     move => f x.
     unfold IdentityMapping.
