@@ -7,6 +7,7 @@ TARGETS += direct_product_theories.vo
 TARGETS += binary_relation.vo
 TARGETS += function.vo
 TARGETS += function_theories.vo
+TARGETS += function_composite_theroies.vo
 
 all: targets
 
@@ -18,7 +19,11 @@ class_set_theories.vo:  class_set.vo
 
 class_set.vo: logic_theories.vo logic_pred_theories.vo
 
-function.vo: class_set.vo
+function.vo: class_set.vo direct_product_theories.vo
+
+function_theories.vo: function.vo
+
+function_composite_theroies.vo: function_theories.vo function.vo
 
 %.vo : %.v
 	coqc $<
