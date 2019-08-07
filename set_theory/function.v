@@ -53,7 +53,7 @@ Notation "F ≔ f ⊢ A ⟼ B" := (Mapping F f A B) (at level 43).
 Notation "f ^-1" := (InverseMap f) (at level 44).
 
 Notation "f '' A" := (ImageOfMap f A) (at level 45).
-in
+
 (* 𝕯: Unicode:1D56F, 𝕽: Unicode:1D57D *)
 Notation "𝕯( f )" := (DomainOfMap f) (at level 45).
 Notation "𝕽( f )" := (RangeOfMap f) (at level 45).
