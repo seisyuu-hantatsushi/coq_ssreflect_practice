@@ -291,6 +291,7 @@ Section FunctionTheories.
      apply HA.
   Qed.
 
+  
 End FunctionTheories.
 
 Require Export function.

@@ -71,8 +71,6 @@ Inductive Pr1 {U:Type} (XY: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
 Inductive Pr2 {U:Type} (XY: Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
 | pr2_accessor: forall (y:U), (exists x:U, (|x,y|) ∈ XY) ->  Pr2 XY y.
 
-Definition Family_of_Sets {K U:Type} := K -> (Ensemble U).
-
 Section Class_Set.
 
   Variable U:Type.

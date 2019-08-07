@@ -28,9 +28,9 @@ Inductive CompoundMap {U:Type} (g:Ensemble (Ensemble (Ensemble U))) (f:Ensemble 
 | Definition_of_CompoundMap:
     forall (x y:U), (exists z:U, (|x, z|) ∈ f /\ (|z,y|) ∈ g) -> (|x , y|) ∈ CompoundMap g f.
 
-Inductive InverseMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
-| Definition_of_InverseMap :
-    forall (x y: U), (|x,y|) ∈ f -> (|y,x|) ∈ InverseMap f.
+Inductive TransposeOfGraph {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
+| Definition_of_TransposeOfGraph :
+    forall (x y: U), (|x,y|) ∈ f -> (|y,x|) ∈ TransposeOfGraph f.
 
 Definition Injection {U:Type} (f:Ensemble (Ensemble (Ensemble U))) :=
   forall (x x' y :U), (|x,y|) ∈ f /\ (|x',y|) ∈ f -> x = x'.
@@ -50,7 +50,7 @@ Definition IdentityMapping {U:Type} (f: Ensemble (Ensemble (Ensemble U))) (A: En
 
 Notation "F ≔ f ⊢ A ⟼ B" := (Mapping F f A B) (at level 43).
 
-Notation "f ^-1" := (InverseMap f) (at level 44).
+Notation "f ^-1" := (TransposeOfGraph f) (at level 44).
 
 Notation "f '' A" := (ImageOfMap f A) (at level 45).
 

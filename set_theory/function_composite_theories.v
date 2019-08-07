@@ -158,4 +158,48 @@ Section FunctionCompositeTheories.
      apply H5.
   Qed.
 
+  Goal forall (f idB: Ensemble (Ensemble (Ensemble U))),
+      f ≔ F ⊢ A ⟼ B /\ IdentityMapping idB B -> f = idB ∘ f.
+  Proof.
+    move => f idB.
+    case => [[Hf HfS] [HidB HidBS]].
+    rewrite Hf HidB.
+    apply /Extensionality_Ensembles.
+    split => Z H0.
+    +inversion H0 as [x y].
+     inversion H1.
+     inversion H4.
+     inversion H5 as [x' [y']].
+     inversion H7 as [H8 [H9 H10]].
+     apply ordered_pair_iff in H10.
+     inversion H10.
+     split.
+     exists y.
+     split.
+     rewrite H2.
+     apply H0.
+     split.
+     split.
+     reflexivity.
+     split.
+     exists y'.
+     exists y'.
+     split.
+     apply H9.
+     split.
+     apply H9.
+     rewrite H12.
+     done.
+    +inversion H0.
+     inversion H1 as [z [H3 H4]].
+     inversion H4 as [x' y' [H5 H6]].
+     rewrite H5 in H7.
+     apply ordered_pair_iff in H7.
+     inversion H7.
+     rewrite H8 in H9.
+     rewrite -H9.
+     apply H3.
+  Qed.
 End FunctionCompositeTheories.
+
+Require Export function_theories.

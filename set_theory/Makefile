@@ -7,7 +7,7 @@ TARGETS += direct_product_theories.vo
 TARGETS += binary_relation.vo
 TARGETS += function.vo
 TARGETS += function_theories.vo
-TARGETS += function_composite_theroies.vo
+TARGETS += function_composite_theories.vo
 
 all: targets
 
