@@ -24,6 +24,9 @@ Inductive RangeOfMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensemble U 
 Inductive ImageOfMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (C:Ensemble U) : Ensemble U :=
 | Definition_of_ImageOfMap: forall (y:U), (exists x:U, x ∈ C /\ (|x,y|) ∈ f) -> y ∈ ImageOfMap f C.
 
+(* Inductive InverseImageOfMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (C:Ensemble U) : Ensemble U:=
+| Definition_of_InverseImageOfMap: forall(y:U), exists y:U, *)
+
 Inductive CompoundMap {U:Type} (g:Ensemble (Ensemble (Ensemble U))) (f:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
 | Definition_of_CompoundMap:
     forall (x y:U), (exists z:U, (|x, z|) ∈ f /\ (|z,y|) ∈ g) -> (|x , y|) ∈ CompoundMap g f.
@@ -35,11 +38,11 @@ Inductive TransposeOfGraph {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensem
 Definition Injection {U:Type} (f:Ensemble (Ensemble (Ensemble U))) :=
   forall (x x' y :U), (|x,y|) ∈ f /\ (|x',y|) ∈ f -> x = x'.
 
-Definition Sujection {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (R:Ensemble U) :=
+Definition Surjection {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (R:Ensemble U) :=
   forall (y:U), y ∈ R -> exists x:U, (|x,y|) ∈ f.
 
 Definition Bijection {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (R:Ensemble U) :=
-  Injection f /\ Sujection f R.
+  Injection f /\ Surjection f R.
 
 Definition IdentityMapping {U:Type} (f: Ensemble (Ensemble (Ensemble U))) (A: Ensemble U) :=
   Mapping f (fun x => x) A A.
