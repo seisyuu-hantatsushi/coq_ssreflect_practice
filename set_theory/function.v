@@ -24,8 +24,8 @@ Inductive RangeOfMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensemble U 
 Inductive ImageOfMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (C:Ensemble U) : Ensemble U :=
 | Definition_of_ImageOfMap: forall (y:U), (exists x:U, x ∈ C /\ (|x,y|) ∈ f) -> y ∈ ImageOfMap f C.
 
-(* Inductive InverseImageOfMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (C:Ensemble U) : Ensemble U:=
-| Definition_of_InverseImageOfMap: forall(y:U), exists y:U, *)
+Inductive InverseImageOfMap {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (C:Ensemble U) : Ensemble U:=
+| Definition_of_InverseImageOfMap: forall(x:U), (exists y:U, y ∈ C /\ (|x,y|) ∈ f) -> x ∈ InverseImageOfMap f C.
 
 Inductive CompoundMap {U:Type} (g:Ensemble (Ensemble (Ensemble U))) (f:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
 | Definition_of_CompoundMap:
