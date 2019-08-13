@@ -25,7 +25,7 @@ Section FunctionInvertible.
      rewrite H1 in H2.
      apply H2.
   Qed.
-  
+
   Theorem inverse_mapping_is_mapping:
     forall (f: Ensemble (Ensemble (Ensemble U))),
       f ≔ F ⊢ X ⟼ Y /\ Bijection f Y ->
@@ -51,15 +51,13 @@ Section FunctionInvertible.
      apply HBS.
      apply H.
   Qed.
-  
+
   Theorem inverse_mapping_is_bijection:
     forall (f: Ensemble (Ensemble (Ensemble U))),
       f ≔ F ⊢ X ⟼ Y /\ Bijection f Y -> Bijection (f ^-1) X.
   Proof.
     move => f.
     case => [[Hf HfS] [HBI HBS]].
-    unfold Injection in HBI.
-    unfold Surjection in HBS.
     split.
     +move => y y' x.
      case => H0 H1.
@@ -88,8 +86,7 @@ Section FunctionInvertible.
      rewrite H11 in H8.
      apply eq_sym.
      apply H8.
-    +unfold Surjection.
-     move => x H.
+    +move => x H.
      suff: exists y:U, ((|x,y|)) ∈ f.
      ++move => H00.
        inversion H00 as [y'].
@@ -100,6 +97,119 @@ Section FunctionInvertible.
      apply H.
   Qed.
 
-  Goal 
-  
+  Goal forall (f idX:Ensemble (Ensemble (Ensemble U))),
+      f ≔ F ⊢ X ⟼ Y /\ Bijection f Y /\ IdentityMapping idX X -> f ^-1 ∘ f = idX.
+  Proof.
+    move => f idX.
+    case => H [[HBI HBS] HidX].
+    apply /Extensionality_Ensembles.
+    inversion H as [Hf HfS].
+    inversion HidX as [HidX0 HidX0S].
+    split => Z.
+    +case => x y [z].
+     case => Hf0 Hfi.
+     inversion Hfi as [z' y'].
+     apply ordered_pair_swap in H1.
+     rewrite H1 in H0.
+     rewrite HidX0.
+     split.
+     split.
+     apply (HBI y x z).
+     split.
+     apply H0.
+     apply Hf0.
+     rewrite Hf in Hf0.
+     rewrite Hf in H0.
+     inversion Hf0.
+     rewrite H2 in H3.
+     inversion H3.
+     apply ordered_pair_in_direct_product_iff_and in H5.
+     inversion H5.
+     inversion H0.
+     rewrite H8 in H9.
+     inversion H9.
+     apply ordered_pair_in_direct_product_iff_and in H11.
+     inversion H11.
+     apply ordered_pair_in_direct_product_iff_and.
+     split.
+     apply H6.
+     apply H12.
+    +move => H0.
+     rewrite HidX0 in H0.
+     inversion H0.
+     inversion H1.
+     split.
+    +have L1: exists z:U, (|x,z|) ∈ f.
+     ++apply HfS.
+       apply ordered_pair_in_direct_product_iff_and in H4.
+       inversion H4.
+       apply H5.
+    +inversion L1 as [z].
+     exists z.
+     split.
+     apply H5.
+     split.
+     rewrite H3.
+     apply H5.
+  Qed.
+
+  Goal forall (f idY:Ensemble (Ensemble (Ensemble U))),
+      f ≔ F ⊢ X ⟼ Y /\ Bijection f Y /\ IdentityMapping idY Y -> f ∘ f^-1 = idY.
+  Proof.
+    move => f idY.
+    case => H [[HBI HBS] HidY].
+    apply /Extensionality_Ensembles.
+    inversion H as [Hf HfS].
+    inversion HidY as [HidY0 HidY0S].
+    rewrite HidY0.
+    split => Z.
+    +case => x y [z].
+     case => Hfi Hf0.
+     inversion Hfi as [z' x'].
+     apply ordered_pair_swap in H1.
+     rewrite H1 in H0.
+     rewrite Hf in Hf0.
+     rewrite Hf in H0.
+     inversion Hf0.
+     inversion H3.
+     inversion H0.
+     inversion H7.
+     apply ordered_pair_iff in H2.
+     inversion H2.
+     apply ordered_pair_iff in H6.
+     inversion H6.
+     rewrite H10 in H4.
+     rewrite H11 in H4.
+     rewrite H12 in H8.
+     rewrite H13 in H8.
+     rewrite -H8 in H4.
+     split.
+     split.
+     apply H4.
+     rewrite -H4.
+     apply ordered_pair_in_direct_product_iff_and.
+     apply ordered_pair_in_direct_product_iff_and in H5.
+     inversion H5.
+     rewrite H11 in H15.
+     split.
+     apply H15.
+     apply H15.
+    +move => H0.
+     inversion H0.
+     inversion H1.
+     apply ordered_pair_in_direct_product_iff_and in H4.
+     inversion H4.
+    -have L1: exists z:U, (|z, y|) ∈ f.
+     ++apply (HBS y).
+       apply H6.
+    -inversion L1 as [z].
+     split.
+     exists z.
+     split.
+     split.
+     rewrite -H3.
+     apply H7.
+     apply H7.
+  Qed.
+
 End FunctionInvertible.
