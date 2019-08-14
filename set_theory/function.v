@@ -283,6 +283,65 @@ Section FunctionDefinition.
      apply H16.
   Qed.
 
+  Theorem mapping_function_iff:
+    forall (x y:U) (f:Ensemble (Ensemble (Ensemble U))),
+      x ∈ A /\ y ∈ B /\ f ≔ F ⊢ A ⟼ B -> ({|y|} = f '' {|x|} <-> y = F x).
+  Proof.
+    move => x y f.
+    case => HxA [HyB [Hf HfS]].
+    rewrite /iff.
+    split => H.
+    +apply Extension in H.
+     inversion H.
+     move: (H0 y).
+     rewrite (singleton_eq_iff).
+     case.
+     reflexivity.
+     move => y0 H2.
+     inversion H2 as [x0].
+     rewrite Hf in H3.
+     inversion H3.
+     apply (singleton_eq_iff) in H4.
+     inversion H5.
+     inversion H7.
+     apply ordered_pair_iff in H6.
+     inversion H6.
+     rewrite -H11.
+     rewrite -H4.
+     rewrite -H10.
+     apply H8.
+    +apply /Extensionality_Ensembles.
+     split => y' H0.
+     ++split.
+       exists x.
+       split.
+       done.
+       rewrite Hf.
+       apply singleton_eq_iff in H0.
+       split.
+       split.
+       rewrite H0.
+       apply H.
+       rewrite H0.
+       apply ordered_pair_in_direct_product_iff_and.
+       done.
+     ++inversion H0.
+       inversion H1 as [x'].
+       inversion H3.
+       rewrite Hf in H5.
+       inversion H5.
+       inversion H7.
+       apply singleton_eq_iff in H4.
+       apply ordered_pair_iff in H6.
+       inversion H6.
+       rewrite H11 in H8.
+       rewrite H10 in H8.
+       rewrite H4 in H8.
+       rewrite -H in H8.
+       apply singleton_eq_iff.
+       done.
+  Qed.
+
   Goal forall (f:Ensemble (Ensemble (Ensemble U))) (x:U),
       x ∈ A /\ IdentityMapping f A -> f '' {|x|} = {|x|}.
   Proof.
@@ -325,6 +384,7 @@ Section FunctionDefinition.
      apply ordered_pair_iff.
      done.
   Qed.
+
 End FunctionDefinition.
 
 Require Export class_set.
