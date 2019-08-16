@@ -9,6 +9,9 @@ Require Import class_set.
 Require Import direct_product_theories.
 Require Import binary_relation.
 
+Inductive GraphOfBinaryRelation {U:Type} (A B: Ensemble U) (R:BinaryRelation): Ensemble (Ensemble (Ensemble U)) :=
+| Definition_of_Graph: forall (x y:U), R x y /\ (|x, y|) ∈ A × B -> (|x, y|) ∈ GraphOfBinaryRelation A B R.
+
 Section Correspondence.
   Variable U: Type.
 

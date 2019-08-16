@@ -6,20 +6,18 @@ Import Prenex Implicits.
 
 Require Import class_set.
 
+Definition BinaryRelation (U:Type) := U -> U -> Prop.
+
 Section BinaryRelation.
 
   Variable U:Type.
+  Variable R: BinaryRelation U.
 
-  Definition BinaryRelation := U -> U -> Prop.
+  Definition reflexive : Prop := forall (x:U), R x x.
+  Definition transitive : Prop := forall (x y z:U), R x y -> R y z -> R x z.
+  Definition symmetric : Prop := forall (x y:U), R x y -> R y x.
+  Definition antisymmetric : Prop := forall (x y:U), R x y -> R y x -> x = y.
 
-  Inductive GraphOfBinaryRelation (A B: Ensemble U) (R:BinaryRelation): Ensemble (Ensemble (Ensemble U)) :=
-  | Definition_of_Graph: forall (x y:U), R x y /\ (|x, y|) ∈ A × B -> (|x, y|) ∈ GraphOfBinaryRelation A B R.
-
-  Definition reflexive : Prop := forall (x:U) (R:BinaryRelation), R x x.
-  Definition transitive : Prop := forall (x y z:U) (R:BinaryRelation), R x y -> R y z -> R x z.
-  Definition symmetric : Prop := forall (x y:U) (R:BinaryRelation), R x y -> R y x.
-  Definition antisymmetric : Prop := forall (x y:U) (R:BinaryRelation), R x y -> R y x -> x = y.
-
-  Definition equiv := reflexive /\ transitive /\ symmetric.
+  Definition equivalence := reflexive /\ transitive /\ symmetric.
 
 End BinaryRelation.
