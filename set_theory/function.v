@@ -9,8 +9,9 @@ Require Import direct_product_theories.
 
 Definition FunctionOfMap {U:Type} := U -> U.
 
-Inductive GraphOfMap {U:Type} (A B:Ensemble U) (f:FunctionOfMap) : Ensemble (Ensemble (Ensemble U)) :=
-| Definition_of_GraphOfMap: forall (x y:U), y = f x /\ (|x,y|) ∈ A × B -> (|x,y|) ∈ GraphOfMap A B f.
+(* from axiom of replacement *)
+Inductive GraphOfMap {U:Type} (A B:Ensemble U) (F:FunctionOfMap) : Ensemble (Ensemble (Ensemble U)) :=
+| Definition_of_GraphOfMap: forall (x y:U), y = F x /\ (|x,y|) ∈ A × B -> (|x,y|) ∈ GraphOfMap A B F.
 
 Definition Mapping {U:Type} (f: Ensemble (Ensemble (Ensemble U))) (F:FunctionOfMap) (A B: Ensemble U) :=
   f = GraphOfMap A B F /\ forall (x:U), x ∈ A -> exists y:U, (|x, y|) ∈ f.
