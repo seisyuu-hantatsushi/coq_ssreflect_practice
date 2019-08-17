@@ -9,404 +9,323 @@ Require Import class_set.
 Require Import direct_product_theories.
 Require Import binary_relation.
 
-Inductive GraphOfBinaryRelation {U:Type} (A B: Ensemble U) (R:BinaryRelation U): Ensemble (Ensemble (Ensemble U)) :=
-| Definition_of_Graph: forall (x y:U), R x y /\ (|x, y|) ∈ A × B -> (|x, y|) ∈ GraphOfBinaryRelation A B R.
+Inductive GraphOfBinaryRelation {U:Type} (R:BinaryRelation U) (A B: Ensemble U): Ensemble (Ensemble (Ensemble U)) :=
+| Definition_of_Graph: forall (x y:U), R x y /\ (|x, y|) ∈ A × B -> (|x, y|) ∈ GraphOfBinaryRelation R A B.
+
+Inductive DomainOfCorrespondence {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
+| Definition_of_DomainOfCorrespondence: forall (x:U), x ∈ Pr1 f -> x ∈ DomainOfCorrespondence f.
+
+Inductive RangeOfCorrespondence {U:Type} (f:Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
+| Definition_of_RangeOfCorrespondence: forall (y:U), y ∈ Pr2 f -> y ∈ RangeOfCorrespondence f.
+
+Inductive ImageOfCorrespondence {U:Type} (f:Ensemble (Ensemble (Ensemble U))) (C:Ensemble U) : Ensemble U :=
+  | Definition_of_ImageOfCorrespondence: forall (y:U), (exists x:U, x ∈ C /\ (|x,y|) ∈ f) -> y ∈ ImageOfCorrespondence f C.
+
+Inductive CompoundCorrespondence {U:Type} (g f:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
+| Definition_of_CompoundCorrespondence :
+    forall (x y:U), (exists z:U, (|x,z|) ∈ f /\ (|z,y|) ∈ g) -> (|x,y|) ∈ CompoundCorrespondence g f.
+
+Inductive TransposeOfGraph {U:Type} (f:Ensemble (Ensemble (Ensemble U))) :
+    Ensemble (Ensemble (Ensemble U)) :=
+| Definition_of_InverseCorrespondence :
+    forall (x y: U), (|x,y|) ∈ f -> (|y,x|) ∈ TransposeOfGraph f.
+
+(* ⥴: Unicode 2974 (RIGHTWARDS ARROW ABOVE TILDE OPERATO) *)
+(* ≔ : Unicode 2254 (COLON EQUAL) *)
+(* ⊦ : Unicode 22A6 (ASSERTION) *)
+Notation "f ≔ R ⊦ A ⥴ B" := (f = GraphOfBinaryRelation R A B) (at level 44).
+
+(* ∘: Unicode 2218 *)
+Notation "g ∘ f" := (CompoundCorrespondence g f) (at level 45).
+
+(* 𝕯: Unicode:1D56F, 𝕽: Unicode:1D57D *)
+Notation "𝕯( f )" := (DomainOfCorrespondence f) (at level 45).
+Notation "𝕽( f )" := (RangeOfCorrespondence f) (at level 45).
+
+Notation "f ^-1" := (TransposeOfGraph f) (at level 44).
+
+Notation "f '' A" := (ImageOfCorrespondence f A) (at level 46).
+
+Proposition transpose_correspondence_iff:
+  forall (U:Type) (x y:U) (R:BinaryRelation U) (A B:Ensemble U) (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> (|x,y|) ∈ f <-> (|y,x|) ∈ f^-1.
+  Proof.
+    move => U x y R A B f H.
+    rewrite /iff.
+    split => H0.
+    split.
+    apply H0.
+    inversion H0.
+    apply ordered_pair_swap in H1.
+    rewrite H1 in H2.
+    apply H2.
+  Qed.
 
 Section Correspondence.
   Variable U: Type.
+  Variable R: BinaryRelation U.
+  Variable A B C D: Ensemble U.
 
-  Goal forall (A B:Ensemble U) (R:BinaryRelation U), GraphOfBinaryRelation A B R ⊂ A × B.
+  Proposition graph_is_included_in_direct_product:
+    forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> f ⊂ A × B.
   Proof.
-    move => A B R X.
-    case => [x y [H]].
+    move => f H.
+    rewrite H => X.
+    case => [x y [H0]].
     apply.
   Qed.
 
-  Inductive Domain (f:Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
-  | Definition_of_Domain: forall (x:U), x ∈ Pr1 f -> x ∈ Domain f.
-
-  Inductive Range (f:Ensemble (Ensemble (Ensemble U))) : Ensemble U :=
-  | Definition_of_Range: forall (y:U), y ∈ Pr2 f -> y ∈ Range f.
-
-  Goal forall (A B:Ensemble U) (R:BinaryRelation U), Domain (GraphOfBinaryRelation A B R) ⊂ A.
+  Proposition domain_of_graph_is_included_in_source_set:
+    forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> 𝕯( f ) ⊂ A.
   Proof.
-    move => A B R X.
-    case => [Z [x [y H]]].
-    inversion H.
-    inversion H1.
-    rewrite H0 in H3.
-    apply ordered_pair_in_direct_product_iff_and in H3.
+    move => f H x H0.
+    inversion H0 as [x' H1].
+    inversion H1 as [x0 [y0]].
+    rewrite H in H3.
+    rewrite -H4 in H3.
     inversion H3.
-    apply H4.
+    inversion H6.
+    rewrite H5 in H8.
+    apply ordered_pair_in_direct_product_iff_and in H8.
+    inversion H8.
+    rewrite -H4.
+    apply H9.
   Qed.
 
-  Goal forall (A B:Ensemble U) (R:BinaryRelation U), Range (GraphOfBinaryRelation A B R) ⊂ B.
+  Proposition range_of_graph_is_included_in_source_set:
+    forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> 𝕽( f ) ⊂ B.
   Proof.
-    move => A B R X.
-    case => [Z [y [x H]]].
-    inversion H.
-    inversion H1.
-    rewrite H0 in H3.
+    move => f H y H0.
+    inversion H0 as [y' [y0 [x]]].
+    rewrite H in H1.
+    inversion H1 as [x1 y1 [HR H3]].
+    rewrite H4 in H3.
     apply ordered_pair_in_direct_product_iff_and in H3.
     inversion H3.
-    apply H5.
-  Qed.
-
-  Inductive Image (f:Ensemble (Ensemble (Ensemble U))) (C:Ensemble U) : Ensemble U :=
-  | Definition_of_Image: forall (y:U), (exists x:U, x ∈ C /\ (|x,y|) ∈ f) -> y ∈ Image f C.
-
-  Goal forall (A B C:Ensemble U) (R:BinaryRelation U),
-      forall y:U, (y ∈ Image (GraphOfBinaryRelation A B R) C) <-> exists x:U, (x ∈ C /\ (|x, y|) ∈ GraphOfBinaryRelation A B R).
-  Proof.
-    move => A B C R y.
-    rewrite /iff.
-    split.
-    case => y0.
-    apply.
-    case => [x [HxC H]].
-    split.
-    exists x.
-    split.
-    apply HxC.
-    apply H.
+    apply H6.
   Qed.
 
   Theorem union_of_image_of_correspondence_eq:
-    forall (A B C D:Ensemble U) (R:BinaryRelation U),
-      Image (GraphOfBinaryRelation A B R) (C ∪ D) = Image (GraphOfBinaryRelation A B R) C ∪ Image (GraphOfBinaryRelation A B R) D.
+    forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> f '' (C ∪ D) = f '' C ∪ f '' D.
   Proof.
-    move => A B C D R.
+    move => f H.
     apply Extensionality_Ensembles.
     split => z.
     +case => [y [x [H0 H1]]].
-     inversion H0.
+     inversion H0 as [x' H2|x' H2]; [left|right]; split; exists x; split.
+     ++apply H2.
+       apply H1.
+     ++apply H2.
+       apply H1.
+    +case => z0; case => [y [x [H' H0]]]; split; exists x; split.
      ++left.
-       split.
-       exists x.
-       split.
-       apply H.
-       apply H1.
+       apply H'.
+       apply H0.
      ++right.
-       split.
-       exists x.
-       split.
-       apply H.
-       apply H1.
-    +case => z0.
-     ++case => [y [x [HC H]]].
-       split.
-       exists x.
-       split.
-       left.
-       apply HC.
-       apply H.
-     ++case => [y [x [HD H]]].
-       split.
-       exists x.
-       split.
-       right.
-       apply HD.
-       apply H.
+       apply H'.
+       apply H0.
   Qed.
 
   Theorem and_image_of_correspondence_included:
-    forall (A B C D:Ensemble U) (R:BinaryRelation U),
-      Image (GraphOfBinaryRelation A B R) (C ∩ D) ⊂ (Image (GraphOfBinaryRelation A B R) C ∩ Image (GraphOfBinaryRelation A B R) D).
+    forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> f '' (C ∩ D) ⊂ (f '' C ∩ f '' D).
   Proof.
-    move => A B C D R z.
-    case => [y [x [H H1]]].
-    inversion H as [x0 HC HD].
-    split.
-    split.
-    exists x.
-    split.
-    apply HC.
-    apply H1.
-    split.
-    exists x.
-    split.
-    apply HD.
-    apply H1.
-  Qed.
-
-  Goal forall (A B:Ensemble U) (R:BinaryRelation U),
-      forall x y:U, (y ∈ Image (GraphOfBinaryRelation A B R) {|x|}) <-> (|x,y|) ∈ (GraphOfBinaryRelation A B R).
-  Proof.
-    move => A B R x y.
-    rewrite /iff.
-    split.
-    case => [y0 [x0]].
-    case => [H0 H1].
-    apply singleton_eq_iff in H0.
-    rewrite -H0.
-    apply H1.
-    move => H.
-    split.
-    exists x.
-    split.
-    apply singleton_eq_iff.
-    reflexivity.
-    apply H.
+    move => f H y H0.
+    inversion H0 as [y' [x' [H1 H2]]].
+    inversion H1.
+    split; split; exists x; rewrite H6; split.
+    apply H4.
+    apply H2.
+    apply H5.
+    apply H2.
   Qed.
 
   Theorem included_domain_to_included_image:
-    forall (A B V W:Ensemble U) (R:BinaryRelation U),
-      V ⊂ W /\ W ⊂ Domain (GraphOfBinaryRelation A B R) -> (Image (GraphOfBinaryRelation A B R) V ⊂ Image (GraphOfBinaryRelation A B R) W).
+    forall (f:Ensemble (Ensemble (Ensemble U))) (V W:Ensemble U),
+      f ≔ R ⊦ A ⥴ B -> V ⊂ W /\ W ⊂ A -> (f '' V ⊂ f '' W).
   Proof.
-    move => A B V W R.
-    case => [HVW HYDG y].
-    move => H.
-    inversion H as [y0 [x]].
-    inversion H0.
+    move => f V W HF.
+    case => [HVW HWA] y H0.
+    inversion H0 as [y0 [x [H1 H2]]].
     split.
     exists x.
     split.
     apply HVW.
-    apply H2.
-    apply H3.
-  Qed.
-
-  Inductive InverseCorrespondence (f:Ensemble (Ensemble (Ensemble U))) :
-    Ensemble (Ensemble (Ensemble U)) :=
-  | Definition_of_InverseCorrespondence :
-      forall (x y: U), (|x,y|) ∈ f -> (|y,x|) ∈ InverseCorrespondence f.
-
-  Goal forall (x y:U) (A B:Ensemble U) (R:BinaryRelation U), (|x,y|) ∈ (GraphOfBinaryRelation A B R) <-> (|y,x|) ∈ InverseCorrespondence (GraphOfBinaryRelation A B R).
-  Proof.
-    move => x y A B R.
-    rewrite /iff.
-    split.
-    move => H.
-    split.
-    apply H.
-    move => H.
-    inversion H.
-    apply ordered_pair_iff in H0.
-    inversion H0.
-    rewrite -H2.
-    rewrite -H3.
     apply H1.
+    apply H2.
   Qed.
 
-  Goal forall (A B:Ensemble U) (R:BinaryRelation U), Domain (GraphOfBinaryRelation A B R) = Range (InverseCorrespondence (GraphOfBinaryRelation A B R)).
+  Proposition doube_transpose:
+    forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> (f^-1)^-1 = f.
   Proof.
-    move => A B R.
-    apply Extensionality_Ensembles.
-    split.
-    move => x H.
-    split.
-    split.
-    inversion H.
-    inversion H0.
-    inversion H2 as [y].
-    exists y.
-    split.
-    apply H4.
-    move => x H.
-    inversion H as [x0].
-    inversion H0 as [x1].
-    inversion H2 as [y].
-    inversion H4.
-    split.
-    split.
-    exists y.
-    apply ordered_pair_iff in H5.
-    inversion H5.
-    rewrite H7 in H6.
-    rewrite H8 in H6.
-    apply H6.
+    move => f H.
+    apply /Extensionality_Ensembles.
+    split => Z H0.
+    +inversion H0.
+     rewrite transpose_correspondence_iff.
+     apply H1.
+     apply H.
+    +rewrite H in H0.
+     inversion H0.
+     rewrite -H2 in H0.
+     rewrite -H in H0.
+     split; split.
+     apply H0.
   Qed.
 
-  Goal forall (A B C D :Ensemble U) (R:BinaryRelation U),
-      Image (InverseCorrespondence (GraphOfBinaryRelation A B R)) (C ∩ D) ⊂ (Image (InverseCorrespondence (GraphOfBinaryRelation A B R)) C) ∩ (Image (InverseCorrespondence (GraphOfBinaryRelation A B R)) D).
+  Goal forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> f '' (C ∩ D) ⊂ f '' C ∩ f '' D.
   Proof.
-    move => A B C D R x H.
-    inversion H as [x0].
-    inversion H0 as [y].
-    inversion H2 as [HCD].
-    inversion HCD as [y2 HC HD].
-    split; split; exists y; split.
-    apply HC.
-    apply H3.
-    apply HD.
-    apply H3.
+    move => f H x H0.
+    inversion H0 as [x0 [y' [H1 H2]]].
+    inversion H1.
+    split; split; exists y'; split.
+    +apply H4.
+     apply H2.
+    +apply H5.
+     apply H2.
   Qed.
-
-  Inductive CompoundCorrespondence (g:Ensemble (Ensemble (Ensemble U))) (f:Ensemble (Ensemble (Ensemble U))) : Ensemble (Ensemble (Ensemble U)) :=
-  | Definition_of_CompoundCorrespondence :
-      forall (x y:U), (exists z:U, (|x,z|) ∈ f /\ (|z,y|) ∈ g) -> (|x,y|) ∈ CompoundCorrespondence g f.
 
   (* g ∘ f (D) = g(f(D)) *)
-  Goal forall (A B C D:Ensemble U) (R1 R2:BinaryRelation U),
-      Image (CompoundCorrespondence (GraphOfBinaryRelation B C R2) (GraphOfBinaryRelation A B R1)) D =
-      Image (GraphOfBinaryRelation B C R2) (Image (GraphOfBinaryRelation A B R1) D).
+  Proposition image_compound_correspondence_eq:
+    forall (F G:BinaryRelation U) (f g:Ensemble (Ensemble (Ensemble U))),
+      f ≔ F ⊦ A ⥴ B /\ g ≔ G ⊦ B ⥴ C -> g ∘ f '' D = g '' (f '' D).
   Proof.
-    move => A B C D R1 R2.
+    move => F G f g.
+    case => HF HG.
     apply Extensionality_Ensembles.
     split => y H.
-    +inversion H.
-     inversion H0 as [x].
-     inversion H2 as [HD].
-     inversion H3.
-     inversion H5 as [z].
-     inversion H6.
-     apply ordered_pair_iff in H4.
-     inversion H4.
+    +inversion H as [y0 [x0 []]].
+     inversion H1 as [x1 y1 [z [H3 H4]]].
+     apply ordered_pair_iff in H5.
+     inversion H5.
      split.
      exists z.
      split.
+     ++split.
+       exists x1.
+       split.
+       rewrite H6.
+       apply H0.
+       apply H3.
+     ++rewrite -H7.
+       apply H4.
+    +inversion H as [y0 [z []]].
+     inversion H0 as [y0' [x []]].
      split.
      exists x.
      split.
-     apply HD.
-     rewrite H9 in H7.
-     apply H7.
-     rewrite H10 in H8.
-     apply H8.
-    +inversion H.
-     inversion H0 as [z].
-     inversion H2.
-     inversion H3.
-     inversion H5 as [x].
-     inversion H7 as [HD].
-     split.
-     exists x.
-     split.
-     apply HD.
+     apply H3.
      split.
      exists z.
      split.
-     apply H8.
      apply H4.
+     apply H1.
   Qed.
 
   (* h ∘ (g ∘ f) = (h ∘ g) ∘ f *)
-  Goal forall (A B C D:Ensemble U) (R1 R2 R3:BinaryRelation U),
-      CompoundCorrespondence (GraphOfBinaryRelation C D R3) (CompoundCorrespondence (GraphOfBinaryRelation B C R2) (GraphOfBinaryRelation A B R1)) = CompoundCorrespondence (CompoundCorrespondence (GraphOfBinaryRelation C D R3) (GraphOfBinaryRelation B C R2)) (GraphOfBinaryRelation A B R1).
+  Theorem compound_correspondence_assoc:
+    forall (X Y Z W:Ensemble U) (F G H:BinaryRelation U) (f g h:Ensemble (Ensemble (Ensemble U))),
+      f ≔ F ⊦ X ⥴ Y /\ g ≔ G ⊦ Y ⥴ Z /\ h ≔ H ⊦ Z ⥴ W ->
+      h ∘ (g ∘ f) = (h ∘ g) ∘ f.
   Proof.
-    move => A B C D R1 R2 R3.
+    move => X Y Z W F G H f g h.
+    case => HF [HG HH].
+    apply Extensionality_Ensembles.
+    split => V H0.
+    +inversion H0 as [x y [z0 []]].
+     inversion H1 as [x0 z0' [z1 []]].
+     apply ordered_pair_iff in H6.
+     inversion H6.
+     split.
+     exists z1.
+     split.
+     rewrite -H7.
+     apply H4.
+     split.
+     exists z0'.
+     split.
+     apply H5.
+     rewrite H8.
+     apply H2.
+    +inversion H0 as [x y [z0 []]].
+     inversion H2 as [z0' y0 [z1 []]].
+     apply ordered_pair_iff in H6.
+     inversion H6.
+     split.
+     exists z1.
+     split.
+     split.
+     exists z0.
+     split.
+     apply H1.
+     rewrite -H7.
+     apply H4.
+     rewrite -H8.
+     apply H5.
+  Qed.
+
+  (* (g ∘ f)^(-1) = f^(-1) ∘ g^(-1) *)
+  Theorem unfold_compound_corrsepondence_inverse:
+    forall (F G:BinaryRelation U) (f g:Ensemble (Ensemble (Ensemble U))),
+      f ≔ F ⊦ A ⥴ B /\ g ≔ G ⊦ B ⥴ C -> (g ∘ f) ^-1 = f ^-1 ∘ g ^-1.
+  Proof.
+    move => F G f g.
+    case => HF HG.
     apply Extensionality_Ensembles.
     split => X H.
-    +inversion H.
-     inversion H0 as [z].
-     inversion H2.
+    -inversion H as [x y].
+     inversion H0 as [x0 y0].
+     inversion H2 as [z []].
+     apply ordered_pair_iff in H3.
      inversion H3.
-     inversion H6 as [z0].
-     inversion H7.
      split.
-     exists z0.
-     apply ordered_pair_iff in H5.
-     inversion H5.
-     split.
-     rewrite H10 in H8.
-     apply H8.
-     split.
-     exists y0.
-     split.
-     apply H9.
-     rewrite H11.
-     apply H4.
-    +inversion H.
-     inversion H0 as [z].
-     inversion H2.
-     inversion H4.
-     inversion H6 as [z0].
-     inversion H7.
-     split.
-     exists z0.
-     apply ordered_pair_iff in H5.
-     inversion H5.
+     exists z.
+     split; split.
+      +rewrite H7 in H5.
+       apply H5.
+      +rewrite H6 in H4.
+       apply H4.
+    -inversion H as [x y].
+     inversion H0 as [z []].
      split.
      split.
      exists z.
      split.
+     apply (transpose_correspondence_iff y z HF) in H3.
      apply H3.
-     rewrite -H10.
-     apply H8.
-     rewrite -H11.
-     apply H9.
+     apply (transpose_correspondence_iff z x HG) in H2.
+     apply H2.
   Qed.
 
-  (* (g ∘ f)^(-1) = f^(-1) ∘ g^(-1) *)
-  Goal forall (A B C:Ensemble U) (R1 R2:BinaryRelation U),
-      InverseCorrespondence (CompoundCorrespondence (GraphOfBinaryRelation C B R2) (GraphOfBinaryRelation A B R1))
-      = CompoundCorrespondence (InverseCorrespondence (GraphOfBinaryRelation A B R1)) (InverseCorrespondence (GraphOfBinaryRelation C B R2)).
+  Theorem transpose_graph_keep_included:
+    forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> f ⊂ A × B <-> f^-1 ⊂ B × A.
   Proof.
-    move => A B C R1 R2.
-    apply Extensionality_Ensembles.
-    split => X H.
-    inversion H.
-    inversion H0.
-    inversion H3 as [z].
-    inversion H4.
-    apply ordered_pair_iff in H2.
-    inversion H2.
-    split.
-    exists z.
-    split.
-    split.
-    rewrite H8 in H6.
-    apply H6.
-    split.
-    rewrite H7 in H5.
-    apply H5.
-    inversion H.
-    inversion H0 as [z].
-    inversion H2.
-    inversion H3.
-    inversion H4.
-    apply ordered_pair_iff in H5.
-    inversion H5.
-    apply ordered_pair_iff in H7.
-    inversion H7.
-    split.
-    split.
-    exists z.
-    split.
-    rewrite -H12.
-    rewrite -H11.
-    apply H8.
-    rewrite -H9.
-    rewrite -H10.
-    apply H6.
-  Qed.
-
-  Goal forall (A B:Ensemble U) (R :BinaryRelation U),
-      (GraphOfBinaryRelation A B R) ⊂ A × B <-> InverseCorrespondence (GraphOfBinaryRelation A B R) ⊂ B × A.
-  Proof.
-    move => A B R.
+    move => f HF.
+    rewrite HF.
     rewrite /iff.
-    split => H Z.
-    +split.
-     inversion H0.
-     inversion H1.
-     inversion H4.
-     apply ordered_pair_iff in H3.
-     apply ordered_pair_in_direct_product_iff_and in H6.
+    split => H Z H0; inversion H0 as [x y H1].
+    +inversion H1 as [x0 y0].
      inversion H3.
+     rewrite H4 in H6.
+     apply ordered_pair_in_direct_product_iff_and in H6.
      inversion H6.
-     rewrite H7 in H9.
-     rewrite H8 in H10.
-     exists y.
-     exists x.
+     apply ordered_pair_in_direct_product_iff_and.
      split.
-     apply H10.
-     split.
-     apply H9.
-     fold (OrderedPair y x).
-     reflexivity.
-    +move => H0.
-     inversion H0.
-     inversion H1.
+     apply H8.
+     apply H7.
+    +inversion H1.
      apply H4.
   Qed.
-  
+
 End Correspondence.
 
-
-
-
-
-
-
-
+Require Export class_set.
+Require Export direct_product_theories.
+Require Export binary_relation.
