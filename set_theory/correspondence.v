@@ -108,6 +108,26 @@ Section Correspondence.
     apply H6.
   Qed.
 
+  Proposition singleton_image_to_direct_product:
+    forall (f:Ensemble (Ensemble (Ensemble U))),
+      f ≔ R ⊦ A ⥴ B -> forall (x y:U), {|y|} = f '' {|x|} -> (|x,y|) ∈ f.
+  Proof.
+    move => f Hf x y H.
+    rewrite Hf in  H.
+    apply Extension in H.
+    inversion H.
+    rewrite Hf.
+    move: (H0 y).
+    case.
+    apply singleton_eq_iff.
+    reflexivity.
+    move => y0 H2.
+    inversion H2 as [x0 []].
+    apply singleton_eq_iff in H3.
+    rewrite -H3.
+    apply H4.
+  Qed.
+
   Theorem union_of_image_of_correspondence_eq:
     forall (f:Ensemble (Ensemble (Ensemble U))),
       f ≔ R ⊦ A ⥴ B -> f '' (C ∪ D) = f '' C ∪ f '' D.

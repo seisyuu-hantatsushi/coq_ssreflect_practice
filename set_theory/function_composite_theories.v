@@ -27,58 +27,36 @@ Section FunctionCompositeTheories.
   Qed.
 
   Theorem function_composite_image:
+    forall (f g: Ensemble (Ensemble (Ensemble U))) (X:Ensemble U),
+      X ⊂ A /\ f ≔ F ⊦ A ⟼ B /\ g ≔ G ⊦ B ⟼ C ->
+      (g ∘ f) '' X = g '' (f '' X).
+  Proof.
+    move => f g X.
+    case => HA [[Hf HfS] [Hg HgS]].
+    move: image_compound_correspondence_eq => H0.
+    apply (H0 U A B C X (fun x y:U => y = F x) (fun x y:U => y = G x) f g).
+    split; done.
+  Qed.
+
+  Theorem function_composite_value:
     forall (f g: Ensemble (Ensemble (Ensemble U))) (x:U),
-      x ∈ A /\ f ≔ F ⊢ A ⟼ B /\ g ≔ F ⊢ B ⟼ C ->
+      x ∈ A /\ f ≔ F ⊦ A ⟼ B /\ g ≔ G ⊦ B ⟼ C ->
       (g ∘ f) '' {| x |} = g '' (f '' {| x |}).
   Proof.
     move => f g x.
-    case => HA [[Hf HfS] [Hg HgS]].
-    apply /Extensionality_Ensembles.
-    split => y H0.
-    +inversion H0 as [y'].
-     inversion H1 as [x'].
-     inversion H3.
-     inversion H5.
-     inversion H7 as [z].
-     inversion H8.
-     apply ordered_pair_iff in H6.
-     inversion H6.
-     apply singleton_eq_iff in H4.
-     split.
-     exists z.
-     split.
-     split.
-     exists x.
-     split.
-     apply singleton_eq_iff.
-     reflexivity.
-     rewrite -H4.
-     rewrite -H11.
-     apply H9.
-     rewrite -H12.
-     apply H10.
-    +inversion H0.
-     inversion H1 as [z].
-     inversion H3.
-     split.
-     exists x.
-     split.
-     apply singleton_eq_iff.
-     reflexivity.
-     split.
-     exists z.
-     inversion H4.
-     inversion H6 as [x'].
-     inversion H8.
-     apply singleton_eq_iff in H9.
-     rewrite H9 in H10.
-     split.
-     apply H10.
-     apply H5.
+    case => HA [Hf Hg].
+    move: function_composite_image => H0.
+    apply (H0 f g {|x|}).
+    split.
+    move => x' Hx'.
+    apply singleton_eq_iff in Hx'.
+    rewrite Hx'.
+    done.
+    split; done.
   Qed.
 
   Goal forall (f idA: Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ A ⟼ B /\ IdentityMapping idA A -> f = f ∘ idA.
+      f ≔ F ⊦ A ⟼ B /\ IdentityMapping idA A -> f = f ∘ idA.
   Proof.
     move => f idA.
     case => [[Hf HfS] [HidA HidAS]].
@@ -124,7 +102,7 @@ Section FunctionCompositeTheories.
   Qed.
 
   Goal forall (f idB: Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ A ⟼ B /\ IdentityMapping idB B -> f = idB ∘ f.
+      f ≔ F ⊦ A ⟼ B /\ IdentityMapping idB B -> f = idB ∘ f.
   Proof.
     move => f idB.
     case => [[Hf HfS] [HidB HidBS]].
@@ -165,6 +143,7 @@ Section FunctionCompositeTheories.
      rewrite -H9.
      apply H3.
   Qed.
+
 End FunctionCompositeTheories.
 
 Require Export function_theories.
