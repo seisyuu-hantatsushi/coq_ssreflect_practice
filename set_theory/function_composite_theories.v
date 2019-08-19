@@ -13,52 +13,17 @@ Section FunctionCompositeTheories.
 
   Theorem function_composite_assoc:
     forall (f g h: Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ A ⟼ B /\ g ≔ F ⊢ B ⟼ C /\ h ≔ H ⊢ C ⟼ D -> h ∘ (g ∘ f) = (h ∘ g) ∘ f.
+      f ≔ F ⊦ A ⟼ B /\ g ≔ G ⊦ B ⟼ C /\ h ≔ H ⊦ C ⟼ D -> h ∘ (g ∘ f) = (h ∘ g) ∘ f.
   Proof.
     move => f g h.
     case => [[Hf HfS] [[Hg HgS] [Hh HhS]]].
-    apply /Extensionality_Ensembles.
-    split => Z H0.
-    +inversion H0.
-     inversion H1 as [z].
-     inversion H3.
-     inversion H4.
-     inversion H7 as [z'].
-     inversion H8.
-     split.
-     exists z'.
-     split.
-     apply ordered_pair_iff in H6.
-     inversion H6.
-     rewrite -H11.
-     apply H9.
-     split.
-     exists z.
-     split.
-     apply ordered_pair_iff in H6.
-     inversion H6.
-     rewrite -H12.
-     apply H10.
-     apply H5.
-    +inversion H0.
-     inversion H1 as [z].
-     inversion H3.
-     inversion H5.
-     inversion H7 as [z'].
-     inversion H8.
-     apply ordered_pair_iff in H6.
-     inversion H6.
-     split.
-     exists z'.
-     split.
-     split.
-     exists z.
-     split.
-     ++apply H4.
-       rewrite -H11.
-       apply H9.
-     ++rewrite -H12.
-       apply H10.
+    move: (compound_correspondence_assoc) => H0.
+    apply (H0 U A B C D (fun (x y:U) => y = F x) (fun (x y:U) => y = G x) (fun (x y:U) => y = H x) f g h).
+    split.
+    apply Hf.
+    split.
+    apply Hg.
+    apply Hh.
   Qed.
 
   Theorem function_composite_image:
