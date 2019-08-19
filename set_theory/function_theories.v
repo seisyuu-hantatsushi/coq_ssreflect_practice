@@ -14,51 +14,17 @@ Section FunctionTheories.
 
   Theorem union_function_domain:
     forall (f:Ensemble (Ensemble (Ensemble U))) (X Y:Ensemble U),
-      (f ≔ F ⊢ A ⟼ B) -> f '' (X ∪ Y) = (f '' X) ∪ (f '' Y).
+      (f ≔ F ⊦ A ⟼ B) -> f '' (X ∪ Y) = (f '' X) ∪ (f '' Y).
   Proof.
-    move => f X Y Hf0.
-    apply /Extensionality_Ensembles.
-    +split => y H.
-     inversion H.
-     inversion H0 as [x0].
-     inversion H2.
-     inversion H3.
-     left.
-     split.
-     exists x0.
-     split.
-     apply H5.
-     apply H4.
-     right.
-     split.
-     exists x0.
-     split.
-     apply H5.
-     apply H4.
-    +inversion H as [y0 | y0].
-     inversion H0.
-     inversion H2 as [x0].
-     inversion H4.
-     split.
-     exists x0.
-     split.
-     left.
-     apply H5.
-     apply H6.
-     inversion H0.
-     inversion H2 as [x0].
-     inversion H4.
-     split.
-     exists x0.
-     split.
-     right.
-     apply H5.
-     apply H6.
+    move => f X Y [Hf HfS].
+    move: union_of_image_of_correspondence_eq => H.
+    apply (H U (fun x y:U => y = F x) A B X Y f).
+    apply Hf.
   Qed.
 
   Theorem union_inversion_mapping_domain:
     forall (f:Ensemble (Ensemble (Ensemble U))) (X Y:Ensemble U),
-      (f ≔ F ⊢ A ⟼ B) -> f^-1 '' (X ∪ Y) = (f^-1 '' X) ∪ (f^-1 '' Y).
+      (f ≔ F ⊦ A ⟼ B) -> f^-1 '' (X ∪ Y) = (f^-1 '' X) ∪ (f^-1 '' Y).
   Proof.
     move => f X Y H.
     inversion H as [Hf HfS].
@@ -108,7 +74,7 @@ Section FunctionTheories.
 
   Theorem intersction_inversion_mapping_domain:
     forall (f:Ensemble (Ensemble (Ensemble U))) (X Y:Ensemble U),
-      (f ≔ F ⊢ A ⟼ B) -> f^-1 '' (X ∩ Y) = (f^-1 '' X) ∩ (f^-1 '' Y).
+      (f ≔ F ⊦ A ⟼ B) -> f^-1 '' (X ∩ Y) = (f^-1 '' X) ∩ (f^-1 '' Y).
   Proof.
     move => f X Y H.
     unfold Mapping in H.
@@ -168,25 +134,19 @@ Section FunctionTheories.
 
   Theorem included_image:
     forall (f:Ensemble (Ensemble (Ensemble U))) (A':Ensemble U),
-      (f ≔ F ⊢ A ⟼ B) /\ A' ⊂ A -> f '' A' ⊂ f '' A.
+      (f ≔ F ⊦ A ⟼ B) /\ A' ⊂ A -> f '' A' ⊂ f '' A.
   Proof.
+    move: included_domain_to_included_image => H.
     move => f A'.
-    case => [[Hf HfS] H].
-    move => y H0.
-    split.
-    inversion H0.
-    inversion H1.
-    inversion H3.
-    exists x.
-    split.
-    apply H.
-    apply H4.
-    apply H5.
+    case => [[Hf HfS] H0].
+    apply (H U (fun x y:U => y = F x) A B f A' A).
+    apply Hf.
+    split; done.
   Qed.
 
-  Theorem FunctionTheory_1:
+  Theorem if_mapping_is_injection_then_inverse_mapping_is_unique:
     forall (f:Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ A ⟼ B /\ Injection f -> forall (y x0 x1:U), (|y, x0|) ∈ f^-1 /\ (|y, x1|) ∈ f^-1 -> x0 = x1.
+      f ≔ F ⊦ A ⟼ B /\ Injection f -> forall (y x0 x1:U), (|y, x0|) ∈ f^-1 /\ (|y, x1|) ∈ f^-1 -> x0 = x1.
   Proof.
     move => f.
     case => [H HIf].
@@ -204,9 +164,9 @@ Section FunctionTheories.
     apply H5.
   Qed.
 
-  Theorem FunctionTheories_2:
+  Theorem if_mapping_is_bijection_then_inverse_mapping_is_bijection:
     forall (f:Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ A ⟼ B /\ Bijection f B -> 𝕯( f^-1 ) = B /\ 𝕽( f^-1 ) = A /\ Bijection (f^-1) A.
+      f ≔ F ⊦ A ⟼ B /\ Bijection f B -> 𝕯( f^-1 ) = B /\ 𝕽( f^-1 ) = A /\ Bijection (f^-1) A.
   Proof.
     move => f.
     case => Hf0 [ HSfI HSfB ].
@@ -309,7 +269,6 @@ Section FunctionTheories.
      apply HA.
   Qed.
 
-  
 End FunctionTheories.
 
 Require Export function.
