@@ -142,6 +142,57 @@ Section FunctionDefinition.
      apply (HfS x).
   Qed.
 
+  Theorem function_of_mapping_iff_singleton_image:
+    forall (f:Ensemble (Ensemble (Ensemble U))) (x y:U),
+      x ∈ X /\ y ∈ Y /\ (f ≔ F ⊦ X ⟼ Y) -> {|y|} = f '' {|x|} <-> y = F x.
+  Proof.
+    move => f x y [HX [HY [Hf HfS]]].
+    rewrite /iff.
+    split => H.
+    apply Extension in H.
+    inversion H as [H0 H1].
+    move: (H0 y).
+    case.
+    done.
+    move => y' H2.
+    inversion H2 as [x' []].
+    rewrite Hf in H4.
+    inversion H4 as [x0 y0 []].
+    apply ordered_pair_iff in H7.
+    inversion H7.
+    apply singleton_eq_iff in H3.
+    rewrite -H3.
+    rewrite H8 H9 in H5.
+    done.
+    apply /Extensionality_Ensembles.
+    split => y' H0.
+    split.
+    exists x.
+    split.
+    done.
+    rewrite Hf.
+    split.
+    apply singleton_eq_iff in H0.
+    rewrite H0.
+    split.
+    done.
+    apply ordered_pair_in_direct_product_iff_and.
+    done.
+    rewrite Hf in H0.
+    inversion H0 as [y0 [x0 []]].
+    inversion H2.
+    apply singleton_eq_iff in H1.
+    inversion H5.
+    apply ordered_pair_iff in H4.
+    inversion H4.
+    rewrite H8 in H6.
+    rewrite -H1 in H.
+    rewrite H9 in H6.
+    rewrite -H in H6.
+    apply singleton_eq_iff.
+    done.
+  Qed.
+
 End FunctionDefinition.
 
 Require Export class_set.

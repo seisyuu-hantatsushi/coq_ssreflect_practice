@@ -128,6 +128,30 @@ Section Correspondence.
     apply H4.
   Qed.
 
+  Theorem relation_iff_in_graph:
+    forall (f:Ensemble (Ensemble (Ensemble U))) (x y:U),
+      x ∈ A /\ y ∈ B /\ f ≔ R ⊦ A ⥴ B -> R x y <-> (|x,y|) ∈ f.
+  Proof.
+    move => f x y [HA [HB Hf]].
+    rewrite /iff.
+    split => H.
+    rewrite Hf.
+    split.
+    split.
+    apply H.
+    apply ordered_pair_in_direct_product_iff_and.
+    split.
+    apply HA.
+    apply HB.
+    rewrite Hf in H.
+    inversion H.
+    inversion H1.
+    apply ordered_pair_iff in H0.
+    inversion H0.
+    rewrite H4 H5 in H2.
+    apply H2.
+  Qed.
+
   Theorem union_of_image_of_correspondence_eq:
     forall (f:Ensemble (Ensemble (Ensemble U))),
       f ≔ R ⊦ A ⥴ B -> f '' (C ∪ D) = f '' C ∪ f '' D.
