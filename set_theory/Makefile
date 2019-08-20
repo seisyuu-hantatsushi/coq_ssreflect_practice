@@ -7,8 +7,10 @@ TARGETS += direct_product_theories.vo
 TARGETS += binary_relation.vo
 TARGETS += correspondence.vo
 TARGETS += function.vo
+TARGETS += function_characteristic.vo
 TARGETS += function_theories.vo
 TARGETS += function_composite_theories.vo
+TARGETS += function_invertible.vo
 
 all: targets
 
@@ -27,6 +29,10 @@ function.vo: class_set.vo direct_product_theories.vo correspondence.vo
 function_theories.vo: function.vo
 
 function_composite_theroies.vo: function_theories.vo function.vo
+
+function_characteristic.vo: function.vo
+
+function_invertible.vo:
 
 %.vo : %.v
 	coqc $<

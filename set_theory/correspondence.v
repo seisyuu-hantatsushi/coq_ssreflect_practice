@@ -179,7 +179,7 @@ Section Correspondence.
     apply H2.
   Qed.
 
-  Proposition doube_transpose:
+  Proposition double_transpose:
     forall (f:Ensemble (Ensemble (Ensemble U))),
       f ≔ R ⊦ A ⥴ B -> (f^-1)^-1 = f.
   Proof.

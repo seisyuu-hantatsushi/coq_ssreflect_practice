@@ -8,7 +8,7 @@ Require Import function_composite_theories.
 
 Section FunctionInvertible.
   Variable U:Type.
-  Variables X Y: Ensemble U.
+  Variables X Y W: Ensemble U.
   Variables F G: U -> U.
 
   Definition Invertible (f: Ensemble (Ensemble (Ensemble U))) (X Y:Ensemble U) :=
@@ -33,66 +33,30 @@ Section FunctionInvertible.
 
   Theorem double_inverse_mapping:
     forall (f: Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ X ⟼ Y /\ Bijection f Y -> (f ^-1)^-1 = f.
+      f ≔ F ⊦ X ⟼ Y /\ Bijection f Y -> (f ^-1)^-1 = f.
   Proof.
     move => f.
-    case => [[Hf HfS] [HBI HBS]].
-    apply /Extensionality_Ensembles.
-    split => Z H.
-    +inversion H.
-     inversion H0.
-     apply ordered_pair_swap in H2.
-     rewrite H2 in H3.
-     apply H3.
-    +rewrite Hf in H.
-     inversion H.
-     split.
-     split.
-     rewrite Hf.
-     split.
-     apply H0.
+    case => [ [Hf HfS] [HBI HBS]].
+    apply (double_transpose Hf).
   Qed.
 
   Theorem unfold_inverse_composite_of_mapping:
-    forall (f g: Ensemble (Ensemble (Ensemble U))) (W:Ensemble U),
-      f ≔ F ⊢ X ⟼ Y /\ Bijection f Y /\ g ≔ G ⊢ Y ⟼ W /\ Bijection g W ->
+    forall (f g: Ensemble (Ensemble (Ensemble U))),
+      f ≔ F ⊦ X ⟼ Y /\ Bijection f Y /\ g ≔ G ⊦ Y ⟼ W /\ Bijection g W ->
       (g ∘ f)^-1 = f^-1 ∘ g^-1.
   Proof.
-    move => f g W.
+    move => f g.
     case => [[Hf HfS] [[HBIf HBSf] [[Hg HgS] [HBIg HBSg]]]].
-    apply /Extensionality_Ensembles.
-    split => Z H; inversion H.
-    inversion H0.
-    inversion H3 as [z].
-    +split.
-     exists z.
-     apply ordered_pair_iff in H2.
-     inversion H2.
-     rewrite H5 in H4.
-     rewrite H6 in H4.
-     inversion H4.
-     split; split.
-     apply H8.
-     apply H7.
-    +split.
-     split.
-     inversion H0 as [z].
-     inversion H2.
-     inversion H3.
-     apply ordered_pair_swap in H5.
-     rewrite H5 in H6.
-     inversion H4.
-     apply ordered_pair_swap in H7.
-     rewrite H7 in H8.
-     exists z.
-     split.
-     apply H8.
-     apply H6.
+    have L1: f = GraphOfBinaryRelation (fun x y => y = F x) X Y /\ g = GraphOfBinaryRelation (fun x y => y = G x) Y W.
+    split.
+    apply Hf.
+    apply Hg.
+    apply (unfold_compound_corrsepondence_inverse L1).
   Qed.
 
   Theorem inverse_mapping_is_mapping:
     forall (f: Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ X ⟼ Y /\ Bijection f Y ->
+      f ≔ F ⊦ X ⟼ Y /\ Bijection f Y ->
       (forall (y x x':U), (|y,x|) ∈ f ^-1 /\ (|y,x'|) ∈ f^-1 -> x = x') /\ (forall (y:U), y ∈ Y -> exists x:U, (|y, x|) ∈ f ^-1).
   Proof.
     move => f.
@@ -118,7 +82,7 @@ Section FunctionInvertible.
 
   Theorem inverse_mapping_is_bijection:
     forall (f: Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ X ⟼ Y /\ Bijection f Y -> Bijection (f ^-1) X.
+      f ≔ F ⊦ X ⟼ Y /\ Bijection f Y -> Bijection (f ^-1) X.
   Proof.
     move => f.
     case => [[Hf HfS] [HBI HBS]].
@@ -162,7 +126,7 @@ Section FunctionInvertible.
   Qed.
 
   Goal forall (f idX:Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ X ⟼ Y /\ Bijection f Y /\ IdentityMapping idX X -> f ^-1 ∘ f = idX.
+      f ≔ F ⊦ X ⟼ Y /\ Bijection f Y /\ IdentityMapping idX X -> f ^-1 ∘ f = idX.
   Proof.
     move => f idX.
     case => H [[HBI HBS] HidX].
@@ -218,7 +182,7 @@ Section FunctionInvertible.
   Qed.
 
   Goal forall (f idY:Ensemble (Ensemble (Ensemble U))),
-      f ≔ F ⊢ X ⟼ Y /\ Bijection f Y /\ IdentityMapping idY Y -> f ∘ f^-1 = idY.
+      f ≔ F ⊦ X ⟼ Y /\ Bijection f Y /\ IdentityMapping idY Y -> f ∘ f^-1 = idY.
   Proof.
     move => f idY.
     case => H [[HBI HBS] HidY].
