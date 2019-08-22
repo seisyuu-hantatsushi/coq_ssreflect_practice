@@ -37,6 +37,23 @@ Theorem Axiom_of_EmptySet:
   case.
 Qed.
 
+Theorem not_empty_set_has_element:
+  forall (U:Type) (X:Ensemble U), ~(X={||}) <-> exists x:U, x ∈ X.
+  Proof.
+    rewrite /iff.
+    split => H.
+    -have L1: Inhabited U X.
+     apply not_empty_Inhabited.
+     apply H.
+     inversion L1.
+     exists x.
+     apply H0.
+    -inversion H as [x].
+     apply Inhabited_not_empty.
+     apply (Inhabited_intro U X x).
+     apply H0.
+  Qed.
+
 (* Axiom of separation { x;U | P(x) } *)
 Inductive SchemaOfSeparation (U:Type) (x:U) (P:U -> Prop): Ensemble U :=
   Definition_of_Schema_Sepatation:
