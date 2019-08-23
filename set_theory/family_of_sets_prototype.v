@@ -27,17 +27,33 @@ Section FamilyOfSetsPrototype.
     done.
   Qed.
 
-  Goal forall (x:U), {|x|} ∈ SetOfSingleton X <-> x ∈ X.
+  Lemma set_of_singleton_cast:
+    forall (z:U) (Z:Ensemble U), {|z|} ∈ SetOfSingleton Z <-> z ∈ Z.
   Proof.
-    move => x.
+    move => z Z.
     rewrite /iff.
     split => H.
     inversion H.
-    apply (eq_singleton_eq_element_iff a x) in H0.
+    apply (eq_singleton_eq_element_iff a z) in H0.
     rewrite -H0.
     apply H1.
     split.
     apply H.
+  Qed.
+
+  Lemma set_of_singlton_source_set_iff:
+    SetOfSingleton X = SetOfSingleton Y <-> X = Y.
+  Proof.
+    rewrite /iff.
+    split => H.
+    apply Extension in H.
+    inversion H as [HSX HSY].
+    apply /Extensionality_Ensembles.
+    split => z;rewrite -(set_of_singleton_cast z Y) -(set_of_singleton_cast z X).
+    apply HSX.
+    apply HSY.
+    rewrite H.
+    reflexivity.
   Qed.
 
 End FamilyOfSetsPrototype.
