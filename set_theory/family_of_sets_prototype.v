@@ -11,7 +11,7 @@ Inductive SetOfSingleton {U:Type} (M:Ensemble U) : Ensemble (Ensemble U) :=
 
 Section FamilyOfSetsPrototype.
   Variable U:Type.
-  Variables X Y:Ensemble U.
+  Variables X Y I:Ensemble U.
 
   Lemma element_of_set_of_singleton_is_unique:
     forall (A X: Ensemble U) (a b:U),
@@ -56,4 +56,59 @@ Section FamilyOfSetsPrototype.
     reflexivity.
   Qed.
 
+  Goal forall (i:U)
+              (II X:Ensemble (Ensemble U))
+              (Xn:Ensemble (Ensemble (Ensemble (Ensemble U))))
+              (F:FunctionOfMap (Ensemble U)),
+      i ∈ I /\ II=SetOfSingleton I /\ Xn ≔ F ⊦ II ⟼ X -> exists! Xi, {|Xi|} = Xn '' {|{|i|}|}.
+  Proof.
+    move => i II X0 Xn F [HiI [HII [HXn HXnS]]].
+    have L1: exists Xi:Ensemble U, (|{|i|},Xi|) ∈ Xn.
+    apply (HXnS {|i|}).
+    rewrite HII.
+    split.
+    done.
+    inversion L1 as [Xi].
+    exists Xi.
+    split.
+    apply /Extensionality_Ensembles.
+    split => X' H0.
+    split.
+    exists {|i|}.
+    split.
+    done.
+    apply singleton_eq_iff in H0.
+    rewrite H0.
+    done.
+    rewrite HXn in H.
+    inversion H as [I' X0'].
+    inversion H0 as [X1' [I1' []]].
+    apply singleton_eq_iff in H3.
+    rewrite H3 in H4.
+    rewrite HXn in H4.
+    inversion H4 as [I2' X2' []].
+    inversion H1.
+    apply ordered_pair_iff in H2.
+    inversion H2.
+    apply ordered_pair_iff in H8.
+    inversion H8.
+    rewrite H14 in H6.
+    rewrite H13 in H6.
+    rewrite H12 in H9.
+    rewrite H11 in H9.
+    rewrite -H9 in H6.
+    apply singleton_eq_iff.
+    done.
+    move => Xi' H0.
+    apply Extension in H0.
+    inversion H0.
+    apply singleton_eq_iff.
+    apply (H2 Xi).
+    split.
+    exists {|i|}.
+    split.
+    done.
+    apply H.
+  Qed.
+  
 End FamilyOfSetsPrototype.
