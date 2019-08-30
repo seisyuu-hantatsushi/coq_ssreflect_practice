@@ -290,4 +290,60 @@ Section FamilyOfSetsPrototype.
     apply H0.
   Qed.
 
+  Theorem union_of_family_of_sets:
+    forall (Xn:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (XX:Ensemble (Ensemble U))
+           (I0 I1: Ensemble U),
+      MappingFamilyOfSets Xn FunctionOfFamilySetUpCast I XX /\ I = I0 ∪ I1 ->
+      UnionOfIndexedSets (fun (i:U) => i ∈ I) (IndexedSet Xn) = UnionOfIndexedSets (fun (i:U) => i ∈ I0) (IndexedSet Xn) ∪ UnionOfIndexedSets (fun (i:U) => i ∈ I1) (IndexedSet Xn).
+  Proof.
+    move => Xn XX I0 I1 [[Hf HfS] H].
+    apply /Extensionality_Ensembles.
+    split => x H'.
+    inversion H' as [x0 [i []]].
+    inversion H1 as [x1 Xi []].
+    rewrite H in H0.
+    inversion H0 as [i0 H6|i0 H6]; [left|right]; split; exists i; split.
+    apply H6.
+    done.
+    apply H6.
+    done.
+    rewrite H.
+    inversion H'; split; inversion H0; inversion H2 as [i' []]; exists i'; split.
+    left.
+    done.
+    done.
+    right.
+    done.
+    done.
+  Qed.
+
+  Theorem intersection_of_family_of_sets:
+    forall (Xn:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (XX:Ensemble (Ensemble U))
+           (I0 I1: Ensemble U),
+      MappingFamilyOfSets Xn FunctionOfFamilySetUpCast I XX /\ I = I0 ∩ I1 ->
+      IntersectionOfIndexedSets (fun (i:U) => i ∈ I) (IndexedSet Xn) = IntersectionOfIndexedSets (fun (i:U) => i ∈ I0) (IndexedSet Xn) ∩ IntersectionOfIndexedSets (fun (i:U) => i ∈ I1) (IndexedSet Xn).
+  Proof.
+    move => Xn XX I0 I1 [[Hf HfS] H].
+    apply /Extensionality_Ensembles.
+    split => x H'.
+    rewrite H in H'.
+    inversion H' as [x0].
+    split; split => i; move: (H0 i) => H0i; inversion H0i; split; inversion H2; done.
+    inversion H'.
+    inversion H0. 
+    inversion H1.
+    rewrite H.
+    split => i.
+    move: (H3 i) (H5 i) => H3i H5i.
+    inversion H3i.
+    inversion H5i.
+    split.
+    split.
+    apply H7.
+    apply H9.
+    apply H8.
+  Qed.
+  
 End FamilyOfSetsPrototype.
