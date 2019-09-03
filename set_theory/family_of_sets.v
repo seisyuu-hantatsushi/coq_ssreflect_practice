@@ -31,6 +31,11 @@ Inductive UnionOfIndexedSets {U:Type} (P:U -> Prop) (X:U -> Ensemble U) : Ensemb
 Inductive IntersectionOfIndexedSets {U:Type} (P:U -> Prop) (X:U -> Ensemble U) : Ensemble U :=
 | Definition_of_IntersectionOfIndexedSets:  forall(x:U), (forall i:U, P i /\ x ∈ (X i)) -> x ∈ IntersectionOfIndexedSets P X.
 
+(* ⋃ : Unicode 22C3 (N-ARY UNION) *)
+Notation "⋃ [ P ] X " := (UnionOfIndexedSets P X) (at level 45).
+(* ⋂ : Unicode 22C2 (N-ARY INTERSECTION) *)
+Notation "⋂ [ P ] X " := (IntersectionOfIndexedSets P X) (at level 45).
+
 Section FamilyOfSets.
   Variable U:Type.
   Variable I X Y:Ensemble U.
@@ -83,11 +88,13 @@ Section FamilyOfSets.
   Theorem union_of_family_of_sets:
     forall (Xn:Ensemble (Ensemble (Ensemble (Ensemble U))))
            (XX:Ensemble (Ensemble U))
+           (Xu:U -> Ensemble U)
            (I0 I1: Ensemble U),
-      MappingFamilyOfSets Xn IndexedFunction I XX /\ I = I0 ∪ I1 ->
-      UnionOfIndexedSets (fun (i:U) => i ∈ I) (IndexedSet Xn) = UnionOfIndexedSets (fun (i:U) => i ∈ I0) (IndexedSet Xn) ∪ UnionOfIndexedSets (fun (i:U) => i ∈ I1) (IndexedSet Xn).
+      MappingFamilyOfSets Xn IndexedFunction I XX /\ Xu = (IndexedSet Xn) /\ I = I0 ∪ I1 ->
+      ⋃ [ fun (i:U) => i ∈ I ] Xu = ⋃ [fun (i:U) => i ∈ I0] Xu ∪ ⋃ [ fun (i:U) => i ∈ I1] Xu.
   Proof.
-    move => Xn XX I0 I1 [[Hf HfS] H].
+    move => Xn XX Xu I0 I1 [[Hf HfS] [HX H]].
+    rewrite HX.
     apply /Extensionality_Ensembles.
     split => x H'.
     inversion H' as [x0 [i []]].
@@ -111,11 +118,13 @@ Section FamilyOfSets.
   Theorem intersection_of_family_of_sets:
     forall (Xn:Ensemble (Ensemble (Ensemble (Ensemble U))))
            (XX:Ensemble (Ensemble U))
+           (Xu:U -> Ensemble U)
            (I0 I1: Ensemble U),
-      MappingFamilyOfSets Xn IndexedFunction I XX /\ I = I0 ∩ I1 ->
-      IntersectionOfIndexedSets (fun (i:U) => i ∈ I) (IndexedSet Xn) = IntersectionOfIndexedSets (fun (i:U) => i ∈ I0) (IndexedSet Xn) ∩ IntersectionOfIndexedSets (fun (i:U) => i ∈ I1) (IndexedSet Xn).
+      MappingFamilyOfSets Xn IndexedFunction I XX /\ Xu = (IndexedSet Xn) /\ I = I0 ∩ I1 ->
+      ⋂ [fun (i:U) => i ∈ I] Xu = ⋂ [fun (i:U) => i ∈ I0] Xu ∩ ⋂ [fun (i:U) => i ∈ I1] Xu.
   Proof.
-    move => Xn XX I0 I1 [[Hf HfS] H].
+    move => Xn XX Xu I0 I1 [[Hf HfS] [HX H]].
+    rewrite HX.
     apply /Extensionality_Ensembles.
     split => x H'.
     rewrite H in H'.
@@ -219,5 +228,5 @@ Section FamilyOfSets.
     exists i.
     apply H0.
   Qed.
-  
+
 End FamilyOfSets.
