@@ -11,6 +11,7 @@ TARGETS += function_characteristic.vo
 TARGETS += function_theories.vo
 TARGETS += function_composite_theories.vo
 TARGETS += function_invertible.vo
+TARGETS += family_of_sets.vo
 
 all: targets
 
@@ -32,7 +33,9 @@ function_composite_theroies.vo: function_theories.vo function.vo
 
 function_characteristic.vo: function.vo
 
-function_invertible.vo:
+function_invertible.vo: function.vo
+
+family_of_sets.vo: function.vo
 
 %.vo : %.v
 	coqc $<

@@ -230,3 +230,5 @@ Section FamilyOfSets.
   Qed.
 
 End FamilyOfSets.
+
+Require Export function.
