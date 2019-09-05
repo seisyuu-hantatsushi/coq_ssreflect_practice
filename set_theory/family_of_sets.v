@@ -19,8 +19,15 @@ Inductive GraphOfFamilySets {U:Type} (F:FunctionOfFamilySet) (I:Ensemble U) (XX:
 Definition MappingFamilyOfSets {U:Type} (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))) (F:FunctionOfFamilySet) (I:Ensemble U) (X:Ensemble (Ensemble U)) :=
     Xn=GraphOfFamilySets F I X /\ forall (i:U), i ∈ I -> exists Xi:Ensemble U, (|{|i|}, Xi|) ∈ Xn.
 
+Inductive GraphOfFamilySubsets {U:Type} (F:FunctionOfFamilySet) (I:Ensemble U) (X:Ensemble U):
+  Ensemble (Ensemble (Ensemble (Ensemble U))) :=
+| Definition_of_GraphOfFamilySubset: forall (i:U) (Xi:Ensemble U), Xi = F i /\ (|{|i|}, Xi|) ∈ (SetOfSingleton I) × (𝔓( X )) -> (|{|i|}, Xi|) ∈ GraphOfFamilySubsets F I X.
+
+Definition MappingFamilyOfSubsets {U:Type} (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))) (F:FunctionOfFamilySet) (I:Ensemble U) (X:Ensemble U) :=
+    Xn=GraphOfFamilySubsets F I X /\ forall (i:U), i ∈ I -> exists Xi:Ensemble U, (|{|i|}, Xi|) ∈ Xn.
+
 Inductive IndexedSet {U:Type} (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))) (i:U) : Ensemble U :=
-  | Definition_of_IndexedSet: forall (x:U) (Xi:Ensemble U), (|{|i|}, Xi|) ∈ Xn /\ x ∈ Xi -> x ∈ IndexedSet Xn i.
+| Definition_of_IndexedSet: forall (x:U) (Xi:Ensemble U), (|{|i|}, Xi|) ∈ Xn /\ x ∈ Xi -> x ∈ IndexedSet Xn i.
 
 Inductive FamilyOfSets {U:Type} (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))) : Ensemble (Ensemble U) :=
 | Definition_of_FamilySets: forall (Xi:Ensemble U), (exists i:U, (|{|i|}, Xi|) ∈ Xn) -> Xi ∈  FamilyOfSets Xn.
@@ -229,6 +236,23 @@ Section FamilyOfSets.
     apply H0.
   Qed.
 
+  Theorem union_of_family_of_subsets:
+    forall (Xn:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (Xu:U -> Ensemble U)
+           (I0 I1: Ensemble U),
+      MappingFamilyOfSubsets Xn IndexedFunction I X /\ Xu = (IndexedSet Xn) /\ I = I0 ∪ I1 ->
+      ⋃ [ fun (i:U) => i ∈ I ] Xu = ⋃ [fun (i:U) => i ∈ I0] Xu ∪ ⋃ [ fun (i:U) => i ∈ I1] Xu.
+  Proof.
+    move => Xn Xu I0 I1 [[Hf HfS] [HX H]].
+    rewrite HX.
+    apply /Extensionality_Ensembles.
+    rewrite Hf H.
+    split => x H'.
+    inversion H' as [x' [i' []]].
+    inversion H0 as [i0 | i0]; [left|right]; split; exists i'; split; done.
+    inversion H' as [x' | x'].
+    
+    split.
 End FamilyOfSets.
 
 Require Export function.

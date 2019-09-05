@@ -26,10 +26,14 @@ Section FamilyOfSetsTheories.
     inversion H'.
   Qed.
 
-  (*
   Theorem intersection_of_empty_family_is_full_set:
     forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
            (Xn:U -> Ensemble U),
-      MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm) -> ⋃ [ fun (i:U) => i ∈ {||} ] Xn = .
-*)
+      MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm) -> ⋃ [ fun (i:U) => i ∈ {||} ] Xn = Full_set U.
+  Proof.
+    move => Xm Xn [[Hf HfS] H].
+    apply /Extensionality_Ensembles.
+    split => x H'.
+    split.
+    split.
 End FamilyOfSetsTheories.
