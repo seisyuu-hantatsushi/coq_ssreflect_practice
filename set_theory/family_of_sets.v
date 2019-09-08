@@ -250,9 +250,110 @@ Section FamilyOfSets.
     split => x H'.
     inversion H' as [x' [i' []]].
     inversion H0 as [i0 | i0]; [left|right]; split; exists i'; split; done.
-    inversion H' as [x' | x'].
-    
+    inversion H' as [x' | x']; inversion H0 as [x0 [i0 []]]; inversion H3; inversion H5; inversion H7; inversion H10; apply ordered_pair_in_direct_product_iff_and in H12; inversion H12; apply set_of_singleton_cast in H13; apply ordered_pair_iff in H9;inversion H9; apply (eq_singleton_eq_element_iff i i0) in H15; split; exists i; split.
+    apply H13.
+    rewrite -H15 in H3.
+    done.
+    apply H13.
+    rewrite -H15 in H3.
+    done.
+  Qed.
+
+  Theorem intersection_of_family_of_subsets:
+    forall (Xn:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (Xu:U -> Ensemble U)
+           (I0 I1: Ensemble U),
+      MappingFamilyOfSubsets Xn IndexedFunction I X /\ Xu = (IndexedSet Xn) /\ I = I0 ∩ I1 ->
+      ⋂ [fun (i:U) => i ∈ I] Xu = ⋂ [fun (i:U) => i ∈ I0] Xu ∩ ⋂ [fun (i:U) => i ∈ I1] Xu.
+  Proof.
+    move => Xn Xu I0 I1 [[Hf HfS] [HX H]].
+    rewrite HX.
+    apply /Extensionality_Ensembles.
+    rewrite Hf H.
+    split => x H'.
+    inversion H' as [x'].
+    split; split => i; move: (H0 i) => H0i; inversion H0i;inversion H2; split; done.
+    split => i.
+    inversion H'.
+    inversion H0.
+    inversion H1.
+    move: (H3 i) => H3i.
+    move: (H5 i) => H5i.
+    inversion H3i.
+    inversion H5i.
     split.
+    split; done.
+    done.
+  Qed.
+
+  Proposition indexed_subset_is_element_of_codomain:
+    forall (i:U)
+           (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))),
+      i ∈ I /\ MappingFamilyOfSubsets Xn IndexedFunction I X -> IndexedSet Xn i ∈ 𝔓( X ).
+  Proof.
+    move => i Xn [Hi [Hf HfS]].
+    split => x H.
+    rewrite Hf in H.
+    inversion H.
+    inversion H0.
+    inversion H2 as [i0 Xi' []].
+    apply ordered_pair_in_direct_product_iff_and in H5.
+    inversion H5.
+    inversion H8.
+    apply H9.
+    apply ordered_pair_iff in H6.
+    inversion H6.
+    rewrite H12.
+    done.
+  Qed.
+
+  Proposition indexed_subset_is_element_of_family_of_set:
+    forall (i:U)
+           (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))),
+      i ∈ I /\ MappingFamilyOfSubsets Xn IndexedFunction I X -> IndexedSet Xn i ∈ FamilyOfSets Xn.
+  Proof.
+    move => i Xn [H [Hf HfS]].
+    have L1: exists Xi:Ensemble U, ((|{|i|}, Xi|)) ∈ Xn.
+    apply HfS.
+    done.
+    inversion L1 as [Xi].
+    have L2: Xi = IndexedSet Xn i.
+    apply /Extensionality_Ensembles.
+    split => x H'.
+    suff: ((|{|i|}, Xi|)) ∈ Xn /\ x ∈ Xi.
+    apply Definition_of_IndexedSet.
+    done.
+    inversion H' as [x' Xi' []].
+    rewrite Hf in H0.
+    inversion H0.
+    apply ordered_pair_iff in H4.
+    inversion H4.
+    inversion H5.
+    inversion Hf in H1.
+    inversion H1.
+    apply ordered_pair_iff in H11.
+    inversion H11.
+    inversion H12.
+    rewrite -H7 H8.
+    apply (eq_singleton_eq_element_iff i0 i) in H6.
+    apply (eq_singleton_eq_element_iff i1 i) in H13.
+    rewrite H6 -H13 -H15 H14.
+    done.
+    rewrite -L2.
+    rewrite Hf in H0.
+    inversion H0 as [x' Xi' []].
+    apply ordered_pair_iff in H3.
+    inversion H3.
+    apply ordered_pair_in_direct_product_iff_and in H2.
+    inversion H2.
+    rewrite H5 in H7.
+    inversion H7.
+    split.
+    exists i.
+    rewrite Hf.
+    done.
+  Qed.
+
 End FamilyOfSets.
 
 Require Export function.
