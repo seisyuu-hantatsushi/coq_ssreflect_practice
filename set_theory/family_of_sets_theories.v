@@ -30,7 +30,26 @@ Section FamilyOfSetsTheories.
     forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
            (Xn:U -> Ensemble U)
            (i:U),
-      I={||} /\ i ∈ I /\ MappingFamilyOfSubsets Xm IndexedFunction I X /\ Xn = (IndexedSet Xm) ->  ⋂ [ fun (i:U) => i ∈ {||} ] Xn = X.
+      I={||} /\ i ∈ I /\ MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm) ->  ⋂ [ fun (i:U) => i ∈ I ] Xn = Full_set U.
+  Proof.
+    move => Xm Xn i [HI [Hi [[Hf HfS] H]]].
+    apply /Extensionality_Ensembles.
+    split => x H'.
+    done.
+    rewrite HI in Hi.
+    split => i'.
+    split.
+    move: Hi.
+    case.
+    move: Hi.
+    case.
+  Qed.
+
+  Theorem intersection_of_empty_family_of_subset_is_full_set:
+    forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (Xn:U -> Ensemble U)
+           (i:U),
+      I={||} /\ i ∈ I /\ MappingFamilyOfSubsets Xm IndexedFunction I X /\ Xn = (IndexedSet Xm) ->  ⋂ [ fun (i:U) => i ∈ I ] Xn = X.
   Proof.
     move => Xm Xn i [HI [Hi [[Hf HfS] H]]].
     apply /Extensionality_Ensembles.
@@ -56,4 +75,31 @@ Section FamilyOfSetsTheories.
     case.
   Qed.
 
+  Theorem distr_union_of_family_of_sets:
+    forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (Xn:U -> Ensemble U),
+      MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm)
+      -> ⋃ [ fun (i:U) => i ∈ I ] Xn ∩ Y = ⋃ [ fun (i:U) => i ∈ I ] (fun i:U => (Xn i) ∩ Y).
+  Proof.
+    move => Xm Xn [[Hf HfS] H].
+    apply /Extensionality_Ensembles.
+    split => x H'; inversion H'.
+    inversion H0 as [x'].
+    split.
+    inversion H3 as [i].
+    exists i.
+    inversion H5.
+    split.
+    done.
+    split; done.
+    inversion H0 as [i].
+    inversion H2.
+    inversion H4.
+    split.
+    split.
+    exists i.
+    split; done.
+    done.
+  Qed.
+  
 End FamilyOfSetsTheories.
