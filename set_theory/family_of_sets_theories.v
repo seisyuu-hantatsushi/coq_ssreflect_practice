@@ -30,7 +30,7 @@ Section FamilyOfSetsTheories.
     forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
            (Xn:U -> Ensemble U)
            (i:U),
-      I={||} /\ i ∈ I /\ MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm) ->  ⋂ [ fun (i:U) => i ∈ I ] Xn = Full_set U.
+      I={||} /\ i ∈ I /\ MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm) -> ⋂ [ fun (i:U) => i ∈ I ] Xn = Full_set U.
   Proof.
     move => Xm Xn i [HI [Hi [[Hf HfS] H]]].
     apply /Extensionality_Ensembles.
@@ -101,5 +101,46 @@ Section FamilyOfSetsTheories.
     split; done.
     done.
   Qed.
-  
+
+  Theorem distr_intersection_of_family_of_sets:
+    forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (Xn:U -> Ensemble U),
+      MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm)
+      -> (forall (i x:U), i∈I /\ x∈Y) /\ (forall (x:U), x ∈ ⋂ [ fun (i:U) => i ∈ I ] Xn)
+      -> ⋂ [ fun (i:U) => i ∈ I ] Xn ∪ Y = ⋂ [ fun (i:U) => i ∈ I ] (fun i:U => (Xn i) ∪ Y).
+    Proof.
+      move => Xm Xn [[Hf HfS] [HXn [HY HIXn]]].
+      apply /Extensionality_Ensembles.
+      +split => x H.
+       split => i.
+       inversion H.
+       inversion H0.
+       move: (H2 i).
+       case => Hi HXni.
+       split.
+       done.
+       left.
+       done.
+       inversion H.
+       inversion H2.
+       move: (H4 i) => H4i.
+       inversion H4i.
+       split.
+       done.
+       left.
+       done.
+       move: (HY i x) => HYix.
+       inversion HYix.
+       split.
+       done.
+       right.
+       done.
+      +inversion H.
+       left.
+       split => i.
+       move: (H0 i) => H0i.
+       move: (HIXn x) => HIXnx.
+       inversion HIXnx.
+       done.
+    Qed.
 End FamilyOfSetsTheories.
