@@ -35,7 +35,7 @@ Section Class_Set_Theories.
      apply.
      apply.
   Qed.
-  
+
   Lemma noone_in_complement: forall (x:U) (X:Ensemble U), x ∈ X <-> (x ∈ (X^c) -> False).
   Proof.
     move => x X.
@@ -80,6 +80,54 @@ Section Class_Set_Theories.
      apply H.
      apply classic.
      apply classic.
+  Qed.
+
+  Proposition double_setminus:
+    forall (X Y:Ensemble U), X ⊂ Y -> Y \ (Y \ X) = X.
+  Proof.
+    move => X Y H.
+    apply /Extensionality_Ensembles.
+    split => a H'.
+    inversion H'.
+    apply NNPP.
+    move => HF.
+    apply H1.
+    split.
+    apply H0.
+    done.
+    split.
+    apply H.
+    apply H'.
+    move => H0.
+    inversion H0.
+    apply H2.
+    done.
+  Qed.
+
+  Lemma de_morgen_or_and_in_setminus:
+    forall (A B X:Ensemble U),
+      A ⊂ X /\ B ⊂ X ->
+      X \ (A ∪ B) = (X \ A) ∩ (X \ B).
+  Proof.
+    move => A B X [HAX HBX].
+    apply Extensionality_Ensembles.
+    split => x H.
+    inversion H.
+    have L1: (~ x ∈ A) /\ (~ x ∈ B).
+    split; move => H2;apply H1;[left|right];done.
+    inversion L1.
+    split;split;done.
+    inversion H.
+    inversion H0.
+    inversion H1.
+    split.
+    apply H3.
+    move => HF.
+    inversion HF.
+    apply H4.
+    apply H7.
+    apply H6.
+    done.
   Qed.
 
 End Class_Set_Theories.
