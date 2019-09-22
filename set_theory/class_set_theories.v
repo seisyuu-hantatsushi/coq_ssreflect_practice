@@ -104,12 +104,41 @@ Section Class_Set_Theories.
     done.
   Qed.
 
+  Lemma de_morgen_or_and_in_set:
+    forall (A B:Ensemble U),
+      (A ∪ B) ^c = A ^c ∩ B ^c.
+  Proof.
+    move => A B.
+    apply Extensionality_Ensembles.
+    split => x H.
+    have L1: (~ x ∈ A) /\ (~ x ∈ B).
+    split; move => H'; apply H;[left|right];done.
+    inversion L1.
+    split; done.
+    inversion H.
+    move => HF.
+    inversion HF; [apply H0|apply H1]; done.
+  Qed.
+
+  Lemma de_morgen_and_or_in_set:
+    forall (A B:Ensemble U),
+      (A ∩ B) ^c = A ^c ∪ B ^c.
+  Proof.
+    move => A B.
+    have L1: ((A ^c ∪ B ^c) ^c) ^c = (A ^c ∪ B ^c).
+    apply Complement_Complement.
+    rewrite -L1.
+    rewrite de_morgen_or_and_in_set.
+    rewrite Complement_Complement.
+    rewrite Complement_Complement.
+    reflexivity.
+  Qed.
+
   Lemma de_morgen_or_and_in_setminus:
     forall (A B X:Ensemble U),
-      A ⊂ X /\ B ⊂ X ->
       X \ (A ∪ B) = (X \ A) ∩ (X \ B).
   Proof.
-    move => A B X [HAX HBX].
+    move => A B X.
     apply Extensionality_Ensembles.
     split => x H.
     inversion H.
