@@ -4,6 +4,8 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
+Require Import logic_theories.
+Require Import logic_pred_theories.
 Require Import family_of_sets.
 
 Section FamilyOfSetsTheories.
@@ -105,42 +107,61 @@ Section FamilyOfSetsTheories.
   Theorem distr_intersection_of_family_of_sets:
     forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
            (Xn:U -> Ensemble U),
-      MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm)
-      -> (forall (i x:U), i∈I /\ x∈Y) /\ (forall (x:U), x ∈ ⋂ [ fun (i:U) => i ∈ I ] Xn)
+      MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm) /\ (forall (i x:U), i ∈ I /\ x ∈ Y)
       -> ⋂ [ fun (i:U) => i ∈ I ] Xn ∪ Y = ⋂ [ fun (i:U) => i ∈ I ] (fun i:U => (Xn i) ∪ Y).
-    Proof.
-      move => Xm Xn [[Hf HfS] [HXn [HY HIXn]]].
-      apply /Extensionality_Ensembles.
-      +split => x H.
-       split => i.
-       inversion H.
-       inversion H0.
-       move: (H2 i).
-       case => Hi HXni.
-       split.
-       done.
-       left.
-       done.
-       inversion H.
-       inversion H2.
-       move: (H4 i) => H4i.
-       inversion H4i.
-       split.
-       done.
-       left.
-       done.
-       move: (HY i x) => HYix.
-       inversion HYix.
-       split.
-       done.
-       right.
-       done.
-      +inversion H.
-       left.
-       split => i.
-       move: (H0 i) => H0i.
-       move: (HIXn x) => HIXnx.
-       inversion HIXnx.
-       done.
-    Qed.
+  Proof.
+    move => Xm Xn [[Hf HfS] [HXn HixY]].
+    apply /Extensionality_Ensembles.
+    +split => x.
+     move => H.
+     inversion H.
+     (* x x ∈ ⋂ [fun i : U => i ∈ I] Xn -> x ∈ ⋂ [fun i : U => i ∈ I] (fun i : U => Xn i ∪ Y) *)
+     inversion H0.
+     split => i.
+     move: (H2 i) => [Hi HXi].
+     split.
+     apply Hi.
+     left.
+     done.
+     (* x x ∈ Y -> x ∈ ⋂ [fun i : U => i ∈ I] (fun i : U => Xn i ∪ Y) *)
+     split => i.
+     move: (HixY i x) => [Hi HY].
+     split.
+     apply Hi.
+     right.
+     done.
+    +move => H.
+     have L1: (forall i:U, i ∈ I) /\ (forall x:U, x ∈ Y).
+     apply forall_bound_variable_and_out_2.
+     done.
+     inversion L1.
+     inversion H.
+     have L2: (forall i:U, i ∈ I) /\ (forall (i:U), x ∈ (Xn i ∪ Y)).
+     apply forall_bound_variable_and_dist_iff.
+     done.
+     inversion L2.
+     have L3: forall (i:U), x ∈ (Xn i) \/ x ∈ Y.
+     move => i.
+     move: (H5 i).
+     case => x1 H6; [left|right]; done.
+     have L4: (forall (i:U), x ∈ (Xn i)) \/ x ∈ Y.
+     apply or_comm.
+     apply forall_bound_variable_or_out.
+     move => i.
+     apply or_comm.
+     done.
+     move: L4.
+     case => H'.
+     (* (forall i : U, x ∈ Xn i) -> x ∈ (⋂ [fun i : U => i ∈ I] Xn ∪ Y) *)
+     left.
+     split.
+     apply forall_bound_variable_and_dist_iff.
+     split.
+     apply H4.
+     done.
+     (* (x ∈ Y) -> x ∈ (⋂ [fun i : U => i ∈ I] Xn ∪ Y) *)
+     right.
+     apply H'.
+  Qed.
+
 End FamilyOfSetsTheories.
