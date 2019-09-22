@@ -10,7 +10,6 @@ Require Import Coq.Logic.Decidable. (* Introducing decidable *)
 Section Logic_Theories.
   Lemma or_dist_and: forall (A B C:Prop), A \/ (B /\ C) <-> (A \/ B) /\ (A \/ C).
   Proof.
-    move => A B.
     rewrite /iff.
     split.
     case.
@@ -37,6 +36,29 @@ Section Logic_Theories.
     split.
     apply H.
     apply H0.
+  Qed.
+
+  Lemma and_dist_or: forall (A B C:Prop), A /\ (B \/ C) <-> (A /\ B) \/ (A /\ C).
+  Proof.
+    rewrite /iff.
+    split.
+    case => HA.
+    case => HB.
+    left.
+    split; done.
+    right.
+    split; done.
+    case.
+    case => HA HB.
+    split.
+    done.
+    left.
+    done.
+    case => HA HC.
+    split.
+    done.
+    right.
+    done.
   Qed.
 
   Lemma or_imply_to_imply_and:
