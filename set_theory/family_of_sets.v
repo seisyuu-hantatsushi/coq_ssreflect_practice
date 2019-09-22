@@ -354,6 +354,24 @@ Section FamilyOfSets.
     done.
   Qed.
 
+  Proposition superset_included_indexed_subset:
+    forall (i:U)
+           (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))),
+      i ∈ I /\ MappingFamilyOfSubsets Xn IndexedFunction I X -> IndexedSet Xn i ⊂ X.
+  Proof.
+    move => i Xn [Hi [Hf HfS]] x H.
+    inversion H.
+    inversion H0.
+    rewrite Hf in H2.
+    inversion H2 as [i' Xi' []].
+    rewrite H6 in H5.
+    apply ordered_pair_in_direct_product_iff_and in H5.
+    inversion H5.
+    inversion H8.
+    apply H9.
+    done.
+  Qed.
+  
 End FamilyOfSets.
 
 Require Export function.
