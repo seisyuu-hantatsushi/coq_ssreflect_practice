@@ -104,7 +104,7 @@ Section Class_Set_Theories.
     done.
   Qed.
 
-  Lemma de_morgen_or_and_in_set:
+  Lemma de_morgen_union_intersection_in_set:
     forall (A B:Ensemble U),
       (A ∪ B) ^c = A ^c ∩ B ^c.
   Proof.
@@ -120,7 +120,7 @@ Section Class_Set_Theories.
     inversion HF; [apply H0|apply H1]; done.
   Qed.
 
-  Lemma de_morgen_and_or_in_set:
+  Lemma de_morgen_intersection_union_in_set:
     forall (A B:Ensemble U),
       (A ∩ B) ^c = A ^c ∪ B ^c.
   Proof.
@@ -128,13 +128,13 @@ Section Class_Set_Theories.
     have L1: ((A ^c ∪ B ^c) ^c) ^c = (A ^c ∪ B ^c).
     apply Complement_Complement.
     rewrite -L1.
-    rewrite de_morgen_or_and_in_set.
+    rewrite de_morgen_union_intersection_in_set.
     rewrite Complement_Complement.
     rewrite Complement_Complement.
     reflexivity.
   Qed.
 
-  Lemma de_morgen_or_and_in_setminus:
+  Lemma de_morgen_union_intersection_in_setminus:
     forall (A B X:Ensemble U),
       X \ (A ∪ B) = (X \ A) ∩ (X \ B).
   Proof.
@@ -157,6 +157,24 @@ Section Class_Set_Theories.
     apply H7.
     apply H6.
     done.
+  Qed.
+
+  Lemma de_morgen_and_intersection_union_setminus:
+    forall (A B X:Ensemble U),
+      A ⊂ X /\ B ⊂ X -> X \ (A ∩ B) = (X \ A) ∪ (X \ B).
+  Proof.
+    move => A B X [HA HB].
+    have L1: ((X \ A) ∪ (X \ B)) ⊂ X.
+    move => x.
+    case => x';case => H HF;done.
+    have L2: X \ (X \ ((X \ A) ∪ (X \ B))) = (X \ A) ∪ (X \ B).
+    rewrite (double_setminus L1).
+    reflexivity.
+    rewrite -L2.
+    rewrite de_morgen_union_intersection_in_setminus.
+    rewrite (double_setminus HA).
+    rewrite (double_setminus HB).
+    reflexivity.
   Qed.
 
 End Class_Set_Theories.

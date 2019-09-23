@@ -93,14 +93,14 @@ Section FamilyOfSets.
   Variable IndexedFunction : U -> Ensemble U.
 
   Theorem union_of_family_of_sets:
-    forall (Xn:Ensemble (Ensemble (Ensemble (Ensemble U))))
+    forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
            (XX:Ensemble (Ensemble U))
-           (Xu:U -> Ensemble U)
+           (Xn:U -> Ensemble U)
            (I0 I1: Ensemble U),
-      MappingFamilyOfSets Xn IndexedFunction I XX /\ Xu = (IndexedSet Xn) /\ I = I0 ∪ I1 ->
-      ⋃ [ fun (i:U) => i ∈ I ] Xu = ⋃ [fun (i:U) => i ∈ I0] Xu ∪ ⋃ [ fun (i:U) => i ∈ I1] Xu.
+      MappingFamilyOfSets Xm IndexedFunction I XX /\ Xn = (IndexedSet Xm) /\ I = I0 ∪ I1 ->
+      ⋃ [ fun (i:U) => i ∈ I ] Xn = ⋃ [fun (i:U) => i ∈ I0] Xn ∪ ⋃ [ fun (i:U) => i ∈ I1] Xn.
   Proof.
-    move => Xn XX Xu I0 I1 [[Hf HfS] [HX H]].
+    move => Xm XX Xn I0 I1 [[Hf HfS] [HX H]].
     rewrite HX.
     apply /Extensionality_Ensembles.
     split => x H'.
@@ -371,7 +371,7 @@ Section FamilyOfSets.
     apply H9.
     done.
   Qed.
-  
+
 End FamilyOfSets.
 
 Require Export function.

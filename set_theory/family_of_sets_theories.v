@@ -112,8 +112,7 @@ Section FamilyOfSetsTheories.
   Proof.
     move => Xm Xn [[Hf HfS] [HXn HixY]].
     apply /Extensionality_Ensembles.
-    +split => x.
-     move => H.
+    +split => x H.
      inversion H.
      (* x x ∈ ⋂ [fun i : U => i ∈ I] Xn -> x ∈ ⋂ [fun i : U => i ∈ I] (fun i : U => Xn i ∪ Y) *)
      inversion H0.
@@ -130,8 +129,7 @@ Section FamilyOfSetsTheories.
      apply Hi.
      right.
      done.
-    +move => H.
-     have L1: (forall i:U, i ∈ I) /\ (forall x:U, x ∈ Y).
+    +have L1: (forall i:U, i ∈ I) /\ (forall x:U, x ∈ Y).
      apply forall_bound_variable_and_out_2.
      done.
      inversion L1.
@@ -164,4 +162,36 @@ Section FamilyOfSetsTheories.
      apply H'.
   Qed.
 
+  (*
+  Goal forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
+              (Xn:U -> Ensemble U)
+              (i:U),
+      i ∈ I /\ MappingFamilyOfSubsets Xm IndexedFunction I X /\ Xn = (IndexedSet Xm) ->
+      X \ ⋃ [ fun (i:U) => i ∈ I ] Xn = ⋂ [ fun (i:U) => i ∈ I ] (fun (i:U) => X \ Xn i).
+  Proof.
+    move => Xm Xn i [HiI [[Hf HfS] HXn]].
+    apply /Extensionality_Ensembles.
+    split => x H.
+    inversion H.
+    
+    split => i'.
+    move: H1.
+    case.
+    split.
+    exists i.
+    split.
+    apply HiI.
+    have L1: exists Xi : Ensemble U, ((|{|i|}, Xi|)) ∈ Xm.
+    apply HfS.
+    done.
+    inversion L1 as [Xi].
+
+    rewrite Hf in H1.
+    inversion H1.
+    rewrite H2 in H3.
+    inversion H3.
+    apply ordered_pair_in_direct_product_iff_and in H5.
+    inversion H5.
+    inversion H7.
+   *)
 End FamilyOfSetsTheories.
