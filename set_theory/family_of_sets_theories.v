@@ -162,36 +162,71 @@ Section FamilyOfSetsTheories.
      apply H'.
   Qed.
 
-  (*
-  Goal forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
-              (Xn:U -> Ensemble U)
-              (i:U),
-      i ∈ I /\ MappingFamilyOfSubsets Xm IndexedFunction I X /\ Xn = (IndexedSet Xm) ->
-      X \ ⋃ [ fun (i:U) => i ∈ I ] Xn = ⋂ [ fun (i:U) => i ∈ I ] (fun (i:U) => X \ Xn i).
+  Theorem de_morgan_in_union_intersecion_of_family_set_at_complement:
+    forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (Xn:U -> Ensemble U),
+      (forall (i:U), i ∈ I) /\ MappingFamilyOfSubsets Xm IndexedFunction I X /\ Xn = (IndexedSet Xm) ->
+      (⋃ [ fun (i:U) => i ∈ I ] Xn) ^c = ⋂ [ fun (i:U) => i ∈ I ] (fun (i:U) => (Xn i) ^c).
   Proof.
-    move => Xm Xn i [HiI [[Hf HfS] HXn]].
+    move => Xm Xn [HiI [[Hf HfS] HXn]].
     apply /Extensionality_Ensembles.
     split => x H.
-    inversion H.
-    
-    split => i'.
-    move: H1.
-    case.
+    split => i.
+    split.
+    apply HiI.
+    move => HF.
+    apply H.
     split.
     exists i.
     split.
     apply HiI.
-    have L1: exists Xi : Ensemble U, ((|{|i|}, Xi|)) ∈ Xm.
-    apply HfS.
     done.
-    inversion L1 as [Xi].
+    move => H'.
+    inversion H.
+    inversion H'.
+    inversion H2 as [i].
+    inversion H4.
+    move: (H0 i) => [H0iI HxXni].
+    apply HxXni.
+    done.
+  Qed.
 
-    rewrite Hf in H1.
-    inversion H1.
-    rewrite H2 in H3.
-    inversion H3.
-    apply ordered_pair_in_direct_product_iff_and in H5.
-    inversion H5.
-    inversion H7.
-   *)
+  Theorem de_morgan_in_union_intersecion_of_family_set_at_setminus:
+    forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (Xn:U -> Ensemble U)
+           (i:U),
+      (forall (i:U), i ∈ I) /\ MappingFamilyOfSubsets Xm IndexedFunction I X /\ Xn = (IndexedSet Xm) ->
+      X \ ⋃ [ fun (i:U) => i ∈ I ] Xn = ⋂ [ fun (i:U) => i ∈ I ] (fun (i:U) => X \ Xn i).
+  Proof.
+    move => Xm Xn i [HiI [Hf HXn]].
+    apply /Extensionality_Ensembles.
+    split => x H.
+    inversion H.
+    split => i'.
+    split.
+    apply HiI.
+    split.
+    apply H0.
+    move => H'.
+    apply H1.
+    split.
+    exists i'.
+    split.
+    apply HiI.
+    done.
+    inversion H.
+    split.
+    move: (H0 i) => [HiI' Hx].
+    inversion Hx.
+    apply H2.
+    move => H'.
+    inversion H'.
+    inversion H2 as [i'].
+    move: (H0 i') => [HiI' Hx].
+    inversion Hx.
+    apply H6.
+    inversion H4.
+    done.
+  Qed.
+
 End FamilyOfSetsTheories.
