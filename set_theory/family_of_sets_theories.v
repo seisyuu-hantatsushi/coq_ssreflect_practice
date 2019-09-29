@@ -114,7 +114,7 @@ Section FamilyOfSetsTheories.
     apply /Extensionality_Ensembles.
     +split => x H.
      inversion H.
-     (* x x ∈ ⋂ [fun i : U => i ∈ I] Xn -> x ∈ ⋂ [fun i : U => i ∈ I] (fun i : U => Xn i ∪ Y) *)
+     (* x ∈ ⋂ [fun i : U => i ∈ I] Xn -> x ∈ ⋂ [fun i : U => i ∈ I] (fun i : U => Xn i ∪ Y) *)
      inversion H0.
      split => i.
      move: (H2 i) => [Hi HXi].
@@ -122,7 +122,7 @@ Section FamilyOfSetsTheories.
      apply Hi.
      left.
      done.
-     (* x x ∈ Y -> x ∈ ⋂ [fun i : U => i ∈ I] (fun i : U => Xn i ∪ Y) *)
+     (* x ∈ Y -> x ∈ ⋂ [fun i : U => i ∈ I] (fun i : U => Xn i ∪ Y) *)
      split => i.
      move: (HixY i x) => [Hi HY].
      split.
@@ -166,7 +166,7 @@ Section FamilyOfSetsTheories.
     forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
            (Xn:U -> Ensemble U),
       (forall (i:U), i ∈ I) /\ MappingFamilyOfSubsets Xm IndexedFunction I X /\ Xn = (IndexedSet Xm) ->
-      (⋃ [ fun (i:U) => i ∈ I ] Xn) ^c = ⋂ [ fun (i:U) => i ∈ I ] (fun (i:U) => (Xn i) ^c).
+      (⋃ [ fun (i:U) => i ∈ I ] (fun (i:U) => Xn i)) ^c = ⋂ [ fun (i:U) => i ∈ I ] (fun (i:U) => (Xn i) ^c).
   Proof.
     move => Xm Xn [HiI [[Hf HfS] HXn]].
     apply /Extensionality_Ensembles.
@@ -189,6 +189,52 @@ Section FamilyOfSetsTheories.
     move: (H0 i) => [H0iI HxXni].
     apply HxXni.
     done.
+  Qed.
+
+  Theorem de_morgan_in_union_intersecion_of_family_set_at_complement_2:
+    forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (Xn:U -> Ensemble U),
+      (forall (i:U), i ∈ I) /\ MappingFamilyOfSubsets Xm IndexedFunction I X /\ Xn = (IndexedSet Xm) ->
+      (⋃ [ fun (i:U) => i ∈ I ] (fun (i:U) => (Xn i)^c)) ^c = ⋂ [ fun (i:U) => i ∈ I ] (fun (i:U) => (Xn i)).
+  Proof.
+    move => Xm Xn [HiI [[Hf HfS] HXn]].
+    apply /Extensionality_Ensembles.
+    split => x H.
+    split => i.
+    split.
+    apply HiI.
+    rewrite -(Complement_Complement U (Xn i)).
+    move => HF.
+    apply H.
+    split.
+    exists i.
+    split.
+    apply HiI.
+    done.
+    move => H'.
+    inversion H'.
+    inversion H0 as [i].
+    inversion H2.
+    apply H4.
+    inversion H.
+    move: (H5 i) => H5'.
+    inversion H5'.
+    done.
+  Qed.
+
+  Theorem de_morgan_in_intersecion_union_of_family_set_at_complement:
+    forall (Xm:Ensemble (Ensemble (Ensemble (Ensemble U))))
+           (Xn:U -> Ensemble U),
+      (forall (i:U), i ∈ I) /\ MappingFamilyOfSubsets Xm IndexedFunction I X /\ Xn = (IndexedSet Xm) ->
+      (⋂ [ fun (i:U) => i ∈ I ] (fun (i:U) => Xn i)) ^c = ⋃ [ fun (i:U) => i ∈ I ] (fun (i:U) => (Xn i) ^c).
+  Proof.
+    move => Xm Xn H.
+    move: (de_morgan_in_union_intersecion_of_family_set_at_complement_2 H) => L0.
+    have L1: ((⋃ [ fun (i:U) => i ∈ I ] (fun (i:U) => (Xn i) ^c)) ^c) ^c = ⋃ [ fun (i:U) => i ∈ I ] (fun (i:U) => (Xn i) ^c).
+    apply Complement_Complement.
+    rewrite -L1.
+    rewrite L0.
+    reflexivity.
   Qed.
 
   Theorem de_morgan_in_union_intersecion_of_family_set_at_setminus:

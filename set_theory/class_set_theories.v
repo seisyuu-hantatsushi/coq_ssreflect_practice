@@ -104,6 +104,24 @@ Section Class_Set_Theories.
     done.
   Qed.
 
+  Proposition complement_set_is_eq:
+    forall (A B:Ensemble U), A ^c = B ^c <-> A = B.
+  Proof.
+    move => A B.
+    rewrite /iff.
+    split => H.
+    apply Extension in H.
+    inversion H.
+    apply include_contrapositive in H0.
+    apply include_contrapositive in H1.
+    apply /Extensionality_Ensembles.
+    split.
+    apply H1.
+    apply H0.
+    rewrite H.
+    reflexivity.
+  Qed.
+
   Lemma de_morgen_union_intersection_in_set:
     forall (A B:Ensemble U),
       (A ∪ B) ^c = A ^c ∩ B ^c.
