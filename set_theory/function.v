@@ -34,6 +34,9 @@ Definition IdentityMapping {U:Type} (f: Ensemble (Ensemble (Ensemble U))) (A: En
 
 Notation "f ≔ F ⊦ A ⟼ B" := (MappingWithFunction f F A B) (at level 43).
 
+Inductive SetOfAllFunction {U:Type} (A B:Ensemble U) : Ensemble (Ensemble (Ensemble (Ensemble U))) :=
+| Definition_of_SetOfAllFunction: forall (f:Ensemble (Ensemble (Ensemble U))), Mapping f A B -> f ∈ SetOfAllFunction A B.
+
 Section FunctionDefinition.
 
   Variable U:Type.
