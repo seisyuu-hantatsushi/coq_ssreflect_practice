@@ -30,18 +30,25 @@ Inductive IndexedSet {U:Type} (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))) (
 | Definition_of_IndexedSet: forall (x:U) (Xi:Ensemble U), (|{|i|}, Xi|) ∈ Xn /\ x ∈ Xi -> x ∈ IndexedSet Xn i.
 
 Inductive FamilyOfSets {U:Type} (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))) : Ensemble (Ensemble U) :=
-| Definition_of_FamilySets: forall (Xi:Ensemble U), (exists i:U, (|{|i|}, Xi|) ∈ Xn) -> Xi ∈  FamilyOfSets Xn.
+| Definition_of_FamilySets: forall (Xi:Ensemble U), (exists i:U, (|{|i|}, Xi|) ∈ Xn) -> Xi ∈ FamilyOfSets Xn.
 
 Inductive UnionOfIndexedSets {U:Type} (P:U -> Prop) (X:U -> Ensemble U) : Ensemble U :=
 | Definition_of_UnionOfIndexedSets: forall(x:U), (exists i:U, P i /\ x ∈ (X i)) -> x ∈ UnionOfIndexedSets P X.
 
 Inductive IntersectionOfIndexedSets {U:Type} (P:U -> Prop) (X:U -> Ensemble U) : Ensemble U :=
-| Definition_of_IntersectionOfIndexedSets:  forall(x:U), (forall i:U, P i /\ x ∈ (X i)) -> x ∈ IntersectionOfIndexedSets P X.
+| Definition_of_IntersectionOfIndexedSets: forall(x:U), (forall i:U, P i /\ x ∈ (X i)) -> x ∈ IntersectionOfIndexedSets P X.
+
+Inductive DirectSumOfIndexedSet {U:Type} (I X:Ensemble U) (Xn:U -> Ensemble U) : Ensemble (Ensemble (Ensemble U)) :=
+| Definition_of_DirectSumOfIndexedSet: forall (x i:U), x ∈ Xn i /\ (|x,i|) ∈ X × I -> (|x,i|) ∈ DirectSumOfIndexedSet I X Xn.
 
 (* ⋃ : Unicode 22C3 (N-ARY UNION) *)
 Notation "⋃ [ P ] X " := (UnionOfIndexedSets P X) (at level 45).
 (* ⋂ : Unicode 22C2 (N-ARY INTERSECTION) *)
 Notation "⋂ [ P ] X " := (IntersectionOfIndexedSets P X) (at level 45).
+(* ⊓ : Unicode 2293 (SQUARE CAP) *)
+Notation "⊓ ( I , X , Xn )" := (DirectSumOfIndexedSet I X Xn) (at level 45).
+
+(* ⊔ : Unicode 2294 (SQUARE CUP) *)
 
 Section FamilyOfSets.
   Variable U:Type.
@@ -369,6 +376,32 @@ Section FamilyOfSets.
     inversion H5.
     inversion H8.
     apply H9.
+    done.
+  Qed.
+
+  Proposition directsum_is_eq_to_produect:
+    forall (Xn:Ensemble (Ensemble (Ensemble (Ensemble U)))),
+    MappingFamilyOfSubsets Xn IndexedFunction I X /\ (forall(i:U), i ∈ I -> IndexedSet Xn i = X) ->
+    ⊓ (I, X, (IndexedSet Xn)) = X × I.
+  Proof.
+    move => Xn [[Hf HfS] H].
+    apply /Extensionality_Ensembles.
+    split => Z H'.
+    inversion H'.
+    inversion H0.
+    done.
+    inversion H'.
+    inversion H0 as [x [i0]].
+    inversion H2 as [H3 []].
+    rewrite H5.
+    split.
+    split.
+    have L1: IndexedSet Xn i0 = X.
+    apply H.
+    done.
+    rewrite L1.
+    done.
+    rewrite H5  in H'.
     done.
   Qed.
 
